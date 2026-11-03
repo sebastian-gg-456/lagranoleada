@@ -29,9 +29,9 @@ try {
  assert.deepEqual(await page.evaluate(()=>[...new Set(window.__emboscada.scene.getScene('Game').platformGroup.getChildren().map(p=>p.body.height))]),[16],'hitbox de plataforma');
  assert.deepEqual(await page.evaluate(()=>window.__emboscada.scene.getScene('Game').platformGroup.getChildren().map(p=>p.body.y)),[510,390,510,390,300],'superficie de plataforma');
  assert.deepEqual(await page.evaluate(()=>{const s=window.__emboscada.scene.getScene('Game');return {portrait:s.textures.exists(`${s.id}:portrait`),red:s.hpFill.fillColor===0xd94b4b,right:s.scoreHud.x===1252};}),{portrait:true,red:true,right:true},'hud con retrato, barra roja y puntos a la derecha');
- await page.evaluate(()=>{const s=window.__emboscada.scene.getScene('Game');s.time.removeAllEvents();for(const e of s.enemies){e.dead=true;e.sprite.destroy();}s.enemies=[];s.hero.setPosition(170,510);s.hero.body.setVelocity(0,0);s.spawnEnemy(false,0);const e=s.enemies.at(-1);e.sprite.setPosition(250,s.ground);e.speed=0;e.next=Infinity;e.jumpAt=0;});
+ await page.evaluate(()=>{const s=window.__emboscada.scene.getScene('Game');s.time.removeAllEvents();for(const e of s.enemies){e.dead=true;e.sprite.destroy();}s.enemies=[];s.wave=1;s.spawnEnemy(false,0);const e=s.enemies.at(-1);s.hero.body.reset(170,510);s.hero.body.setVelocity(0,0);e.sprite.body.reset(250,s.ground);e.speed=0;e.next=Infinity;e.jumpAt=0;});
  await page.waitForTimeout(900);
- assert.ok(await page.evaluate(()=>{const s=window.__emboscada.scene.getScene('Game');return Math.abs(s.enemies.at(-1).sprite.y-510)<25;}),'enemigo salta a plataforma');
+ assert.ok(await page.evaluate(()=>{const s=window.__emboscada.scene.getScene('Game'),e=s.enemies.at(-1);return e.id==='Skeleton'&&e.jumpAt===0&&e.state==='patrol'&&Math.abs(e.sprite.y-s.ground)<25;}),'esqueleto patrulla el piso sin perseguir arriba');
  const initial=await page.evaluate(()=>window.__emboscada.scene.getScene('Game').hero.x);
  await page.waitForTimeout(150);await page.keyboard.down('d');await page.waitForTimeout(450);await page.keyboard.up('d');
  assert.ok(await page.evaluate(()=>window.__emboscada.scene.getScene('Game').hero.x)>initial+40,'movimiento');
@@ -160,7 +160,7 @@ try {
  assert.equal(await page.evaluate(()=>window.__emboscada.scene.getScene('Menu').selected),1,'mando navega');
  await page.evaluate(()=>{window.__pad.buttons[0]={pressed:true,value:1};});await page.waitForTimeout(150);
  await page.evaluate(()=>{window.__pad.buttons[0]={pressed:false,value:0};});await page.waitForTimeout(150);
- assert.equal(await page.evaluate(()=>window.__emboscada.scene.getScene('Menu').page),'options','mando confirma');
+ assert.equal(await page.evaluate(()=>window.__emboscada.scene.getScene('Menu').page),'field','mando abre Campo libre');
  assert.deepEqual(errors,[]);
- console.log('OK: carga, menús, previews completos, plataformas, salto enemigo a plataformas, movimiento, salto, ataque básico, secundario, aéreo y especial, defensa, combate de los cuatro personajes, cinco mapas, pausa con opciones, derrota, récord, reinicio, jefe, avance de oleada y mando simulado.');
+ console.log('OK: carga, menús, previews completos, plataformas, patrulla del esqueleto en el piso, movimiento, salto, ataques, defensa, combate de los cuatro personajes, cinco mapas, pausa con opciones, derrota, récord, reinicio, jefe, avance de oleada y mando simulado.');
 } finally {await browser?.close();server.kill();}

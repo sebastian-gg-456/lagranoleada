@@ -19,7 +19,7 @@ Abrí la dirección que muestra Vite (normalmente http://localhost:5173). No abr
 
 ## Contenido
 
-- Menú principal, selección de cinco mapas, selección de cuatro personajes, opciones, ayuda y créditos.
+- Menú principal, selección de cinco mapas, selección de cuatro personajes, Campo libre, opciones, ayuda y créditos.
 - Leaf Ranger con arco, Crystal Mauler con golpe pesado, Ground Monk con ataques rápidos y Water Priestess con magia.
 - Movimiento, salto, defensa, rodar con invulnerabilidad breve, daño, muerte y recuperación de vida.
 - Plataformas de caverna elevadas en los cinco mapas, enemigos que saltan y ataque secundario con K o el botón Y del mando.
@@ -43,6 +43,10 @@ Abrí la dirección que muestra Vite (normalmente http://localhost:5173). No abr
 | Rodar | Shift | LB |
 | Pausa | Esc | Start |
 | Probar siguiente jefe | 5 | — |
+| Hablar con el muñeco (Campo libre) | Enter | A |
+| Cambiar algoritmo (Laboratorio IA) | Q | — |
+| Cambiar ruta (Laboratorio IA) | E | — |
+| Generar escenario (Laboratorio IA) | R | — |
 | Navegar menús | Arriba/abajo | D-pad / stick |
 | Confirmar | Enter / Espacio | A |
 | Volver | Esc | B |
@@ -81,9 +85,27 @@ Los GIF `*_sample` del elfo son ejemplos compuestos: el juego combina los PNG de
 - **Flying Eye:** patrulla el aire sin seguir los saltos del jugador. Espera 4,5–6,5 segundos antes de su primer ataque y 6,5–8 segundos después de cada animación antes de atacar nuevamente. Dispara proyectiles dirigidos con `Attack3`; alterna con una embestida usando `Attack2` (sin explosión). Si está libre, terminó su espera y está muy cerca, muerde con `Attack`. Al morir cae por gravedad, reproduce los dos primeros fotogramas y sostiene el segundo hasta tocar suelo o plataforma; entonces reproduce el resto.
 - **Mushroom:** alterna `Attack` y `Attack2`, ambos cuerpo a cuerpo y con 10 de daño.
 - **Skeleton:** golpe normal de 10 y ataque largo de 18, con solo 25 px más de alcance y 1,05 s de recuperación vulnerable. Levanta el escudo durante 0,85 s ante ataques cercanos o de forma ocasional, con 4,2 s entre defensas. Bloquea daño e impactos envenenados nuevos; no elimina veneno ya aplicado.
-- Los enemigos terrestres saltan para alcanzar al jugador **apoyado en una plataforma elevada**, no para imitar su salto.
+- **Percepción y decisiones:** el esqueleto patrulla horizontalmente por el suelo y solo combate cuando detecta al jugador cerca, en su mismo nivel; no lo persigue arriba. El hongo usa la posición y superficie actuales del jugador para calcular una ruta, conserva el último objetivo de superficie mientras el jugador está en el aire y salta entre plataformas. El Ojo Volador patrulla arriba cuando el jugador está en el suelo y entra en persecución/ataque cuando lo detecta apoyado en una plataforma. Los estados de NPC se muestran en el Laboratorio de IA.
 
 El tutorial muestra una tabla ampliada de acciones y botones, con iconos originales de Xbox y equivalentes de PlayStation (L1 para rodar, R1 para defender). Se retiró el bloque inferior de descripciones para ampliar textos e imágenes; las habilidades se detallan aquí y en la selección de personaje.
+
+## Campo libre y laboratorio de IA
+
+Desde el menú inicial, elegí **Campo libre** y luego una de sus modalidades:
+
+- **Práctica de personaje:** seleccioná uno de los cuatro personajes. La escena no tiene plataformas ni oleadas; podés caminar, saltar y probar ataques contra un muñeco indestructible. Pulsá **A** en el mando o **Enter** para que explique las habilidades del personaje. El muñeco cuenta golpes y muestra el último daño.
+- **Laboratorio de IA:** también permite elegir personaje. Muestra hongos que siguen rutas, un esqueleto que patrulla el piso y un Ojo Volador que solo fija como objetivo al jugador sobre una plataforma. Los trazos muestran las rutas de los hongos y las plataformas rojas señalan superficies expuestas. Cambiá los métodos mientras el juego corre con los botones en pantalla o Q/E; **R** genera otra variante de plataformas y riesgos.
+
+### Búsqueda y navegación
+
+- **BFS (búsqueda en anchura):** encuentra una ruta con la menor cantidad de transiciones/saltos. Trata las conexiones como si tuvieran el mismo costo; por eso no garantiza la ruta de menor distancia física.
+- **A\*:** usa distancia geométrica como heurística y busca reducir la distancia del recorrido. La calidad depende de la heurística y de las conexiones representadas en el grafo.
+- **Ruta corta:** usa BFS por cantidad de transiciones o A\* por distancia.
+- **Ruta segura:** BFS evita plataformas marcadas como expuestas y busca otra ruta; A\* agrega un costo alto por aterrizar en esas plataformas. Si no hay alternativa, BFS permite una ruta con riesgo antes que no encontrar camino.
+
+Cada variante se genera con una semilla reproducible y cambia posiciones/alturas de plataformas, además de zonas expuestas. El laboratorio reconstruye el grafo y recalcula los recorridos; no es solo un cambio visual.
+
+Los comportamientos se implementan como FSM con estados visibles como `patrol`, `pursue`, `chase`, `jump`, `attack`, `defend`, `recover`, `hurt`, `frozen` y `dead`; las transiciones dependen de la superficie del jugador, distancia, temporizadores y estados de daño/defensa. La especificación previa a la implementación está en [spec/campo-libre-ia.md](./spec/campo-libre-ia.md).
 
 ## Organización
 
@@ -102,6 +124,8 @@ src/combat.js   Acciones, fotogramas, proyectiles y efectos del jugador
 src/enemies.js  IA, escudo, ataques y proyectiles enemigos
 src/gamepad.js  Asignación estándar y calibraciones por mando
 src/rules.js    Reglas de oleadas y guardado
+src/navigation.js Grafos de plataformas, BFS, A* y escenarios procedurales
+spec/           Especificaciones breves y criterios de aceptación
 ```
 
 Los packs se conservan en el proyecto; el manifiesto selecciona las animaciones utilizadas. Los fondos cristal usan la imagen compuesta de cada set; Parallax Cave utiliza sus nueve capas. La cámara es fija. Minotaur usa desvanecimiento al morir porque su pack gratuito no trae esa animación.
@@ -118,6 +142,7 @@ node scripts/smoke.mjs
 node scripts/combat-smoke.mjs
 node scripts/revision-smoke.mjs
 node scripts/boss-smoke.mjs
+npm run ai-smoke
 ```
 
 `npm run build` genera `dist/`, listo para publicar en un alojamiento estático. `npm run preview` permite revisar esa versión localmente. La prueba de navegador verifica carga, menús, previews completos, plataformas, salto enemigo a plataformas, movimiento, salto, ataque básico, secundario, aéreo y especial, defensa, pausa con opciones, derrota, guardado, reinicio y jefe. El récord y las opciones son locales a cada navegador/origen.
@@ -129,3 +154,5 @@ node scripts/boss-smoke.mjs
 También ejecuta `verify-controls.mjs`: pulsa botones mediante Gamepad API para comprobar combos completos, Y sin rodada, habilidades B, LB, calibración de un mando no estándar conservada tras recargar, acceso a los tres jefes con 5 y tiempos nuevos del ojo.
 
 `boss-smoke.mjs` revisa que el tutorial no muestre la calibración, que Morgath mire en la dirección en la que camina, que su golpe alcance a 120 px pero no a 210 px y que los pies y el cuerpo del Minotauro queden apoyados en el suelo (origen 0,9). Genera capturas en `test-results/`.
+
+`npm run ai-smoke` recorre Campo libre, verifica la escena de práctica y el diálogo activado por A, y cambia los métodos/rutas y la variante del Laboratorio de IA.

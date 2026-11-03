@@ -66,7 +66,8 @@ export async function verifyRevision(page){
  await page.waitForTimeout(800);
  await page.evaluate(()=>{const s=window.__emboscada.scene.getScene('Game');s.hero.body.reset(170,510);const e=s.enemies[0];e.sprite.body.reset(250,s.ground);e.jumpAt=0;});
  await page.waitForTimeout(250);
- assert.ok(await page.evaluate(()=>{const s=window.__emboscada.scene.getScene('Game');return s.enemies[0].jumpAt>s.time.now;}),'enemigo persigue hacia plataforma ocupada');
+ const routeState=await page.evaluate(()=>{const s=window.__emboscada.scene.getScene('Game'),e=s.enemies[0];return {jumpAt:e.jumpAt,time:s.time.now,route:e.route,routeStart:e.routeStart,routeTarget:e.routeTarget,enemyBottom:e.sprite.body.bottom,enemyGrounded:e.sprite.body.blocked.down||e.sprite.body.touching.down,heroBottom:s.hero.body.bottom,heroGrounded:s.hero.body.blocked.down||s.hero.body.touching.down,heroX:s.hero.x,heroY:s.hero.y};});
+ assert.ok(routeState.jumpAt>routeState.time,`enemigo persigue hacia plataforma ocupada: ${JSON.stringify(routeState)}`);
 
  await start();
  assert.deepEqual(await page.evaluate(()=>{
@@ -99,9 +100,15 @@ export async function verifyRevision(page){
  await page.evaluate(()=>{const s=window.__emboscada.scene.getScene('Game'),p=s.enemyProjectiles[0];p.s.body.reset(s.hero.x,s.hero.y-35);p.s.setVelocity(0);s.invincible=0;});
  await page.waitForTimeout(40);
  assert.equal(await page.evaluate(()=>window.__emboscada.scene.getScene('Game').hp),88,'proyectil del ojo daña al jugador');
- await page.evaluate(()=>{const s=window.__emboscada.scene.getScene('Game'),e=s.enemies[0];e.dash=null;e.busy=0;e.next=0;e.sprite.body.reset(s.hero.x+55,s.hero.y-20);});
+ await page.evaluate(()=>{const s=window.__emboscada.scene.getScene('Game'),e=s.enemies[0];e.dash=null;e.attack=null;e.busy=0;e.next=0;e.sprite.body.reset(s.hero.x+55,s.hero.y-20);});
  await page.waitForTimeout(40);
- assert.equal(await page.evaluate(()=>window.__emboscada.scene.getScene('Game').enemies[0].attack?.action),'attack','mordisco solo estando cerca y libre');
+ assert.equal(await page.evaluate(()=>window.__emboscada.scene.getScene('Game').enemies[0].attack),null,'ojo no persigue ni ataca al jugador en el suelo');
+ assert.equal(await page.evaluate(()=>{
+  const s=window.__emboscada.scene.getScene('Game'),e=s.enemies[0],platform=s.platformGroup.getChildren()[0];
+  s.hero.x=platform.x;s.hero.body.position.y=platform.body.y-s.hero.body.height;s.hero.body.blocked.down=true;s.hero.body.touching.down=true;
+  e.sprite.body.reset(s.hero.x+55,platform.body.y-20);e.attack=null;e.busy=0;e.next=0;
+  s.updateEnemies(s.time.now);return e.attack?.action;
+ }), 'attack','ojo enfoca y muerde al detectar al jugador en plataforma');
  await page.evaluate(()=>{const s=window.__emboscada.scene.getScene('Game'),e=s.enemies[0];e.sprite.body.reset(170,100);s.hitEnemy(e,9999);});
  await page.waitForTimeout(360);
  assert.deepEqual(await page.evaluate(()=>{const e=window.__emboscada.scene.getScene('Game').enemies[0];return [e.fallingDeath,e.sprite.anims.currentAnim.key,e.sprite.anims.currentFrame.index,e.sprite.body.allowGravity];}),[true,'eye:deathFall',2,true],'muerte aérea sostiene fotograma 2 mientras cae');

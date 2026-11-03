@@ -3,6 +3,7 @@ import {characters,names,descriptions,wavePlan,scoreFor,readSave,bosses} from '.
 import {combatMethods,defenseFrames} from './combat.js';
 import {enemyMethods} from './enemies.js';
 import {buttonMap,saveButtonMap,calibrationSteps} from './gamepad.js';
+import {createNavigationGraph,findPath,generateScenario,nearestSurfaceNode} from './navigation.js';
 
 const W=1280,H=720;
 let manifest;
@@ -18,12 +19,12 @@ function tone(scene,freq=440){
  const ctx=scene.sound.context,o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.setValueAtTime(freq,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(freq/2,ctx.currentTime+0.1);g.gain.setValueAtTime(save.sfx*0.08,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.14);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.15);
 }
 class Controls {
-  constructor(scene){this.keys=scene.input.keyboard.addKeys('A,D,W,S,LEFT,RIGHT,UP,DOWN,SPACE,J,K,L,SHIFT,ESC,ENTER,FIVE');this.prev=null;this.prevNav=false;this.lastNav=0;}
+  constructor(scene){this.keys=scene.input.keyboard.addKeys('A,D,W,S,LEFT,RIGHT,UP,DOWN,SPACE,J,K,L,SHIFT,ESC,ENTER,FIVE,Q,E,R');this.prev=null;this.prevNav=false;this.lastNav=0;}
  poll(time){
    const p=Array.from(navigator.getGamepads?.()||[]).find(Boolean),b=i=>!!p?.buttons[i]?.pressed,k=this.keys;
    const map=buttonMap(p,localStorage),action=name=>b(map[name]);
   let axis=p?.axes[0]||0;if(Math.abs(axis)<0.25)axis=0;
-    const held={jump:k.SPACE.isDown||action('jump'),attack:k.J.isDown||action('attack'),secondary:k.K.isDown||action('secondary'),ability:k.L.isDown||action('ability'),roll:k.SHIFT.isDown||action('roll'),defend:k.S.isDown||k.DOWN.isDown||action('defend'),pause:k.ESC.isDown||action('pause'),ok:k.ENTER.isDown||k.SPACE.isDown||action('jump'),back:k.ESC.isDown||action('ability'),boss:k.FIVE.isDown};
+    const held={jump:k.SPACE.isDown||action('jump'),attack:k.J.isDown||action('attack'),secondary:k.K.isDown||action('secondary'),ability:k.L.isDown||action('ability'),roll:k.SHIFT.isDown||action('roll'),defend:k.S.isDown||k.DOWN.isDown||action('defend'),pause:k.ESC.isDown||action('pause'),ok:k.ENTER.isDown||k.SPACE.isDown||action('jump'),back:k.ESC.isDown||action('ability'),boss:k.FIVE.isDown,algorithm:k.Q.isDown,route:k.E.isDown,regenerate:k.R.isDown};
   const result={x:Phaser.Math.Clamp((k.D.isDown||k.RIGHT.isDown||b(15)?1:0)-(k.A.isDown||k.LEFT.isDown||b(14)?1:0)+axis,-1,1),nav:0};
    for(const key of Object.keys(held))result[key]=!!this.prev&&held[key]&&!this.prev[key];result.defendHeld=!!held.defend;result.secondaryHeld=!!held.secondary;this.prev=held;
   const v=(k.DOWN.isDown||k.S.isDown||b(13)||(p?.axes[1]||0)>0.5?1:0)-(k.UP.isDown||k.W.isDown||b(12)||(p?.axes[1]||0)<-0.5?1:0);
@@ -97,7 +98,7 @@ class Menu extends Phaser.Scene {
   text(this,77,167,'RESISTÍ. LUCHÁ. SUPERÁ TU RÉCORD.',17,'#b7cbd7');
   let title='',items=[];
   if(page==='home'){
-   title='Supervivencia sin fin';items=[['Jugar',()=>this.show('maps')],['Opciones',()=>this.show('options')],['Controles',()=>this.show('help')],['Créditos',()=>this.show('credits')]];
+   title='Supervivencia sin fin';items=[['Jugar',()=>this.show('maps')],['Campo libre',()=>this.show('field')],['Opciones',()=>this.show('options')],['Controles',()=>this.show('help')],['Créditos',()=>this.show('credits')]];
    text(this,80,250,'Una caverna. Ninguna salida.\nOleadas cada vez más difíciles.\nUn jefe cada cinco oleadas.',24).setLineSpacing(14);
    text(this,80,445,`RÉCORD  ${save.record.toLocaleString()}`,29,'#ffd382');
   } else if(page==='maps'){
@@ -105,6 +106,12 @@ class Menu extends Phaser.Scene {
    this.mapPreview(session.map);text(this,80,530,'Cinco escenarios para sobrevivir.',21);
   } else if(page==='characters'){
    title='Elegí tu personaje';items=characters.map((id,i)=>[names[i],()=>{session.character=i;music(this);this.scene.start('Game');}]);items.push(['Volver',()=>this.show('maps')]);
+   this.preview=this.add.sprite(250,650,first(characters[session.character])).setOrigin(0.5,1).setScale(4);play(this.preview,characters[session.character],'idle');this.charDesc=text(this,70,660,descriptions[session.character],19,'#d5e5ee').setWordWrapWidth(560).setLineSpacing(8);
+  } else if(page==='field'){
+   title='Campo libre';items=[['Práctica de personaje',()=>{session.fieldMode='practice';this.show('free-characters');}],['Laboratorio de IA',()=>{session.fieldMode='ai';this.show('free-characters');}],['Volver',()=>this.show('home')]];
+   text(this,80,290,'Probá tus ataques sin oleadas y explorá cómo navegan los NPC.',23).setWordWrapWidth(590);
+  } else if(page==='free-characters'){
+   title='Elegí tu personaje';items=characters.map((id,i)=>[names[i],()=>{session.character=i;music(this);this.scene.start(session.fieldMode==='ai'?'AILab':'Training');}]);items.push(['Volver',()=>this.show('field')]);
    this.preview=this.add.sprite(250,650,first(characters[session.character])).setOrigin(0.5,1).setScale(4);play(this.preview,characters[session.character],'idle');this.charDesc=text(this,70,660,descriptions[session.character],19,'#d5e5ee').setWordWrapWidth(560).setLineSpacing(8);
   } else if(page==='options'){
    title='Opciones';items=[...optionItems(this,()=>this.show('options')),['Volver',()=>this.show('home')]];text(this,80,295,'Los ajustes se guardan\nautomáticamente en este navegador.',23).setLineSpacing(12);
@@ -127,7 +134,7 @@ class Menu extends Phaser.Scene {
  }
   button(x,y,label,fn){const i=this.buttons.length;const bg=this.add.rectangle(x,y,440,45,0x14263a).setOrigin(0,0);const labelObj=text(this,x+16,y+9,label,22);bg.setInteractive({useHandCursor:true}).on('pointerover',()=>{this.selected=i;this.highlight();}).on('pointerdown',()=>{tone(this);fn();});this.buttons.push({bg,label:labelObj,fn});}
   mapPreview(index){this.preview?.destroy();this.preview=this.add.container(300,370);this.preview.add(manifest.maps[index].layers.map((_,layer)=>this.add.image(0,0,`map${index}:${layer}`).setDisplaySize(460,259)));}
-  highlight(){this.buttons.forEach((b,i)=>{b.bg.setFillStyle(i===this.selected?0x276451:0x14263a);b.label.setColor(i===this.selected?'#ffffff':'#bfcedc');});if(this.preview&&this.page==='maps'&&this.selected<manifest.maps.length)this.mapPreview(this.selected);if(this.preview&&this.page==='characters'&&this.selected<characters.length){play(this.preview,characters[this.selected],'idle');this.charDesc?.setText(descriptions[this.selected]);}}
+  highlight(){this.buttons.forEach((b,i)=>{b.bg.setFillStyle(i===this.selected?0x276451:0x14263a);b.label.setColor(i===this.selected?'#ffffff':'#bfcedc');});if(this.preview&&this.page==='maps'&&this.selected<manifest.maps.length)this.mapPreview(this.selected);if(this.preview&&['characters','free-characters'].includes(this.page)&&this.selected<characters.length){play(this.preview,characters[this.selected],'idle');this.charDesc?.setText(descriptions[this.selected]);}}
   updateCalibration(){
    const cal=this.calibration,p=Array.from(navigator.getGamepads?.()||[]).find(Boolean);
    if(this.controls.keys.ESC.isDown){this.show('help');return;}
@@ -141,7 +148,7 @@ class Menu extends Phaser.Scene {
    cal.map[action]=pressed[0];cal.step++;
    if(cal.step===calibrationSteps.length){try{saveButtonMap(p.id,cal.map,localStorage);this.show('help');}catch{cal.step=0;cal.map={};this.calibrationText.setText('No se pudo guardar la calibración. Revisá el almacenamiento del navegador.');}}
   }
-  update(time){if(this.page==='calibrate'){this.updateCalibration();return;}const c=this.controls.poll(time);if(c.nav){this.selected=Phaser.Math.Wrap(this.selected+c.nav,0,this.buttons.length);this.highlight();}if(c.ok){tone(this);this.buttons[this.selected]?.fn();}else if(c.back&&this.page!=='home')this.show('home');}
+  update(time){if(this.page==='calibrate'){this.updateCalibration();return;}const c=this.controls.poll(time);if(c.nav){this.selected=Phaser.Math.Wrap(this.selected+c.nav,0,this.buttons.length);this.highlight();}if(c.ok){tone(this);this.buttons[this.selected]?.fn();}else if(c.back&&this.page!=='home')this.show(this.page==='free-characters'?'field':'home');}
 }
 function optionItems(scene,refresh){return [
  [`Música: ${Math.round(save.music*100)}%`,()=>{save.music=+(save.music>=1?0:Math.min(1,save.music+0.25)).toFixed(2);scene.sound.get('music')?.setVolume(save.music);persist();refresh();}],
@@ -155,10 +162,12 @@ class Game extends Phaser.Scene {
  create(){
    this.controls=new Controls(this);this.wave=0;this.score=0;this.kills=0;this.hp=100;this.maxHp=100;this.finished=false;this.between=false;this.pending=0;this.nextAttack=0;this.invincible=0;this.rollUntil=0;this.attackUntil=0;this.hurtUntil=0;this.comboUntil=0;this.lastAttack='';this.facing=1;this.defending=false;this.enemies=[];this.projectiles=[];this.enemyProjectiles=[];this.heals=[];
   background(this,session.map);this.ground=manifest.maps[session.map].ground;
+  const mapPlatforms=manifest.maps[session.map].platforms||[];
+  this.navigationGraph=createNavigationGraph(this.ground,mapPlatforms);this.aiAlgorithm='astar';this.aiNavigation='short';
   this.add.rectangle(640,this.ground+35,1280,70,0x07101d,0.32);
   this.platform=this.add.rectangle(640,this.ground+40,1280,80,0x000000,0);this.physics.add.existing(this.platform,true);
   this.platformGroup=this.physics.add.staticGroup();
-   for(const p of manifest.maps[session.map].platforms||[]){const img=this.platformGroup.create(p.x,p.y+24,`cave:${p.w}`);img.setDepth(8).refreshBody();img.body.setSize(p.w,16,false).setOffset(0,0);img.body.checkCollision.down=false;img.body.checkCollision.left=false;img.body.checkCollision.right=false;}
+   for(const p of mapPlatforms){const img=this.platformGroup.create(p.x,p.y+24,`cave:${p.w}`);img.setDepth(8).refreshBody();img.body.setSize(p.w,16,false).setOffset(0,0);img.body.checkCollision.down=false;img.body.checkCollision.left=false;img.body.checkCollision.right=false;}
    this.id=characters[session.character];this.hero=this.actor(640,this.ground,this.id,1.65);this.hero.setCollideWorldBounds(true);this.physics.add.collider(this.hero,this.platform);this.physics.add.collider(this.hero,this.platformGroup);
    this.initCombat();
    this.skillHud=text(this,20,690,'',16,'#82f5c8').setDepth(100);
@@ -192,7 +201,7 @@ class Game extends Phaser.Scene {
    const types=['Mushroom','Skeleton','Flying eye'];const id=boss?this.plan.boss:types[(i+this.wave)%types.length];const left=Math.random()<0.5;
    const sprite=this.actor(left?(boss?200:90):(boss?1080:1190),id==='Flying eye'?200:this.ground,id,boss?bosses[id].scale:1.8);
   this.physics.add.collider(sprite,this.platform);this.physics.add.collider(sprite,this.platformGroup);sprite.setCollideWorldBounds(true);
-    const e={sprite,id,boss,hp:boss?900+this.wave*90:this.plan.hp,max:boss?900+this.wave*90:this.plan.hp,speed:boss?75:this.plan.speed,next:this.time.now+1200,busy:0,jumpAt:0,hurtUntil:0,shieldUntil:0,shieldReady:0,recoverUntil:0,shots:0,dead:false};this.enemies.push(e);
+    const e={sprite,id,boss,hp:boss?900+this.wave*90:this.plan.hp,max:boss?900+this.wave*90:this.plan.hp,speed:boss?75:this.plan.speed,next:this.time.now+1200,busy:0,jumpAt:0,hurtUntil:0,shieldUntil:0,shieldReady:0,recoverUntil:0,shots:0,dead:false,state:'patrol',route:[],routeAt:0,patrolDirection:left?1:-1};this.enemies.push(e);
     if(id==='Flying eye'){sprite.body.setAllowGravity(false);e.next=this.time.now+4500+Math.random()*2000;}
    sprite.on('animationupdate',(anim,frame)=>this.advanceEnemyAttack(e,anim,frame));
     sprite.on('animationcomplete',anim=>{
@@ -205,10 +214,10 @@ class Game extends Phaser.Scene {
     if(!poison&&!e.frozen&&this.time.now<e.shieldUntil){e.sprite.setTint(0xb5e5ff);this.time.delayedCall(100,()=>{if(e.sprite.active&&!e.frozen)e.sprite.clearTint();});return false;}
     e.hp-=damage;e.attack=null;e.dash=null;e.busy=0;e.sprite.setTint(e.frozen?0x80e6ff:0xffb3a5);this.time.delayedCall(100,()=>{if(e.sprite.active&&!e.frozen)e.sprite.clearTint();});
     if(e.hp<=0){
-     e.dead=true;e.sprite.anims.resume();e.sprite.body.moves=true;e.sprite.body.stop();this.kills++;this.score+=scoreFor(e.boss);if(Math.random()<0.15||e.boss)this.dropHeal(e.sprite.x);
+     e.dead=true;e.state='dead';e.stateEnteredAt=this.time.now;e.sprite.anims.resume();e.sprite.body.moves=true;e.sprite.body.stop();this.kills++;this.score+=scoreFor(e.boss);if(Math.random()<0.15||e.boss)this.dropHeal(e.sprite.x);
      if(e.id==='Flying eye'){e.fallingDeath=true;e.sprite.body.setAllowGravity(true);e.sprite.play('eye:deathFall');}
      else{e.sprite.body.enable=false;if(this.anims.exists(`${e.id}:death`))play(e.sprite,e.id,'death');else this.tweens.add({targets:e.sprite,alpha:0,duration:500,onComplete:()=>e.sprite.destroy()});}
-    }else if(!e.frozen){e.hurtUntil=this.time.now+(e.boss?180:450);play(e.sprite,e.id,'hurt');}
+    }else if(!e.frozen){e.hurtUntil=this.time.now+(e.boss?180:450);e.state='hurt';e.stateEnteredAt=this.time.now;play(e.sprite,e.id,'hurt');}
     return true;
  }
  dropHeal(x){const s=this.physics.add.image(x,this.ground-18,'heal').setDepth(25);s.body.setAllowGravity(false);this.heals.push(s);this.tweens.add({targets:s,y:s.y-9,yoyo:true,repeat:-1,duration:650});}
@@ -250,6 +259,200 @@ class Game extends Phaser.Scene {
 }
 Object.assign(Game.prototype,combatMethods);
 Object.assign(Game.prototype,enemyMethods);
+class FieldArena extends Phaser.Scene {
+ constructor(key){super(key);}
+ createFloor(){
+  this.ground=650;this.add.rectangle(640,this.ground+12,W,24,0x24343e).setDepth(5);this.add.rectangle(640,this.ground+35,W,70,0x07101d,0.35);
+  this.floor=this.add.rectangle(640,this.ground+40,W,80,0x000000,0);this.physics.add.existing(this.floor,true);
+  this.platformGroup=this.physics.add.staticGroup();
+ }
+ createPlatforms(platforms){
+  this.platformGroup.clear(true,true);
+  for(const p of platforms){
+   const key=`field-platform-${p.w}`;
+   if(!this.textures.exists(key)){const g=this.make.graphics({x:0,y:0,add:false});g.fillStyle(0x24343e);g.fillRect(0,0,p.w,20);g.fillStyle(0x62bd91);g.fillRect(0,0,p.w,4);g.generateTexture(key,p.w,20);g.destroy();}
+   const sprite=this.platformGroup.create(p.x,p.y+10,key).setDepth(8).refreshBody();
+   sprite.body.setSize(p.w,12,false).setOffset(0,0);sprite.body.checkCollision.down=false;sprite.body.checkCollision.left=false;sprite.body.checkCollision.right=false;
+  }
+ }
+ createHero(){
+  this.id=characters[session.character];const actor=manifest.actors[this.id];
+  this.hero=this.physics.add.sprite(350,this.ground,first(this.id)).setOrigin(0.5,actor.foot).setScale(1.65).setDepth(20);
+  this.hero.body.setSize(25,48).setOffset((this.hero.width-25)/2,this.hero.height*actor.foot-48);
+  this.hero.setCollideWorldBounds(true);this.physics.add.collider(this.hero,this.floor);this.physics.add.collider(this.hero,this.platformGroup);
+  this.skillHud=text(this,20,690,'',16,'#82f5c8').setDepth(100);
+  this.initCombat();this.hp=100;this.maxHp=100;this.invincible=0;this.rollUntil=0;this.finished=false;
+ }
+ actor(x,y,id,scale=1.8){
+  const actor=manifest.actors[id],sprite=this.physics.add.sprite(x,y,first(id)).setOrigin(0.5,actor.foot).setScale(scale).setDepth(20);
+  const height=id==='FrostGuardian'?72:id==='DemonSlime'||id==='Minotaur'?90:48,width=id==='DemonSlime'||id==='Minotaur'?60:25;
+  sprite.body.setSize(width,height).setOffset((sprite.width-width)/2,sprite.height*actor.foot-height);
+  sprite.setCollideWorldBounds(true);this.physics.add.collider(sprite,this.floor);this.physics.add.collider(sprite,this.platformGroup);
+  play(sprite,id,'idle');return sprite;
+ }
+ surfaceBelow(x,y){return Math.min(this.ground,...this.platformGroup.getChildren().filter(p=>x>=p.body.x&&x<=p.body.right&&p.body.y>=y-2).map(p=>p.body.y));}
+ movePlayer(c,time,grounded,allowJump=true){
+  if(c.x&&!this.facingLocked(time))this.facing=Math.sign(c.x);
+  this.hero.setFlipX(this.facing<0);this.updateCombat(c,time,grounded);
+  if(c.roll&&time>this.rollUntil+850&&grounded&&!this.defenseState&&!this.meditatingUntil){
+   this.cancelAction();this.charge=null;this.rollUntil=time+350;this.invincible=time+430;play(this.hero,this.id,'roll');tone(this,300);
+  }
+  const rooted=!!this.defenseState||!!this.meditatingUntil||!!this.activeAction||!!this.charge;
+  this.hero.setVelocityX(time<this.rollUntil?this.facing*500:rooted?0:c.x*220);
+  if(allowJump&&c.jump&&grounded&&!rooted&&time>=this.rollUntil){this.hero.setVelocityY(-700);tone(this,480);}
+  if(!this.busy(time)&&time>=this.hurtUntil)play(this.hero,this.id,!grounded?(this.hero.body.velocity.y<0?'up':'down'):Math.abs(c.x)>0.1?'move':'idle');
+ }
+ updatePlayerProjectiles(time){
+  for(const p of this.projectiles){
+   if(!p.s.active)continue;
+   if(time>p.expires||p.s.x<0||p.s.x>W){p.s.destroy();continue;}
+   for(const e of this.enemies)if(!e.dead&&e.sprite.active&&Phaser.Geom.Intersects.RectangleToRectangle(p.s.body,e.sprite.body)){this.impact(p,e);break;}
+   if(p.s.active&&p.air){const floor=this.surfaceBelow(p.s.x,p.previousY+20);if(p.s.y+20>=floor){p.s.y=floor;this.impact(p,null);}p.previousY=p.s.y;}
+  }
+  this.projectiles=this.projectiles.filter(p=>p.s.active);
+ }
+ damage(amount,time){
+  if(time<this.invincible||this.finished)return;
+  if(this.defending)return;
+  this.hp=Math.max(1,this.hp-Math.max(1,Math.round(amount*(time<this.buffUntil?0.7:1))));this.invincible=time+850;
+  this.hero.setTint(0xff7777);this.time.delayedCall(160,()=>{if(this.hero.active)this.hero.clearTint();});
+ }
+ returnToField(){this.scene.start('Menu',{page:'field'});}
+}
+Object.assign(FieldArena.prototype,combatMethods);
+Object.assign(FieldArena.prototype,enemyMethods);
+
+class Training extends FieldArena {
+ constructor(){super('Training');}
+ create(){
+  this.controls=new Controls(this);this.enemies=[];this.projectiles=[];this.enemyProjectiles=[];this.heals=[];
+  this.createFloor();this.createHero();
+  const g=this.make.graphics({x:0,y:0,add:false});
+  g.fillStyle(0x8e674a);g.fillRect(23,37,42,12);g.fillRect(38,45,12,42);g.fillRect(20,84,48,8);g.fillRect(24,92,12,25);g.fillRect(52,92,12,25);
+  g.fillStyle(0xd6b17c);g.fillCircle(44,23,17);g.fillStyle(0x293443);g.fillRect(36,20,5,4);g.fillRect(47,20,5,4);
+  g.generateTexture('training-dummy',88,124);g.destroy();
+  const sprite=this.physics.add.sprite(900,this.ground,'training-dummy').setOrigin(0.5,1).setDepth(20);
+  sprite.body.setAllowGravity(false);sprite.body.setImmovable(true);sprite.body.setSize(48,88).setOffset(20,34);
+  this.dummy={sprite,id:'TrainingDummy',boss:false,hp:10000,max:10000,dead:false,frozen:false,shieldUntil:0};
+  this.enemies=[this.dummy];this.hitCount=0;this.lastDamage=0;
+  this.add.rectangle(640,45,1280,90,0x07101d,0.88).setDepth(90);
+  text(this,30,20,`CAMPO LIBRE · ${names[session.character]}`,23,'#82f5c8').setDepth(100);
+  text(this,30,55,'Piso de práctica · J/K/L o X/Y/B · A del mando: hablar · Esc: volver',17).setDepth(100);
+  this.dummyStatus=text(this,900,520,'Muñeco de pruebas · golpes recibidos: 0',19,'#ffd382').setOrigin(0.5).setDepth(100);
+  this.talkBox=this.add.rectangle(640,590,1160,145,0x07101d,0.96).setStrokeStyle(3,0x82f5c8).setDepth(100);
+  this.talkText=text(this,100,540,'Presioná A del mando o Enter para escuchar sobre tus habilidades.',21,'#edf5ff').setWordWrapWidth(1060).setLineSpacing(8).setDepth(101);
+  this.talkBox.setVisible(false);this.talkText.setVisible(false);
+  this.playerStatus=text(this,1250,22,'100 / 100',18,'#ffffff').setOrigin(1,0).setDepth(100);
+  const back=this.add.rectangle(1130,62,190,32,0x14263a).setStrokeStyle(2,0x82f5c8).setDepth(100).setInteractive({useHandCursor:true});
+  text(this,1130,62,'Volver al campo',15).setOrigin(0.5).setDepth(101);back.on('pointerdown',()=>this.returnToField());
+ }
+ hitEnemy(e,damage){
+  this.hitCount++;this.lastDamage=Math.round(damage);e.hp=e.max;
+  e.sprite.setTint(0xffd49a);this.time.delayedCall(120,()=>{if(e.sprite.active)e.sprite.clearTint();});
+  this.dummyStatus.setText(`Muñeco de pruebas · golpes: ${this.hitCount} · último daño: ${this.lastDamage}`);
+  return true;
+ }
+ update(time){
+  const c=this.controls.poll(time);if(c.pause){this.returnToField();return;}
+  if(c.jump||c.ok){
+   const tips={
+    LeafRanger:'X/J: golpe cercano. Y/K: flecha; mantenelo para cargar área o veneno. B/L: lluvia de flechas. RB/S: defender. LB/Shift: rodar.',
+    CrystalMauler:'X/J: combo de dos golpes. Y/K: ataque de área. B/L: especial. Sus ataques Y y B requieren estar en el suelo. RB/S: defender. LB/Shift: rodar.',
+    GroundMonk:'X/J: combo de tres golpes. Y/K: especial. B/L: meditar para potenciar daño y resistencia. RB/S: defender. LB/Shift: rodar.',
+    WaterPriestess:'X/J: combo de tres ataques. Y/K: esfera de daño y congelación. B/L: curar 25 de vida. RB/S: defender. LB/Shift: rodar.'
+   };
+   this.talkBox.setVisible(true);this.talkText.setText(`Muñeco: ${tips[this.id]}\nNo dudes en probar tus ataques conmigo; total, no siento nada.`);
+   this.talkText.setVisible(true);
+  }
+  const grounded=this.hero.body.blocked.down||this.hero.body.touching.down;
+  this.movePlayer(c,time,grounded,false);this.updatePlayerProjectiles(time);
+  for(const heal of this.heals)if(heal.active&&Math.abs(heal.x-this.hero.x)<45&&Math.abs(heal.y-this.hero.y)<80){this.hp=Math.min(this.maxHp,this.hp+25);heal.destroy();}
+  this.heals=this.heals.filter(heal=>heal.active);this.playerStatus.setText(`${Math.ceil(this.hp)} / ${this.maxHp}`);
+ }
+}
+class AILab extends FieldArena {
+ constructor(){super('AILab');}
+ create(){
+  this.controls=new Controls(this);this.algorithm='bfs';this.navigation='short';this.seed=1;this.enemies=[];this.projectiles=[];this.enemyProjectiles=[];this.heals=[];
+  this.createFloor();this.createHero();
+  this.routeGraphics=this.add.graphics().setDepth(30);this.scenarioLabels=[];this.scenario=generateScenario(this.seed);this.installScenario();
+  this.spawnLabEnemy('Mushroom',230,this.ground);this.spawnLabEnemy('Mushroom',1060,this.ground);
+  this.spawnLabEnemy('Skeleton',420,this.ground);this.spawnLabEnemy('Flying eye',820,190);
+  this.add.rectangle(640,48,1280,96,0x07101d,0.9).setDepth(90);
+  text(this,25,14,'LABORATORIO DE IA · BFS / A* · RUTAS CORTAS Y SEGURAS',21,'#82f5c8').setDepth(100);
+  this.labStatus=text(this,25,46,'',17,'#ffd382').setDepth(100);
+  this.labHelp=text(this,25,71,'Q: BFS/A* · E: corta/segura · R: nueva variante · A: saltar · X/J: probar ataques · Esc: volver',15).setDepth(100);
+  this.labButtons={
+   algorithm:this.labButton(850,610,'Algoritmo: BFS',()=>{this.algorithm=this.algorithm==='bfs'?'astar':'bfs';for(const e of this.enemies)e.routeAt=0;this.refreshLabStatus();}),
+   navigation:this.labButton(1030,610,'Ruta: corta',()=>{this.navigation=this.navigation==='short'?'safe':'short';for(const e of this.enemies)e.routeAt=0;this.refreshLabStatus();}),
+   scenario:this.labButton(1200,610,'Nueva variante',()=>this.regenerateScenario())
+  };
+  this.playerStatus=text(this,1250,18,'100 / 100',17,'#ffffff').setOrigin(1,0).setDepth(100);this.refreshLabStatus();
+ }
+ labButton(x,y,label,callback){
+  const box=this.add.rectangle(x,y,158,42,0x14263a).setStrokeStyle(2,0x82f5c8).setDepth(100).setInteractive({useHandCursor:true});
+  const caption=text(this,x,y,label,15,'#edf5ff').setOrigin(0.5).setDepth(101);
+  box.on('pointerdown',callback);return {box,caption};
+ }
+ installScenario(){
+  this.platformGroup.clear(true,true);this.scenarioLabels.forEach(label=>label.destroy());this.scenarioLabels=[];
+  this.scenario.platforms.forEach(platform=>{
+   const key=`lab-platform-${platform.w}`;
+   if(!this.textures.exists(key)){const g=this.make.graphics({x:0,y:0,add:false});g.fillStyle(0x24343e);g.fillRect(0,0,platform.w,20);g.fillStyle(platform.exposed?0xff735f:0x62bd91);g.fillRect(0,0,platform.w,4);g.generateTexture(key,platform.w,20);g.destroy();}
+   const p=this.platformGroup.create(platform.x,platform.y+10,key).setDepth(8).refreshBody();
+   p.body.setSize(platform.w,12,false).setOffset(0,0);p.body.checkCollision.down=false;p.body.checkCollision.left=false;p.body.checkCollision.right=false;
+   if(platform.exposed)this.scenarioLabels.push(text(this,platform.x,platform.y-22,'EXPOSICIÓN',13,'#ff9b83').setOrigin(0.5).setDepth(15));
+  });
+  this.navigationGraph=createNavigationGraph(this.ground,this.scenario.platforms);
+  for(const enemy of this.enemies){enemy.route=[];enemy.routeAt=0;enemy.routeStart=null;enemy.routeTarget=null;}
+ }
+ spawnLabEnemy(id,x,y){
+  const sprite=this.actor(x,y,id);if(id==='Flying eye')sprite.body.setAllowGravity(false);
+  const e={sprite,id,boss:false,hp:10000,max:10000,speed:id==='Mushroom'?105:75,next:id==='Flying eye'?this.time.now+5000:this.time.now+1000,busy:0,jumpAt:0,hurtUntil:0,shieldUntil:0,shieldReady:this.time.now+4000,recoverUntil:0,shots:0,dead:false,state:'patrol',route:[],routeAt:0,patrolDirection:x<640?1:-1};
+  if(id==='Flying eye')e.patrol={x:100+Math.random()*1080,y:150+Math.random()*90};
+  e.stateLabel=text(this,x,y-65,`${id} · PATRULLA`,15,'#edf5ff').setOrigin(0.5).setDepth(25);
+  this.enemies.push(e);sprite.on('animationupdate',(anim,frame)=>this.advanceEnemyAttack(e,anim,frame));
+  sprite.on('animationcomplete',anim=>{if(e.attack?.key===anim.key){this.advanceEnemyAttack(e,anim,anim.frames.at(-1));e.attack=null;e.busy=this.time.now;e.recoverUntil=this.time.now+e.recovery;}});
+  return e;
+ }
+ hitEnemy(e,damage){
+  e.hp=e.max;e.attack=null;e.hurtUntil=this.time.now+100;e.sprite.setTint(0xffb3a5);
+  this.time.delayedCall(100,()=>{if(e.sprite.active&&!e.frozen)e.sprite.clearTint();});
+  return true;
+ }
+ refreshLabStatus(){
+  const algorithm=this.algorithm==='bfs'?'BFS · menor cantidad de saltos':'A* · menor distancia estimada';
+  const navigation=this.navigation==='safe'?'Ruta segura · evita zonas expuestas':'Ruta corta · busca menos saltos/distancia';
+  const limitation=this.algorithm==='bfs'?'BFS supone costos uniformes y no garantiza menor distancia.':'A* depende de una heurística adecuada y de las conexiones del escenario.';
+  this.labStatus.setText(`Variante ${this.seed} · ${algorithm} · ${navigation}\\n${limitation}`);
+  this.labButtons?.algorithm.caption.setText(`Algoritmo: ${this.algorithm.toUpperCase()}`);
+  this.labButtons?.navigation.caption.setText(`Ruta: ${this.navigation==='safe'?'segura':'corta'}`);
+ }
+ regenerateScenario(){
+  this.seed++;this.scenario=generateScenario(this.seed);this.installScenario();this.refreshLabStatus();
+ }
+ drawRoutes(){
+  this.routeGraphics.clear();const color=this.navigation==='safe'?0x71edaa:0x6ad8ff;
+  this.routeGraphics.lineStyle(4,color,0.82);
+  for(const enemy of this.enemies.filter(item=>item.id==='Mushroom'&&item.route?.length>1)){
+   const points=enemy.route.map(id=>this.navigationGraph.byId[id]).filter(Boolean);
+   for(let i=1;i<points.length;i++)this.routeGraphics.lineBetween(points[i-1].x,points[i-1].y-10,points[i].x,points[i].y-10);
+  }
+ }
+ update(time){
+  const c=this.controls.poll(time);if(c.pause){this.returnToField();return;}
+  if(c.algorithm)this.labButtons.algorithm.box.emit('pointerdown');
+  if(c.route)this.labButtons.navigation.box.emit('pointerdown');
+  if(c.regenerate)this.labButtons.scenario.box.emit('pointerdown');
+  const grounded=this.hero.body.blocked.down||this.hero.body.touching.down;
+  this.movePlayer(c,time,grounded);this.updateEnemies(time);this.updatePlayerProjectiles(time);this.drawRoutes();
+  for(const enemy of this.enemies)enemy.stateLabel?.setPosition(enemy.sprite.x,enemy.sprite.y-65).setText(`${enemy.id} · ${enemy.state?.toUpperCase()||'PATRULLA'}`);
+  this.playerStatus.setText(`${Math.ceil(this.hp)} / ${this.maxHp}`);
+ }
+}
+Object.assign(Training.prototype,combatMethods);
+Object.assign(AILab.prototype,combatMethods);
+Object.assign(AILab.prototype,enemyMethods);
 class Overlay extends Phaser.Scene {
  constructor(){super('Overlay');}
  init(data){this.info=data;this.page='main';}
@@ -268,5 +471,5 @@ class Overlay extends Phaser.Scene {
  menu(page){this.scene.stop('Game');this.scene.start('Menu',{page});}
  update(time){const c=this.controls.poll(time);if(c.nav){this.selected=Phaser.Math.Wrap(this.selected+c.nav,0,this.buttons.length);this.highlight();}if(c.ok)this.buttons[this.selected]?.fn();else if((c.back||c.pause)&&this.info.kind==='pause'){if(this.page==='options'){this.page='main';this.selected=0;this.draw();}else this.resume();}}
 }
-const game=new Phaser.Game({type:Phaser.AUTO,parent:'game',width:W,height:H,backgroundColor:'#07101d',pixelArt:true,scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},physics:{default:'arcade',arcade:{gravity:{y:1500},debug:false}},input:{gamepad:true},scene:[Boot,Load,Menu,Game,Overlay]});
+const game=new Phaser.Game({type:Phaser.AUTO,parent:'game',width:W,height:H,backgroundColor:'#07101d',pixelArt:true,scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},physics:{default:'arcade',arcade:{gravity:{y:1500},debug:false}},input:{gamepad:true},scene:[Boot,Load,Menu,Game,Training,AILab,Overlay]});
 window.__emboscada=game;

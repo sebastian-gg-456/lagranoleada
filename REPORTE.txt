@@ -894,3 +894,78 @@ VERIFICACION REALIZADA
   test-results/boss-facing-left.png y test-results/minotaur-grounded.png.
 
 FIN DE LA RONDA 5 - conservar historial y agregar futuras rondas al final.
+
+========================================================================
+RONDA 6: CAMPO LIBRE, NAVEGACION Y COMPORTAMIENTO DE NPC
+========================================================================
+
+1. Campo libre
+
+- Se agrego Campo libre al menu de inicio. Desde ahi se elige entre
+  Practica de personaje y Laboratorio de IA, y despues se selecciona
+  uno de los cuatro personajes.
+- La practica tiene solo el piso, permite usar los controles de combate
+  y muestra un muneco de pruebas indestructible. El boton A del mando o
+  Enter abre su explicacion de habilidades; tambien cuenta los golpes y
+  el ultimo dano recibido.
+
+2. Comportamientos de enemigos
+
+- Skeleton patrulla horizontalmente por el suelo y solo combate al
+  jugador cuando esta cerca y en el mismo nivel; no lo persigue en una
+  plataforma superior.
+- Flying eye patrulla en una franja elevada cuando el jugador esta en el
+  suelo. Solo lo persigue y ataca cuando lo detecta apoyado en una
+  plataforma alta.
+- Mushroom calcula rutas entre superficies y salta para seguir al
+  jugador al subir plataformas.
+- Los estados visibles del laboratorio incluyen patrol, pursue, chase,
+  jump, attack, defend, recover, hurt, frozen y dead.
+
+3. Busqueda, navegacion y escenarios
+
+- BFS minimiza transiciones/saltos suponiendo costos uniformes; no
+  asegura la menor distancia fisica. A* usa distancia geometrica como
+  heuristica y puede seleccionar rutas cortas o con penalizacion por
+  riesgo.
+- La ruta corta busca menos transiciones o distancia. La ruta segura
+  evita zonas expuestas cuando es posible y las penaliza en A*.
+- Las variantes procedurales cambian altura/posicion de plataformas y
+  superficies expuestas. El laboratorio reconstruye el grafo y vuelve a
+  calcular las rutas al generar otra variante.
+- Q alterna BFS/A*, E cambia ruta corta/segura y R genera otra variante;
+  tambien hay botones visibles para esos controles.
+
+4. Especificacion previa y apoyo de herramientas
+
+- Antes de implementar se escribio spec/campo-libre-ia.md con requisitos
+  y criterios de aceptacion.
+- OpenCode esta instalado, pero no se ejecuto con el codigo del proyecto:
+  los modelos disponibles listados no permitieron verificar un modelo
+  local, y no se envio codigo a un servicio externo por privacidad. Por
+  eso no se atribuye a OpenCode ninguna exploracion, implementacion,
+  prueba ni revision; ese requisito requiere una sesion local aprobada.
+
+ARCHIVOS
+
+README.md: documentacion de Campo libre, comportamiento, controles,
+algoritmos, limites y escenarios variables.
+REPORTE.txt: registro acumulativo de esta ronda.
+spec/campo-libre-ia.md: especificacion previa y criterios de aceptacion.
+src/navigation.js: grafo de superficies, BFS, A* y generacion procedural.
+src/enemies.js y src/main.js: FSM, comportamientos, menus y laboratorio.
+tests/navigation.test.js: pruebas de rutas, seguridad y semillas.
+scripts/ai-smoke.mjs: prueba de flujo Campo libre y controles de laboratorio.
+scripts/smoke.mjs y scripts/verify-revision.mjs: pruebas de regresion.
+
+VERIFICACION REALIZADA
+
+- node --test: 10 aprobadas, 0 fallidas.
+- node scripts/smoke.mjs: aprobado.
+- node scripts/revision-smoke.mjs: aprobado.
+- node scripts/boss-smoke.mjs: aprobado.
+- npm.cmd run ai-smoke: aprobado.
+- npm.cmd run build: correcto; Vite conserva su advertencia informativa
+  de bundle mayor a 500 kB.
+
+FIN DE LA RONDA 6 - conservar historial y agregar futuras rondas al final.
