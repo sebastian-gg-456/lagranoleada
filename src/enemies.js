@@ -79,8 +79,8 @@ export const enemyMethods={
     const distance=Math.hypot(dx,h.y-35-s.y);
     if(time>=e.next){
      let action=null;
-     if(e.role==='sniper'&&distance>200&&distance<520)action='attack3';
-     else if(e.role==='sniper'&&distance<=110)action='attack';
+     if(e.role==='sniper'&&distance>130&&distance<520)action='attack3';
+     else if(e.role==='sniper'&&distance<=130)action='attack';
      else if(e.role==='diver'&&distance>170&&distance<480)action='attack2';
      else if(e.role==='biter'&&distance<=110)action='attack';
      else if(e.role==='biter'&&distance>250&&distance<420&&Math.random()<0.01)action='attack2';
@@ -90,9 +90,9 @@ export const enemyMethods={
     const ty=h.y-45-(e.role==='diver'?90:0)-s.y;
     let vx=dx,vy=ty,speed=125;
     if(e.role==='sniper'){
-     // Hold a ring around the player instead of closing in.
-     if(distance<260){vx=-dx;vy=-(h.y-45-s.y)-20;}
-     else if(distance<400){vx=0;vy=Math.sin(time/500+e.sprite.x)*30;speed=80;}
+     // Keep a loose distance: back off only when really close, otherwise hover and shoot.
+     if(distance<150){vx=-dx;vy=-(h.y-45-s.y)-20;speed=95;}
+     else if(distance<330){vx=0;vy=Math.sin(time/500+e.sprite.x)*30;speed=80;}
     }
     const length=Math.hypot(vx,vy)||1;
     s.setVelocity(vx/length*speed,vy/length*speed);s.setFlipX(dx<0);s.play('Flying eye:move',true);continue;
