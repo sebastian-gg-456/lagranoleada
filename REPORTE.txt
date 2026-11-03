@@ -1,5 +1,50 @@
 REPORTE DEL PROYECTO
 LA GRAN EMBOSCADA
+Historial acumulativo: la ronda mas reciente esta agregada al final del archivo.
+
+ACTUALIZACION 03/11/2026 - CONTROLES Y ANIMACIONES POR PERSONAJE
+
+Esta actualizacion reemplaza las reglas de combate del reporte anterior.
+X/J: ataque basico; Y/K: secundario; B/L: habilidad; RB/S o Abajo:
+defensa sostenida; LB/Shift: rodada. A/Espacio sigue siendo salto.
+
+Leaf Ranger: X usa 1_atk como golpe cercano. Y al soltar antes de 2 s
+dispara 2_atk. Mantener Y durante 2 s dispara automaticamente una variante
+con probabilidad 50/50: area o veneno (10 de dano por segundo, 5 s).
+En el aire Y usa air_atk; cargar 0.5 s agrega el impacto reforzado
+(la carga aerea es mas corta para poder completarla durante un salto).
+B usa 3_atk y luego lluvia de flechas con arrow_shower_effect (recarga 9 s).
+Las variantes *_sample son GIF de referencia, no carpetas de fotogramas:
+se recrean combinando las animaciones PNG y sus proyectiles/efectos.
+
+Water Priestess: X encadena 1_atk, 2_atk, 3_atk; en el aire air_atk.
+Y usa sp_atk. B usa heal: +25 de vida, maximo 100, recarga 15 s.
+Si la vida esta completa no se consume la habilidad.
+
+Ground Monk: X encadena 1_atk, 2_atk, 3_atk. Y usa sp_atk.
+B usa meditate: 3 s inmovil sin recibir dano otorgan +50% de dano y
+30% de resistencia durante 8 s. Recarga 18 s incluso si se interrumpe.
+Ya no medita automaticamente al superar una oleada.
+
+Crystal Mauler: X encadena 1_atk y 2_atk; en el aire air_atk.
+Y usa 3_atk con area. B usa sp_atk con recarga de 10 s.
+
+Los combos requieren otra pulsacion al terminar la animacion anterior;
+hay una ventana de 1 s para continuar. Las habilidades B son en el suelo.
+RB bloquea dano: animacion hasta el fotograma 13 (elfo), 7 (agua),
+10 (monje) o 5 (cristal); mantiene la pose y reproduce el resto al soltar.
+Durante la salida deja de bloquear. take_hit responde al dano y death
+se reproduce completa antes de mostrar la pantalla de derrota.
+
+Archivos: src/combat.js contiene las habilidades y estados de combate;
+src/main.js conecta controles, animaciones, efectos, dano y HUD.
+README.md y las descripciones de personajes reflejan los controles nuevos.
+scripts/prepare-assets.mjs genera tambien los efectos PNG del elfo.
+Se ampliaron tests/combat.test.js y scripts/smoke.mjs para estas reglas.
+
+El reporte de abajo se conserva como historial de la sesion anterior.
+============================================================
+
 Fecha del reporte: 02/11/2026
 Ubicacion: C:\Users\USER\Desktop\juego de programacion\La gran emboscada
 
@@ -394,3 +439,150 @@ Para ejecutar las pruebas:
 ============================================================
 FIN DEL REPORTE
 ============================================================
+
+
+============================================================
+ACTUALIZACION 03/11/2026 - RONDA 2: HITBOXES Y FLUIDEZ
+============================================================
+
+Se conserva el reporte del 02/11 y la actualizacion anterior del 03/11.
+La ronda anterior implemento los controles X/Y/B/RB por personaje, combos,
+carga del elfo, veneno, lluvia de flechas, cura limitada, meditacion con
+beneficio temporal, defensa por fotogramas y traslado de rodada a LB.
+Esta nueva entrada registra las modificaciones posteriores; sus reglas
+reemplazan las anteriores donde haya diferencias. No se borra el historial.
+
+PEDIDO DEL USUARIO
+
+- No cambiar la direccion de la animacion mientras se ataca.
+- Ataques mas fluidos, sin dejar al jugador inmovil.
+- Recibir golpes sin quedar atrapado por aturdimiento.
+- Hitboxes rectangulares horizontales delante de quien ataca.
+- Water Priestess: Y como area frontal, sin proyectiles; dano al fotograma
+  23 y congelacion en los fotogramas posteriores, sin dano adicional.
+- Reducir carga terrestre del elfo a 1.5 segundos.
+- Sincronizar todos los impactos con las animaciones.
+- Seguir agregando cada ronda a este archivo.
+
+CAMBIOS REALIZADOS
+
+1. Orientacion y movimiento
+
+- Se mantiene la orientacion durante ataques, habilidades, defensa,
+  meditacion y rodada. Moverse en sentido contrario no gira el ataque.
+- Se permite desplazamiento al 85% de la velocidad normal al atacar,
+  en vez de velocidad cero. Tambien se permite saltar durante el ataque.
+- LB/Shift cancela el ataque para rodar; elimina los contactos que aun
+  no ocurrieron. Los proyectiles ya lanzados continuan su recorrido.
+- La defensa y la meditacion conservan su requisito de permanecer quieto.
+- Ataques ligeramente mas agiles: basico/aereo a 12 FPS, variantes de
+  combo a 11 FPS y especiales a 10 FPS. Defensa conserva sus fotogramas.
+
+2. Dano recibido sin aturdimiento del jugador
+
+- Recibir dano no bloquea caminar, saltar, atacar, defender ni rodar.
+- Un ataque en curso no se interrumpe al recibir dano; se conserva el
+  destello visual y la sacudida de camara.
+- take_hit se reproduce como reaccion visual cuando no hay un ataque
+  en curso, sin bloquear los controles.
+- Se mantiene la invulnerabilidad de 850 ms despues del dano.
+- La meditacion sigue interrumpiendose si recibe dano, como se pidio
+  en la ronda anterior.
+
+3. Rectangulos de ataque
+
+- Los golpes directos usan un rectangulo horizontal delante del actor.
+- Se comprueba interseccion con el cuerpo fisico real del objetivo.
+- No se golpea por detras ni a objetivos fuera de la altura del rectangulo.
+- Los impactos de proyectiles y lluvia usan areas rectangulares centradas
+  en el punto de impacto; sus cuerpos de proyectil siguen siendo pequenos.
+- Los enemigos tambien usan rectangulos frontales y no se dan vuelta
+  durante su animacion de ataque.
+
+4. Impactos sincronizados con fotogramas
+
+- Se usan eventos reales de animacion, no dano instantaneo al pulsar.
+- Cada contacto se ejecuta una sola vez, aunque permanezca el fotograma.
+- Las secuencias originales se revisaron en laminas de imagen generadas
+  con scripts/inspect-attacks.mjs.
+- Fotogramas de contacto o salida de proyectil (numeracion desde 1):
+
+  Leaf Ranger:
+    1_atk: 5.
+    2_atk normal/cargado: 9.
+    air_atk normal/cargado: 6.
+    3_atk: 9 libera la lluvia; cada flecha dana al aterrizar.
+
+  Crystal Mauler:
+    1_atk: 4; 2_atk: 4; 3_atk: 11; air_atk: 4; sp_atk: 9.
+
+  Ground Monk:
+    1_atk: 2.
+    2_atk: 2, 6 y 9.
+    3_atk: 2, 6, 9 y 18.
+    sp_atk: 9 y 18.
+    El dano total se reparte entre los contactos de cada ataque.
+
+  Water Priestess:
+    1_atk: 3; 2_atk: 3 y 15; 3_atk: 3, 15 y 22.
+    air_atk: 4; sp_atk: 23; heal aplica curacion en el 8.
+
+- Los enemigos golpean al llegar aproximadamente al 55% de los fotogramas
+  de su ataque, en vez de usar una espera fija de 300 ms para todos.
+- Cancelar una accion o morir elimina los contactos pendientes de esa
+  accion. Congelar o herir a un enemigo cancela su golpe pendiente.
+
+5. Water Priestess: Y frontal con congelacion
+
+- sp_atk ya no crea proyectiles.
+- Al entrar en el fotograma 23 aplica una sola vez 100 de dano en un
+  rectangulo de 230 x 90 px delante del personaje.
+- Desde ese fotograma hasta el final congela durante 3 segundos a los
+  enemigos que esten o entren en ese rectangulo.
+- Los que entran despues del golpe solo se congelan: no reciben dano
+  adicional del hechizo. Cada enemigo se congela una vez por lanzamiento.
+- La congelacion detiene cuerpo, movimiento, animacion y ataques; se
+  indica con tinte celeste. Al terminar se restaura el comportamiento.
+
+6. Elfo y documentacion
+
+- La carga terrestre baja de 2 s a 1.5 s. La aerea conserva 0.5 s.
+- Completar la carga prepara el disparo; la flecha sale en el fotograma
+  correspondiente de la animacion, no antes. Sigue la probabilidad 50/50.
+- Se actualizaron ayuda en pantalla, descripciones y README.md.
+
+ARCHIVOS DE ESTA RONDA
+
+src/combat.js: estados, rectangulos, eventos por fotograma, congelacion,
+  ataques enemigos y carga.
+src/main.js: movimiento, orientacion, reaccion al dano, enemigos y FPS.
+src/rules.js: descripciones actualizadas.
+scripts/verify-combat.mjs: pruebas detalladas de combate en navegador.
+scripts/combat-smoke.mjs: ejecutor independiente de esas pruebas.
+scripts/smoke.mjs: pruebas generales adaptadas e integracion de las nuevas.
+scripts/inspect-attacks.mjs: laminas de los fotogramas originales.
+tests/combat.test.js: comprobaciones de geometria frontal.
+README.md y REPORTE.txt: documentacion e historial acumulado.
+
+VERIFICACION REALIZADA
+
+npm.cmd test
+  7 pruebas aprobadas, 0 fallidas.
+
+node scripts/combat-smoke.mjs
+  Aprobado: fotogramas, hitboxes, orientacion, movimiento sin aturdimiento,
+  cancelacion de ataques y congelacion.
+
+node scripts/smoke.mjs
+  Aprobado, incluyendo la ampliacion que verifica todos los contactos
+  de los combos, ausencia de dano prematuro/duplicado, objetivos detras
+  o en otra altura, carga de 1.5 s, ataques enemigos y mecanicas anteriores.
+
+npm.cmd run build
+  Compilacion correcta. Se mantiene la advertencia de Vite sobre el tamano
+  del paquete principal; no impide generar dist/.
+
+Capturas: test-results/frames-*.png y test-results/water-freeze.png,
+  ademas de las capturas generales de la partida.
+
+FIN DE LA ACTUALIZACION - conservar esta entrada y agregar las siguientes.

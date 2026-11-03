@@ -38,6 +38,10 @@ function frames(id, base, actions, foot=1, portrait=null) {
 }
 const common={idle:'idle',move:'run',attack:'1_atk',attack2:'2_atk',attack3:'3_atk',airAttack:'air_atk',special:'sp_atk',hurt:'take_hit',death:'death',roll:'roll',defend:'defend',up:'jump_up',down:'jump_down'};
 frames('LeafRanger','personajes/LeafRanger/animations/PNG',{...common,jump:'jump_full',slide:'slide'},1,'personajes/LeafRanger/leaf_ranger.png');
+for(const [action,folder] of Object.entries({arrow:'arrow',arrowHit:'arrow_hit',areaHit:'arrow_hit_entangle',poisonHit:'arrow_hit_poison',shower:'arrow_shower_effect',diagonalArrow:'diagonal_arrow',airHit:'diagonal_arrow_hit',airChargedHit:'diagonal_arrow_hit_thorns'})) {
+ const dir=`personajes/LeafRanger/animations/PNG/projectiles_and_effects/${folder}`;
+ manifest.actors.LeafRanger.actions[action]={files:fs.readdirSync(path.join(out,dir)).filter(f=>f.endsWith('.png')).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true})).map(f=>`${dir}/${f}`)};
+}
 frames('CrystalMauler','personajes/CrystalMauler/animations/PNG',{...common,up:'j_up',down:'j_down',jump:'jump_full'},1,'personajes/CrystalMauler/crystal_mauler.png');
 frames('GroundMonk','personajes/GroundMonk/png',{...common,up:'j_up',down:'j_down',meditate:'meditate'},1,'personajes/GroundMonk/ground_monk.png');
 frames('WaterPriestess','personajes/WaterPriestess/png',{idle:'01_idle',move:'02_walk',attack:'07_1_atk',attack2:'08_2_atk',attack3:'09_3_atk',airAttack:'air_atk',special:'10_sp_atk',hurt:'13_take_hit',death:'14_death',roll:'06_tumble',defend:'12_defend',heal:'11_heal',surf:'03_surf',up:'04_j_up',down:'05_j_down'},1,'personajes/WaterPriestess/water_priestess.png');

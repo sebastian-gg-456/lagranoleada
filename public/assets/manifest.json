@@ -242,6 +242,94 @@
             "personajes/LeafRanger/animations/PNG/slide/slide_12.png",
             "personajes/LeafRanger/animations/PNG/slide/slide_13.png"
           ]
+        },
+        "arrow": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow/arrow_.png"
+          ]
+        },
+        "arrowHit": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit/arrow_hit_1.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit/arrow_hit_2.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit/arrow_hit_3.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit/arrow_hit_4.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit/arrow_hit_5.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit/arrow_hit_6.png"
+          ]
+        },
+        "areaHit": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit_entangle/arrow_hit_entangle_1.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit_entangle/arrow_hit_entangle_2.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit_entangle/arrow_hit_entangle_3.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit_entangle/arrow_hit_entangle_4.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit_entangle/arrow_hit_entangle_5.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit_entangle/arrow_hit_entangle_6.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit_entangle/arrow_hit_entangle_7.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit_entangle/arrow_hit_entangle_8.png"
+          ]
+        },
+        "poisonHit": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit_poison/arrow_hit_poison_1.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit_poison/arrow_hit_poison_2.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit_poison/arrow_hit_poison_3.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit_poison/arrow_hit_poison_4.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit_poison/arrow_hit_poison_5.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit_poison/arrow_hit_poison_6.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit_poison/arrow_hit_poison_7.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_hit_poison/arrow_hit_poison_8.png"
+          ]
+        },
+        "shower": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_shower_effect/arrow_shower_effect_1.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_shower_effect/arrow_shower_effect_2.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_shower_effect/arrow_shower_effect_3.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_shower_effect/arrow_shower_effect_4.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_shower_effect/arrow_shower_effect_5.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_shower_effect/arrow_shower_effect_6.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_shower_effect/arrow_shower_effect_7.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_shower_effect/arrow_shower_effect_8.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_shower_effect/arrow_shower_effect_9.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_shower_effect/arrow_shower_effect_10.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_shower_effect/arrow_shower_effect_11.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_shower_effect/arrow_shower_effect_12.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_shower_effect/arrow_shower_effect_13.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_shower_effect/arrow_shower_effect_14.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_shower_effect/arrow_shower_effect_15.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_shower_effect/arrow_shower_effect_16.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_shower_effect/arrow_shower_effect_17.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/arrow_shower_effect/arrow_shower_effect_18.png"
+          ]
+        },
+        "diagonalArrow": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/diagonal_arrow/diagonal_arrow_.png"
+          ]
+        },
+        "airHit": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/diagonal_arrow_hit/diagonal_arrow_hit_1.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/diagonal_arrow_hit/diagonal_arrow_hit_2.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/diagonal_arrow_hit/diagonal_arrow_hit_3.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/diagonal_arrow_hit/diagonal_arrow_hit_4.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/diagonal_arrow_hit/diagonal_arrow_hit_5.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/diagonal_arrow_hit/diagonal_arrow_hit_6.png"
+          ]
+        },
+        "airChargedHit": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/diagonal_arrow_hit_thorns/diagonal_arrow_hit_thorns_1.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/diagonal_arrow_hit_thorns/diagonal_arrow_hit_thorns_2.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/diagonal_arrow_hit_thorns/diagonal_arrow_hit_thorns_3.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/diagonal_arrow_hit_thorns/diagonal_arrow_hit_thorns_4.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/diagonal_arrow_hit_thorns/diagonal_arrow_hit_thorns_5.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/diagonal_arrow_hit_thorns/diagonal_arrow_hit_thorns_6.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/diagonal_arrow_hit_thorns/diagonal_arrow_hit_thorns_7.png",
+            "personajes/LeafRanger/animations/PNG/projectiles_and_effects/diagonal_arrow_hit_thorns/diagonal_arrow_hit_thorns_8.png"
+          ]
         }
       },
       "portrait": "personajes/LeafRanger/leaf_ranger.png"

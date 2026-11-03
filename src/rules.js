@@ -1,10 +1,10 @@
 export const characters = ['LeafRanger','CrystalMauler','GroundMonk','WaterPriestess'];
 export const names = ['Leaf Ranger','Crystal Mauler','Ground Monk','Water Priestess'];
 export const descriptions = [
- 'Arquera ágil de largo alcance.\nBásico: flecha rápida. Secundario: flecha perforante.',
- 'Coloso de cristal, lento pero demoledor.\nBásico: golpe aplastante. Secundario: impacto sísmico.',
- 'Luchador veloz de golpes precisos.\nBásico: combinación de puños. Secundario: patada giratoria.',
- 'Magia a distancia y control del campo.\nBásico: orbe de agua. Secundario: torrente purificador.'
+ 'Arquera ágil. Básico X: golpe. Secundario Y: flecha; cargá 1,5 s para área o veneno. B: lluvia de flechas.',
+ 'Coloso de cristal. Básico X: combo de 2 golpes. Secundario Y: área. B: ataque especial.',
+ 'Luchador veloz. Básico X: combo de 3 golpes. Secundario Y: especial. B: meditación de 3 s.',
+ 'Magia de agua. Básico X: combo de 3 ataques. Secundario Y: área frontal y congelación. B: cura de 25 (15 s).'
 ];
 export function wavePlan(wave) {
  const boss = wave % 5 === 0 ? ['DemonSlime','FrostGuardian','Minotaur'][(wave / 5 - 1) % 3] : null;

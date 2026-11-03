@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import {characters,names,descriptions,wavePlan,scoreFor,readSave} from './rules.js';
+import {combatMethods,defenseFrames} from './combat.js';
 
 const W=1280,H=720;
 let manifest;
@@ -15,13 +16,13 @@ function tone(scene,freq=440){
  const ctx=scene.sound.context,o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.setValueAtTime(freq,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(freq/2,ctx.currentTime+0.1);g.gain.setValueAtTime(save.sfx*0.08,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.14);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.15);
 }
 class Controls {
- constructor(scene){this.keys=scene.input.keyboard.addKeys('A,D,W,S,LEFT,RIGHT,UP,DOWN,SPACE,J,K,SHIFT,ESC,ENTER');this.prev=null;this.prevNav=false;this.lastNav=0;}
+ constructor(scene){this.keys=scene.input.keyboard.addKeys('A,D,W,S,LEFT,RIGHT,UP,DOWN,SPACE,J,K,L,SHIFT,ESC,ENTER');this.prev=null;this.prevNav=false;this.lastNav=0;}
  poll(time){
   const p=Array.from(navigator.getGamepads?.()||[]).find(Boolean),b=i=>!!p?.buttons[i]?.pressed,k=this.keys;
   let axis=p?.axes[0]||0;if(Math.abs(axis)<0.25)axis=0;
-  const held={jump:k.SPACE.isDown||b(0),attack:k.J.isDown||b(2),secondary:k.K.isDown||b(3),roll:k.SHIFT.isDown||b(1),defend:k.S.isDown||k.DOWN.isDown||b(13),pause:k.ESC.isDown||b(9),ok:k.ENTER.isDown||k.SPACE.isDown||b(0),back:k.ESC.isDown||b(1)};
+   const held={jump:k.SPACE.isDown||b(0),attack:k.J.isDown||b(2),secondary:k.K.isDown||b(3),ability:k.L.isDown||b(1),roll:k.SHIFT.isDown||b(4),defend:k.S.isDown||k.DOWN.isDown||b(5),pause:k.ESC.isDown||b(9),ok:k.ENTER.isDown||k.SPACE.isDown||b(0),back:k.ESC.isDown||b(1)};
   const result={x:Phaser.Math.Clamp((k.D.isDown||k.RIGHT.isDown||b(15)?1:0)-(k.A.isDown||k.LEFT.isDown||b(14)?1:0)+axis,-1,1),nav:0};
-   for(const key of Object.keys(held))result[key]=!!this.prev&&held[key]&&!this.prev[key];result.defendHeld=!!held.defend;this.prev=held;
+   for(const key of Object.keys(held))result[key]=!!this.prev&&held[key]&&!this.prev[key];result.defendHeld=!!held.defend;result.secondaryHeld=!!held.secondary;this.prev=held;
   const v=(k.DOWN.isDown||k.S.isDown||b(13)||(p?.axes[1]||0)>0.5?1:0)-(k.UP.isDown||k.W.isDown||b(12)||(p?.axes[1]||0)<-0.5?1:0);
   if(v&&!this.prevNav&&time-this.lastNav>180){result.nav=v;this.lastNav=time;}this.prevNav=v!==0;return result;
  }
@@ -50,8 +51,14 @@ class Load extends Phaser.Scene {
  create(){
   for(const [id,actor] of Object.entries(manifest.actors))for(const [action,a] of Object.entries(actor.actions)){
    const frames=a.sheet?this.anims.generateFrameNumbers(`${id}:${action}:sheet`):a.files.map((_,i)=>({key:`${id}:${action}:${i}`}));
-   const rates={idle:6,move:8,attack:10,attack2:9,attack3:9,airAttack:10,special:8,hurt:7,death:6,roll:8,defend:6,heal:8,meditate:5,up:8,down:8};
-   this.anims.create({key:`${id}:${action}`,frames,frameRate:rates[action]||8,repeat:['idle','move','defend'].includes(action)?-1:0});
+    const rates={idle:6,move:8,attack:10,attack2:9,attack3:9,airAttack:10,special:8,hurt:7,death:6,roll:8,defend:6,heal:8,meditate:5,up:8,down:8};
+    if(characters.includes(id))Object.assign(rates,{attack:12,attack2:11,attack3:11,airAttack:12,special:10});
+   this.anims.create({key:`${id}:${action}`,frames,frameRate:rates[action]||8,repeat:['idle','move'].includes(action)?-1:0});
+   if(action==='defend'&&defenseFrames[id]){
+    const split=defenseFrames[id];
+    this.anims.create({key:`${id}:defendStart`,frames:frames.slice(0,split),frameRate:12,repeat:0});
+    this.anims.create({key:`${id}:defendEnd`,frames:frames.slice(split),frameRate:12,repeat:0});
+   }
   }
   const g=this.make.graphics({x:0,y:0,add:false});g.fillStyle(0xffffff);g.fillRect(0,0,24,6);g.generateTexture('bolt',24,6);g.clear();g.fillStyle(0x62efb6);g.fillCircle(12,12,12);g.generateTexture('heal',24,24);g.destroy();
   for(const width of new Set(manifest.maps.flatMap(m=>(m.platforms||[]).map(p=>p.w))))caveTexture(this,width);
@@ -94,7 +101,7 @@ class Menu extends Phaser.Scene {
    title='Opciones';items=[...optionItems(this,()=>this.show('options')),['Volver',()=>this.show('home')]];text(this,80,295,'Los ajustes se guardan\nautomáticamente en este navegador.',23).setLineSpacing(12);
   } else if(page==='help'){
    title='Controles';items=[['Volver',()=>this.show('home')]];
-   text(this,80,225,'ACCIÓN              TECLADO          MANDO\n\nMover              A/D o flechas     Stick / D-pad\nSaltar             Espacio           A\nAtacar             J                 X\nAtaque secundario  K                 Y\nDefender           S / Abajo         D-pad abajo\nRodar              Shift             B\nPausa              Esc               Start\n\nMenús: ↑/↓ + Enter o D-pad + A. Volver: Esc/B.\nConectá el mando y pulsá un botón para activarlo.',21).setLineSpacing(8);
+     text(this,80,225,'ACCIÓN              TECLADO          MANDO\n\nMover              A/D o flechas     Stick / D-pad\nSaltar             Espacio           A\nAtacar / combo      J                 X\nSecundario / carga  K                 Y\nHabilidad          L                 B\nDefender           S / Abajo         RB\nRodar              Shift             LB\nPausa              Esc               Start\n\nElfo: mantené Y 1,5 s para cargar.\nMenús: ↑/↓ + Enter o D-pad + A. Volver: Esc/B.',21).setLineSpacing(8);
   } else {
    title='Créditos';items=[['Volver',()=>this.show('home')]];
    text(this,80,235,'Juego desarrollado con Phaser 3.\n\nArte: packs Elementals, Monsters Creatures Fantasy,\nForest Monsters, Demon Slime, Frost Guardian,\nMinotaur, Crystal Cave y Parallax Cave.\nMúsica: Japanese Music Pack.\n\nDocumentos originales conservados con los recursos.',21).setLineSpacing(10);
@@ -123,7 +130,9 @@ class Game extends Phaser.Scene {
   this.platform=this.add.rectangle(640,this.ground+40,1280,80,0x000000,0);this.physics.add.existing(this.platform,true);
   this.platformGroup=this.physics.add.staticGroup();
    for(const p of manifest.maps[session.map].platforms||[]){const img=this.platformGroup.create(p.x,p.y+24,`cave:${p.w}`);img.setDepth(8).refreshBody();img.body.setSize(p.w,16,false).setOffset(0,0);img.body.checkCollision.down=false;img.body.checkCollision.left=false;img.body.checkCollision.right=false;}
-  this.id=characters[session.character];this.hero=this.actor(640,this.ground,this.id,1.65);this.hero.setCollideWorldBounds(true);this.physics.add.collider(this.hero,this.platform);this.physics.add.collider(this.hero,this.platformGroup);
+   this.id=characters[session.character];this.hero=this.actor(640,this.ground,this.id,1.65);this.hero.setCollideWorldBounds(true);this.physics.add.collider(this.hero,this.platform);this.physics.add.collider(this.hero,this.platformGroup);
+   this.initCombat();
+   this.skillHud=text(this,20,690,'',16,'#82f5c8').setDepth(100);
   this.add.rectangle(640,40,1280,80,0x07101d,0.85).setDepth(90);
   this.add.rectangle(48,40,74,74,0x0b1722,0.96).setStrokeStyle(3,0x82f5c8,0.9).setDepth(99);
   this.add.image(48,40,`${this.id}:portrait`).setScale(0.95).setDepth(100);
@@ -152,75 +161,60 @@ class Game extends Phaser.Scene {
   const types=['Mushroom','Goblin','Skeleton','Flying eye','ForestMushroom'];const id=boss?this.plan.boss:types[(i+this.wave)%types.length];const left=Math.random()<0.5;
   const sprite=this.actor(left?45:1235,this.ground,id,boss?2: id==='ForestMushroom'?2.5:1.8);
   this.physics.add.collider(sprite,this.platform);this.physics.add.collider(sprite,this.platformGroup);sprite.setCollideWorldBounds(true);
-  const e={sprite,id,boss,hp:boss?500+this.wave*65:this.plan.hp,max:boss?500+this.wave*65:this.plan.hp,speed:boss?75:this.plan.speed,next:0,busy:0,jumpAt:0,hurtUntil:0,dead:false};this.enemies.push(e);
- }
- attack(time,secondary=false,air=false){
-  if(time<this.nextAttack||time<this.rollUntil)return;
-  const ranged=this.id==='LeafRanger'||this.id==='WaterPriestess',heavy=this.id==='CrystalMauler',combo=!secondary&&!air&&time<this.comboUntil;
-  const action=secondary?(air?'special':'attack2'):air?'airAttack':combo?'attack3':'attack';
-  const damage=ranged?(secondary?34:combo?55:38)+this.wave*1.5:secondary?(heavy?140:95):combo?(heavy?120:78):heavy?90:50;
-  const base=secondary?(heavy?900:this.id==='GroundMonk'?440:620):heavy?600:this.id==='GroundMonk'?280:400;
-  play(this.hero,this.id,action);
-  const duration=this.hero.anims.currentAnim?.duration||500;
-  this.nextAttack=time+Math.min(1200,Math.max(base,duration*0.8));
-  this.attackUntil=time+Math.min(1500,Math.max(260,duration*0.9));
-  this.comboUntil=secondary||air?0:combo?0:time+900;this.lastAttack=secondary?(air?'special':'secondary'):air?'air':combo?'combo':'basic';
-  tone(this,ranged?(secondary?820:650):secondary?150:220);
-  const x=this.hero.x,y=this.hero.y-48;
-  if(ranged){
-   const shots=secondary?3:1;
-   for(let i=0;i<shots;i++){
-    const s=this.physics.add.image(x+this.facing*30,y+(i-1)*10,'bolt').setTint(this.id==='WaterPriestess'?0x62d8ff:0xd9f591).setScale(secondary?1.35:1).setDepth(21);s.body.setAllowGravity(false);s.setVelocity(this.facing*750,secondary?(i-1)*70:0);this.projectiles.push({s,damage,expires:time+1800});
-   }
-  }else{
-   const radius=secondary?105:combo?88:70,slash=this.add.arc(x+this.facing*60,y,radius,230,490,false,secondary?0xff9b6e:0xffdf9a,0.3).setDepth(22);this.tweens.add({targets:slash,alpha:0,duration:secondary?260:180,onComplete:()=>slash.destroy()});
-   for(const e of this.enemies)if(!e.dead&&Math.abs(e.sprite.x-x)<radius+70&&Math.abs(e.sprite.y-this.hero.y)<100&&(e.sprite.x-x)*this.facing>-25)this.hitEnemy(e,damage);
-  }
+   const e={sprite,id,boss,hp:boss?500+this.wave*65:this.plan.hp,max:boss?500+this.wave*65:this.plan.hp,speed:boss?75:this.plan.speed,next:0,busy:0,jumpAt:0,hurtUntil:0,dead:false};this.enemies.push(e);
+   sprite.on('animationupdate',(anim,frame)=>this.advanceEnemyAttack(e,anim,frame));
+   sprite.on('animationcomplete',anim=>{if(anim.key===`${id}:attack`){this.advanceEnemyAttack(e,anim,anim.frames.at(-1));e.attack=null;e.busy=this.time.now;}});
  }
  hitEnemy(e,damage){
-  if(e.dead)return;e.hp-=damage;e.sprite.setTint(0xffb3a5);this.time.delayedCall(100,()=>{if(e.sprite.active)e.sprite.clearTint();});
-  if(e.hp<=0){e.dead=true;e.sprite.body.stop();e.sprite.body.enable=false;play(e.sprite,e.id,'death');this.kills++;this.score+=scoreFor(e.boss);if(Math.random()<0.15||e.boss)this.dropHeal(e.sprite.x);this.tweens.add({targets:e.sprite,alpha:0,delay:450,duration:400,onComplete:()=>e.sprite.destroy()});}else{e.hurtUntil=this.time.now+450;play(e.sprite,e.id,'hurt');}
+   if(e.dead)return;e.hp-=damage;e.attack=null;e.busy=0;e.sprite.setTint(e.frozen?0x80e6ff:0xffb3a5);this.time.delayedCall(100,()=>{if(e.sprite.active&&!e.frozen)e.sprite.clearTint();});
+   if(e.hp<=0){e.dead=true;e.sprite.anims.resume();e.sprite.body.stop();e.sprite.body.enable=false;play(e.sprite,e.id,'death');this.kills++;this.score+=scoreFor(e.boss);if(Math.random()<0.15||e.boss)this.dropHeal(e.sprite.x);this.tweens.add({targets:e.sprite,alpha:0,delay:450,duration:400,onComplete:()=>e.sprite.destroy()});}else if(!e.frozen){e.hurtUntil=this.time.now+450;play(e.sprite,e.id,'hurt');}
  }
  dropHeal(x){const s=this.physics.add.image(x,this.ground-18,'heal').setDepth(25);s.body.setAllowGravity(false);this.heals.push(s);this.tweens.add({targets:s,y:s.y-9,yoyo:true,repeat:-1,duration:650});}
  damage(amount,time){
-  if(time<this.invincible||this.finished)return;const blocked=this.defending?0.35:1;this.hp=Math.max(0,this.hp-Math.max(1,Math.round(amount*blocked)));this.invincible=time+850;this.hero.setTint(0xff7777);tone(this,this.defending?260:120);this.cameras.main.shake(this.defending?70:100,this.defending?0.002:0.004);
-  if(this.defending)play(this.hero,this.id,'defend');else{this.hurtUntil=time+500;play(this.hero,this.id,'hurt');}
+   if(time<this.invincible||this.finished)return;
+   if(this.defending){tone(this,260);return;}
+    this.meditatingUntil=0;
+   this.hp=Math.max(0,this.hp-Math.max(1,Math.round(amount*(time<this.buffUntil?0.7:1))));this.invincible=time+850;this.hero.setTint(0xff7777);tone(this,120);this.cameras.main.shake(100,0.004);
+    // Hurt is cosmetic, never a movement/input lock or an attack interruption.
+    if(!this.activeAction&&!this.defenseState){play(this.hero,this.id,'hurt');this.hurtUntil=time+this.hero.anims.currentAnim.duration;}
   this.time.delayedCall(160,()=>{if(this.hero.active)this.hero.clearTint();});if(this.hp===0)this.end();
  }
  pause(){if(this.finished||!this.scene.isActive())return;this.scene.launch('Overlay',{kind:'pause'});this.scene.pause();}
- end(){this.finished=true;this.hero.setVelocity(0);play(this.hero,this.id,'death');save.record=Math.max(save.record,this.score);persist();this.time.delayedCall(800,()=>{this.scene.launch('Overlay',{kind:'over',score:this.score,wave:this.wave,kills:this.kills});this.scene.pause();});}
+   end(){this.finished=true;this.cancelAction();this.charge=null;this.meditatingUntil=0;this.hero.setVelocity(0);play(this.hero,this.id,'death');save.record=Math.max(save.record,this.score);persist();this.time.delayedCall(this.hero.anims.currentAnim.duration,()=>{this.scene.launch('Overlay',{kind:'over',score:this.score,wave:this.wave,kills:this.kills});this.scene.pause();});}
  update(time){
   if(this.finished)return;const c=this.controls.poll(time);if(c.pause){this.pause();return;}
   const h=this.hero,grounded=h.body.blocked.down||h.body.touching.down;
-  const defending=!!c.defendHeld&&grounded&&Math.abs(c.x)<0.1&&time>=this.rollUntil&&time>=this.attackUntil&&time>=this.hurtUntil;this.defending=defending;
-  if(c.x)this.facing=Math.sign(c.x);h.setFlipX(this.facing<0);
-  if(c.roll&&time>this.rollUntil+850&&grounded){this.rollUntil=time+350;this.invincible=time+430;play(h,this.id,'roll');tone(this,300);}
-  h.setVelocityX(time<this.rollUntil?this.facing*500:defending?0:c.x*220);
-  if(c.jump&&grounded&&time>=this.rollUntil&&!defending){h.setVelocityY(-700);tone(this,480);}
-  if(c.attack)this.attack(time,false,!grounded);
-  if(c.secondary)this.attack(time,true,!grounded);
-  if(time>=this.rollUntil&&time>=this.attackUntil&&time>=this.hurtUntil){if(defending)play(h,this.id,'defend');else play(h,this.id,!grounded?(h.body.velocity.y<0?'up':'down'):Math.abs(c.x)>0.1?'move':'idle');}
+    if(c.x&&!this.facingLocked(time))this.facing=Math.sign(c.x);h.setFlipX(this.facing<0);
+   this.updateCombat(c,time,grounded);
+    if(c.roll&&time>this.rollUntil+850&&grounded&&!this.defenseState&&!this.meditatingUntil){this.cancelAction();this.charge=null;this.hurtUntil=0;this.rollUntil=time+350;this.invincible=time+430;play(h,this.id,'roll');tone(this,300);}
+    const rooted=!!this.defenseState||!!this.meditatingUntil;
+    h.setVelocityX(time<this.rollUntil?this.facing*500:rooted?0:c.x*220*(this.activeAction?0.85:1));
+    if(c.jump&&grounded&&!rooted&&time>=this.rollUntil){h.setVelocityY(-700);tone(this,480);}
+    if(!this.busy(time)&&time>=this.hurtUntil)play(h,this.id,!grounded?(h.body.velocity.y<0?'up':'down'):Math.abs(c.x)>0.1?'move':'idle');
   for(const e of this.enemies){
-   if(e.dead||!e.sprite.active)continue;const s=e.sprite,dx=h.x-s.x,dist=Math.abs(dx);s.setFlipX(dx<0);
-   if(time<e.hurtUntil){s.setVelocityX(0);play(s,e.id,'hurt');continue;}
-   if(time<e.busy){s.setVelocityX(0);continue;}
+    if(e.dead||!e.sprite.active)continue;
+    if(e.poisonTick<=e.poisonUntil&&time>=e.poisonTick){e.poisonTick+=1000;this.hitEnemy(e,10);if(e.dead)continue;}
+     const s=e.sprite,dx=h.x-s.x,dist=Math.abs(dx);
+    if(e.frozen){if(time<e.frozenUntil)continue;e.frozen=false;s.body.moves=true;s.anims.resume();s.clearTint();}
+    if(time<e.hurtUntil){s.setVelocityX(0);play(s,e.id,'hurt');continue;}
+    if(time<e.busy){s.setVelocityX(0);continue;}
+    s.setFlipX(dx<0);
    const enemyGrounded=s.body.blocked.down||s.body.touching.down;
    if(enemyGrounded&&h.y<s.y-45&&dist<480&&time>=e.jumpAt){s.setVelocityY(e.boss?-720:-680);e.jumpAt=time+(e.boss?1800:1200);}
    if(enemyGrounded&&dist<(e.boss?125:65)&&Math.abs(h.y-s.y)<120&&time>=e.next){
-    s.setVelocityX(0);play(s,e.id,'attack');e.next=time+(e.boss?1450:1100);e.busy=time+550;
-    this.time.delayedCall(300,()=>{if(!e.dead&&!this.finished&&Math.abs(h.x-s.x)<(e.boss?155:85)&&Math.abs(h.y-s.y)<110)this.damage(e.boss?25:10,this.time.now);});
-    if(e.boss&&this.wave>=10){const marker=this.add.rectangle(h.x,this.ground-5,150,10,0xff5555,0.7).setDepth(24);const target=h.x;this.time.delayedCall(700,()=>{marker.destroy();if(!e.dead&&!this.finished&&Math.abs(h.x-target)<75&&h.y>this.ground-80)this.damage(20,this.time.now);});}
+     this.startEnemyAttack(e,time);
    }else{ s.setVelocityX(dist>45?Math.sign(dx)*e.speed:0);play(s,e.id,dist>45?'move':'idle'); }
   }
-  for(const p of this.projectiles){if(!p.s.active)continue;if(time>p.expires||p.s.x<0||p.s.x>W){p.s.destroy();continue;}for(const e of this.enemies){if(!e.dead&&e.sprite.active&&Phaser.Geom.Intersects.RectangleToRectangle(p.s.getBounds(),e.sprite.body)){this.hitEnemy(e,p.damage);p.s.destroy();break;}}}
+   for(const p of this.projectiles){if(!p.s.active)continue;if(time>p.expires||p.s.x<0||p.s.x>W){p.s.destroy();continue;}for(const e of this.enemies){if(!e.dead&&e.sprite.active&&Phaser.Geom.Intersects.RectangleToRectangle(p.s.body,e.sprite.body)){this.impact(p,e);break;}}if(p.s.active&&p.air&&p.s.y>=this.ground-20)this.impact(p,null);}
   this.projectiles=this.projectiles.filter(p=>p.s.active);
-  for(const s of this.heals)if(s.active&&Math.abs(s.x-h.x)<45&&Math.abs(s.y-h.y)<80){this.hp=Math.min(this.maxHp,this.hp+25);if(manifest.actors[this.id].actions.heal){this.hurtUntil=time+450;play(h,this.id,'heal');}tone(this,850);s.destroy();}
+   for(const s of this.heals)if(s.active&&Math.abs(s.x-h.x)<45&&Math.abs(s.y-h.y)<80){this.hp=Math.min(this.maxHp,this.hp+25);tone(this,850);s.destroy();}
   this.heals=this.heals.filter(s=>s.active);this.enemies=this.enemies.filter(e=>e.sprite.active);
-  const alive=this.enemies.filter(e=>!e.dead);if(this.wave>0&&this.pending===0&&alive.length===0&&!this.between){this.between=true;this.score+=this.wave*50;this.hp=Math.min(100,this.hp+10);save.record=Math.max(save.record,this.score);persist();this.banner.setText('OLEADA SUPERADA · +10 VIDA');if(this.id==='GroundMonk'&&manifest.actors[this.id].actions.meditate){this.hurtUntil=time+2200;play(h,this.id,'meditate');}this.time.delayedCall(2800,()=>this.startWave());}
+   const alive=this.enemies.filter(e=>!e.dead);if(this.wave>0&&this.pending===0&&alive.length===0&&!this.between){this.between=true;this.score+=this.wave*50;this.hp=Math.min(100,this.hp+10);save.record=Math.max(save.record,this.score);persist();this.banner.setText('OLEADA SUPERADA · +10 VIDA');this.time.delayedCall(2800,()=>this.startWave());}
   const boss=alive.find(e=>e.boss);this.bossHud.setText(boss?`${boss.id}   ${Math.ceil(boss.hp)} / ${boss.max}`:'');
   this.hpFill.width=294*this.hp/this.maxHp;this.hpText.setText(`${Math.ceil(this.hp)} / ${this.maxHp}`);this.scoreHud.setText(`PUNTOS ${this.score}`);this.waveHud.setText(`OLEADA ${this.wave} · ENEMIGOS ${alive.length+this.pending}`);
  }
 }
+Object.assign(Game.prototype,combatMethods);
 class Overlay extends Phaser.Scene {
  constructor(){super('Overlay');}
  init(data){this.info=data;this.page='main';}
