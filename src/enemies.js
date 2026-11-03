@@ -15,7 +15,7 @@ export const enemyMethods={
    e.attack={key:animation.key,action,frame:e.boss?Math.ceil(animation.frames.length*0.55):frames[action],facing:(s.flipX?-1:1)*(bosses[e.id]?.nativeFacing||1),done:false,
     damage:e.boss?bosses[e.id].damage:heavy?18:10,width:e.boss?180:heavy?110:85};
    e.busy=time+animation.duration;e.recovery=heavy?1050:e.boss?700:300;e.next=e.busy+e.recovery;
-   if(e.id==='Flying eye')e.next=e.busy+6500+Math.random()*1500;
+   if(e.id==='Flying eye')e.next=e.busy+(action==='attack'?1800:action==='attack2'?3500:3000)+Math.random()*1200;
  },
  advanceEnemyAttack(e,anim,frame){
   const a=e.attack;
@@ -73,14 +73,29 @@ export const enemyMethods={
      const px=e.patrol.x-s.x,py=e.patrol.y-s.y,len=Math.hypot(px,py)||1;
      s.setVelocity(px/len*80,py/len*80);s.setFlipX(px<0);s.play('Flying eye:move',true);continue;
     }
+    // Each eye has a role: the sniper keeps its distance and shoots, the diver
+    // charges like a missile without exploding, and the biter closes in.
+    if(!e.role)e.role=['sniper','diver','biter'][Math.floor(Math.random()*3)];
     const distance=Math.hypot(dx,h.y-35-s.y);
-    if(time>=e.next&&distance<150){
-     const action=dist<100?'attack':(++e.shots%4===0?'attack2':'attack3');
-     this.startEnemyAttack(e,time,action);continue;
+    if(time>=e.next){
+     let action=null;
+     if(e.role==='sniper'&&distance>200&&distance<520)action='attack3';
+     else if(e.role==='sniper'&&distance<=110)action='attack';
+     else if(e.role==='diver'&&distance>170&&distance<480)action='attack2';
+     else if(e.role==='biter'&&distance<=110)action='attack';
+     else if(e.role==='biter'&&distance>250&&distance<420&&Math.random()<0.01)action='attack2';
+     if(action){this.startEnemyAttack(e,time,action);continue;}
     }
     this.setEnemyState(e,'pursue',time);
-    const length=Math.hypot(dx,h.y-45-s.y)||1;
-    s.setVelocity(dx/length*125,(h.y-45-s.y)/length*125);s.setFlipX(dx<0);s.play('Flying eye:move',true);continue;
+    const ty=h.y-45-(e.role==='diver'?90:0)-s.y;
+    let vx=dx,vy=ty,speed=125;
+    if(e.role==='sniper'){
+     // Hold a ring around the player instead of closing in.
+     if(distance<260){vx=-dx;vy=-(h.y-45-s.y)-20;}
+     else if(distance<400){vx=0;vy=Math.sin(time/500+e.sprite.x)*30;speed=80;}
+    }
+    const length=Math.hypot(vx,vy)||1;
+    s.setVelocity(vx/length*speed,vy/length*speed);s.setFlipX(dx<0);s.play('Flying eye:move',true);continue;
    }
    const grounded=s.body.blocked.down||s.body.touching.down;
    if(e.id==='Skeleton'){

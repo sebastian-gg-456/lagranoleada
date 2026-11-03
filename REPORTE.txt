@@ -1041,3 +1041,10 @@ Pruebas
   scripts/verify-controls.mjs; tambien ocurria antes de estos cambios.
 
 FIN DE LA RONDA 8 - conservar historial y agregar futuras rondas al final.
+RONDA 9 - Ojos voladores con roles
+- Cada Flying Eye recibe un rol al azar: francotirador (dispara de lejos y mantiene distancia), embestidor (carga tipo misil sin explosion, ya existia como Attack2) y mordedor (cerca).
+- Antes solo atacaban al estar a menos de 150 px, por eso el disparo y la embestida casi no se veian; ahora cada rol ataca a su distancia y los tiempos de espera son mas cortos.
+- Verificado con scripts/eye-roles.mjs, node --test, ai-smoke y smoke.
+
+FIN DE LA RONDA 9 - conservar historial y agregar futuras rondas al final.
+
