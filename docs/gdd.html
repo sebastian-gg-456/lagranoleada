@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>La gran emboscada — Documento de diseño</title>
+<style>
+  @page { size: A4; margin: 0; }
+  :root {
+    --ink:#040808;
+    --deep:#07110f;
+    --panel:#0b1a16;
+    --panel-2:#0e211c;
+    --emerald:#32d493;
+    --jade:#13745a;
+    --ice:#8bd8ff;
+    --gold:#e2b866;
+    --gold-2:#b9853e;
+    --paper:#ece6d6;
+    --muted:#93aaa2;
+    --line:rgba(226,184,102,.24);
+    --line-soft:rgba(226,184,102,.12);
+    --red:#d15b4e;
+    --violet:#b99bff;
+    --shadow:0 8mm 20mm rgba(0,0,0,.35);
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; padding:0; background:#020504; }
+  body {
+    font-family:"Segoe UI","Trebuchet MS",Verdana,sans-serif;
+    color:var(--paper);
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  a { color:var(--gold); text-decoration:none; }
+  p { margin:0; }
+  h1,h2,h3,h4 { margin:0; font-weight:600; }
+  .page {
+    position:relative;
+    width:210mm;
+    height:297mm;
+    overflow:hidden;
+    page-break-after:always;
+    background:
+      radial-gradient(circle at 88% 9%, rgba(50,212,147,.10), transparent 32%),
+      radial-gradient(circle at 8% 92%, rgba(139,216,255,.06), transparent 28%),
+      linear-gradient(155deg,#07120f 0%,#040b09 56%,#08110e 100%);
+  }
+  .page:last-child { page-break-after:auto; }
+  .page::before {
+    content:"";
+    position:absolute;
+    inset:7mm;
+    border:0.25mm solid rgba(226,184,102,.18);
+    pointer-events:none;
+  }
+  .page::after {
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.012) 0, rgba(255,255,255,.012) 1px, transparent 1px, transparent 4px),
+      radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.26) 100%);
+    opacity:.55;
+  }
+  .page-inner {
+    position:relative;
+    z-index:2;
+    height:100%;
+    padding:16mm 15mm 16mm;
+    display:flex;
+    flex-direction:column;
+  }
+  .page-art {
+    position:absolute;
+    inset:0;
+    background-position:center;
+    background-size:cover;
+    opacity:.10;
+    filter:blur(.4px) saturate(.8);
+    z-index:0;
+  }
+  .page-art::after {
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(180deg,rgba(4,8,8,.18),rgba(4,8,8,.88));
+  }
+  .topline {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10mm;
+    padding-bottom:2.6mm;
+    margin-bottom:5.5mm;
+    border-bottom:.25mm solid var(--line-soft);
+    font-family:Consolas,"Courier New",monospace;
+    font-size:6.3pt;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .topline strong { color:var(--gold); font-weight:600; }
+  .footer {
+    position:absolute;
+    left:15mm;
+    right:15mm;
+    bottom:8mm;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-top:2mm;
+    border-top:.25mm solid var(--line-soft);
+    font-family:Consolas,"Courier New",monospace;
+    font-size:6pt;
+    letter-spacing:.12em;
+    color:rgba(147,170,162,.72);
+    text-transform:uppercase;
+  }
+  .footer .page-no { color:var(--gold); }
+  .kicker {
+    display:inline-flex;
+    align-items:center;
+    gap:2.2mm;
+    font-family:Consolas,"Courier New",monospace;
+    font-size:7pt;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--emerald);
+  }
+  .kicker::before {
+    content:"";
+    width:8mm;
+    height:.35mm;
+    background:linear-gradient(90deg,var(--emerald),transparent);
+  }
+  .section-head { margin-bottom:4mm; }
+  .section-head h1 {
+    font-family:"Palatino Linotype","Book Antiqua",Georgia,serif;
+    font-size:24pt;
+    line-height:1.02;
+    letter-spacing:-.01em;
+    color:#f4eedf;
+    margin:2.5mm 0 2.2mm;
+  }
+  .section-head .lead {
+    max-width:155mm;
+    font-size:9.2pt;
+    line-height:1.5;
+    color:#c6d6d0;
+  }
+  .gold { color:var(--gold); }
+  .emerald { color:var(--emerald); }
+  .muted { color:var(--muted); }
+  .mono { font-family:Consolas,"Courier New",monospace; }
+  .small { font-size:7.6pt; line-height:1.42; }
+  .micro { font-size:6.6pt; line-height:1.38; }
+  .caps { text-transform:uppercase; letter-spacing:.12em; }
+  .panel {
+    background:linear-gradient(145deg,rgba(13,32,27,.94),rgba(7,17,15,.94));
+    border:.25mm solid var(--line);
+    box-shadow:inset 0 0 0 .25mm rgba(50,212,147,.04);
+  }
+  .panel-soft {
+    background:rgba(10,24,20,.62);
+    border:.25mm solid rgba(226,184,102,.16);
+  }
+  .tag {
+    display:inline-block;
+    font-family:Consolas,"Courier New",monospace;
+    font-size:6.2pt;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--gold);
+    border:.25mm solid rgba(226,184,102,.35);
+    padding:.8mm 2mm;
+  }
+
+  .cover { background-image:url("../public/assets/fondos/ParallaxCave/7.png"); background-size:cover; background-position:center; }
+  .cover::before { border-color:rgba(226,184,102,.32); }
+  .cover::after { background:linear-gradient(90deg,rgba(2,7,6,.96) 0%,rgba(2,7,6,.83) 38%,rgba(2,7,6,.24) 72%,rgba(2,7,6,.58) 100%),linear-gradient(0deg,rgba(2,7,6,.94),transparent 42%,rgba(2,7,6,.5)); }
+  .cover-layer {
+    position:absolute;
+    inset:0;
+    background:url("../public/assets/fondos/ParallaxCave/9.png") center/cover;
+    opacity:.17;
+    mix-blend-mode:screen;
+    z-index:0;
+  }
+  .cover-inner {
+    position:relative;
+    z-index:2;
+    height:100%;
+    padding:18mm 17mm 14mm;
+    display:flex;
+    flex-direction:column;
+  }
+  .cover-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10mm; }
+  .cover-mark {
+    display:flex;
+    align-items:center;
+    gap:3mm;
+    font-family:Consolas,"Courier New",monospace;
+    font-size:6.6pt;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--gold);
+  }
+  .cover-mark span {
+    display:block;
+    width:8mm;
+    height:8mm;
+    border:.3mm solid var(--gold);
+    transform:rotate(45deg);
+    position:relative;
+  }
+  .cover-mark span::after {
+    content:"";
+    position:absolute;
+    inset:2mm;
+    background:var(--emerald);
+    opacity:.65;
+  }
+  .cover-code {
+    text-align:right;
+    font-family:Consolas,"Courier New",monospace;
+    font-size:6.4pt;
+    line-height:1.55;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    color:rgba(236,230,214,.62);
+  }
+  .cover-main { margin-top:47mm; }
+  .cover-eyebrow {
+    font-family:Consolas,"Courier New",monospace;
+    font-size:7.2pt;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    color:var(--emerald);
+    margin-bottom:5mm;
+  }
+  .cover-title {
+    font-family:"Palatino Linotype","Book Antiqua",Georgia,serif;
+    font-size:55pt;
+    line-height:.87;
+    letter-spacing:-.045em;
+    color:#f7f1e2;
+    text-shadow:0 2mm 8mm rgba(0,0,0,.75);
+    max-width:150mm;
+  }
+  .cover-title em {
+    font-style:normal;
+    color:var(--gold);
+    display:block;
+  }
+  .cover-rule {
+    width:54mm;
+    height:.5mm;
+    margin:7mm 0 5mm;
+    background:linear-gradient(90deg,var(--emerald),var(--gold),transparent);
+  }
+  .cover-sub {
+    max-width:116mm;
+    font-size:10.2pt;
+    line-height:1.55;
+    color:#cfdbd5;
+  }
+  .cover-bottom { margin-top:auto; display:flex; justify-content:space-between; align-items:flex-end; gap:12mm; }
+  .cover-facts { display:flex; gap:7mm; }
+  .cover-fact b {
+    display:block;
+    font-family:"Palatino Linotype","Book Antiqua",Georgia,serif;
+    font-size:19pt;
+    font-weight:500;
+    color:var(--gold);
+    line-height:1;
+  }
+  .cover-fact span {
+    display:block;
+    margin-top:1.4mm;
+    font-family:Consolas,"Courier New",monospace;
+    font-size:5.9pt;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:rgba(236,230,214,.55);
+  }
+  .cover-meta {
+    text-align:right;
+    font-family:Consolas,"Courier New",monospace;
+    font-size:6.3pt;
+    line-height:1.7;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:rgba(236,230,214,.68);
+  }
+  .cover-meta strong { color:var(--gold); font-weight:500; }
+
+  .hero-strip {
+    position:relative;
+    height:52mm;
+    overflow:hidden;
+    border:.25mm solid var(--line);
+    background:#000;
+  }
+  .hero-strip img { width:100%; height:100%; object-fit:cover; display:block; filter:saturate(.92) contrast(1.02); }
+  .hero-strip::after {
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(90deg,rgba(4,8,8,.28),transparent 40%,rgba(4,8,8,.45)),linear-gradient(0deg,rgba(4,8,8,.75),transparent 42%);
+  }
+  .hero-strip .caption {
+    position:absolute;
+    z-index:2;
+    left:4mm;
+    bottom:3mm;
+    font-family:Consolas,"Courier New",monospace;
+    font-size:6.2pt;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:rgba(236,230,214,.82);
+  }
+  .vision-grid {
+    display:grid;
+    grid-template-columns:1.22fr .78fr;
+    gap:6mm;
+    margin-top:5mm;
+  }
+  .vision-copy p { font-size:8.8pt; line-height:1.54; color:#c9d7d1; margin-bottom:2.5mm; }
+  .vision-copy p:last-child { margin-bottom:0; }
+  .vision-copy strong { color:var(--paper); font-weight:600; }
+  .ficha { padding:4.2mm 4.6mm; }
+  .ficha-title {
+    font-family:Consolas,"Courier New",monospace;
+    font-size:6.4pt;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:2.5mm;
+  }
+  .ficha-row { display:flex; justify-content:space-between; gap:3mm; padding:1.35mm 0; border-bottom:.2mm solid rgba(226,184,102,.10); font-size:7.2pt; line-height:1.28; }
+  .ficha-row:last-child { border-bottom:0; }
+  .ficha-row span:first-child { color:var(--muted); }
+  .ficha-row span:last-child { text-align:right; color:#e7dfcf; }
+  .pillars { display:grid; grid-template-columns:repeat(4,1fr); gap:3.2mm; margin-top:5mm; }
+  .pillar { padding:3.5mm 3.6mm; min-height:36mm; position:relative; }
+  .pillar .num {
+    font-family:"Palatino Linotype","Book Antiqua",Georgia,serif;
+    font-size:17pt;
+    color:rgba(226,184,102,.34);
+    line-height:1;
+    margin-bottom:2mm;
+  }
+  .pillar h3 { font-size:8.1pt; line-height:1.2; color:var(--paper); margin-bottom:1.6mm; }
+  .pillar p { font-size:6.9pt; line-height:1.38; color:var(--muted); }
+  .quote-band {
+    margin-top:5mm;
+    padding:4.2mm 5mm;
+    display:flex;
+    align-items:center;
+    gap:5mm;
+    background:linear-gradient(90deg,rgba(50,212,147,.12),rgba(10,24,20,.18));
+    border-left:.6mm solid var(--emerald);
+  }
+  .quote-band .mark { font-family:"Palatino Linotype",Georgia,serif; font-size:30pt; color:rgba(226,184,102,.6); line-height:.8; }
+  .quote-band p { font-family:"Palatino Linotype","Book Antiqua",Georgia,serif; font-size:11.5pt; line-height:1.28; color:#e9e2d2; font-style:italic; }
+
+  .loop-strip { display:grid; grid-template-columns:repeat(5,1fr); gap:2.6mm; margin-top:1mm; }
+  .loop-step { position:relative; padding:4mm 3.4mm 4.2mm; min-height:31mm; }
+  .loop-step:not(:last-child)::after {
+    content:"›";
+    position:absolute;
+    right:-2.7mm;
+    top:50%;
+    transform:translateY(-52%);
+    font-family:Georgia,serif;
+    font-size:16pt;
+    color:var(--gold);
+    z-index:3;
+  }
+  .loop-step .num {
+    font-family:Consolas,"Courier New",monospace;
+    font-size:5.9pt;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    color:var(--emerald);
+    margin-bottom:1.5mm;
+  }
+  .loop-step h3 { font-family:"Palatino Linotype",Georgia,serif; font-size:11pt; line-height:1.1; margin-bottom:1.4mm; }
+  .loop-step p { font-size:6.7pt; line-height:1.38; color:var(--muted); }
+  .two-col { display:grid; grid-template-columns:1.06fr .94fr; gap:5.5mm; margin-top:5mm; }
+  .panel-head {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:5mm;
+    margin-bottom:2.6mm;
+  }
+  .panel-head h2 { font-family:"Palatino Linotype",Georgia,serif; font-size:13pt; color:#f0e9da; }
+  .panel-head .tag { flex:0 0 auto; }
+  .cadence { padding:4mm; }
+  .cadence-row { display:grid; grid-template-columns:17mm 1fr; gap:3mm; align-items:start; padding:2.1mm 0; border-bottom:.2mm solid rgba(226,184,102,.10); }
+  .cadence-row:last-child { border-bottom:0; }
+  .wave-chip {
+    display:inline-block;
+    padding:.8mm 1.7mm;
+    font-family:Consolas,"Courier New",monospace;
+    font-size:6.3pt;
+    letter-spacing:.08em;
+    border:.25mm solid rgba(50,212,147,.32);
+    color:var(--emerald);
+    background:rgba(50,212,147,.06);
+  }
+  .wave-chip.boss { border-color:rgba(226,184,102,.45); color:var(--gold); background:rgba(226,184,102,.07); }
+  .cadence-row b { display:block; font-size:7.4pt; color:#e8e1d2; margin-bottom:.6mm; }
+  .cadence-row span { font-size:6.6pt; color:var(--muted); line-height:1.35; }
+  .formulas { padding:4mm; }
+  .formula-row { display:grid; grid-template-columns:1fr auto; gap:4mm; align-items:baseline; padding:2.1mm 0; border-bottom:.2mm solid rgba(226,184,102,.10); }
+  .formula-row:last-child { border-bottom:0; }
+  .formula-row .label { font-size:6.8pt; color:var(--muted); line-height:1.35; }
+  .formula-row .label b { display:block; font-size:7.5pt; color:#e7dfcf; margin-bottom:.5mm; font-weight:600; }
+  .formula-row code {
+    font-family:Consolas,"Courier New",monospace;
+    font-size:7.6pt;
+    color:var(--gold);
+    white-space:nowrap;
+  }
+  .score-band { display:grid; grid-template-columns:repeat(3,1fr); gap:3mm; margin-top:5mm; }
+  .score-cell { padding:3.4mm 4mm; display:flex; align-items:center; gap:3.5mm; }
+  .score-cell .big { font-family:Georgia,serif; font-size:22pt; line-height:1; color:var(--gold); }
+  .score-cell b { display:block; font-size:7.2pt; margin-bottom:.8mm; }
+  .score-cell span { font-size:6.5pt; color:var(--muted); line-height:1.32; }
+  .note-strip { margin-top:5mm; padding:3.4mm 4mm; font-size:7pt; line-height:1.45; color:var(--muted); border-left:.5mm solid var(--gold); background:rgba(226,184,102,.045); }
+  .note-strip b { color:var(--paper); }
+
+  .char-grid { display:grid; grid-template-columns:1fr 1fr; gap:4mm; margin-top:2mm; flex:1; }
+  .char-card { position:relative; padding:4.2mm; display:flex; flex-direction:column; overflow:hidden; }
+  .char-card::before { content:""; position:absolute; left:0; top:0; bottom:0; width:.7mm; background:var(--accent,#32d493); }
+  .char-card::after { content:""; position:absolute; right:-10mm; top:-10mm; width:30mm; height:30mm; border-radius:50%; background:var(--accent,#32d493); opacity:.055; filter:blur(6px); }
+  .char-top { display:flex; gap:3.6mm; align-items:flex-start; margin-bottom:2.2mm; }
+  .portrait {
+    flex:0 0 21mm;
+    width:21mm;
+    height:21mm;
+    display:grid;
+    place-items:center;
+    background:radial-gradient(circle at 50% 60%, rgba(255,255,255,.10), rgba(0,0,0,.24));
+    border:.25mm solid rgba(226,184,102,.26);
+    overflow:hidden;
+  }
+  .portrait img { width:16mm; height:16mm; object-fit:contain; image-rendering:pixelated; transform:scale(1.55); }
+  .char-title { flex:1; min-width:0; }
+  .char-title .role { display:block; font-family:Consolas,"Courier New",monospace; font-size:5.9pt; letter-spacing:.13em; text-transform:uppercase; color:var(--accent,#32d493); margin-bottom:1mm; }
+  .char-title h2 { font-family:"Palatino Linotype",Georgia,serif; font-size:15pt; line-height:1; margin-bottom:1.2mm; }
+  .char-title p { font-size:6.9pt; line-height:1.35; color:var(--muted); }
+  .ability-row { display:grid; grid-template-columns:5.2mm 1fr; gap:2.4mm; align-items:start; padding:1.8mm 0; border-top:.2mm solid rgba(226,184,102,.11); }
+  .ability-row:last-child { border-bottom:0; }
+  .key {
+    width:5.2mm;
+    height:5.2mm;
+    display:grid;
+    place-items:center;
+    border:.25mm solid rgba(226,184,102,.38);
+    color:var(--gold);
+    font-family:Consolas,"Courier New",monospace;
+    font-size:6.4pt;
+    line-height:1;
+    background:rgba(226,184,102,.06);
+  }
+  .ability-row p { font-size:6.95pt; line-height:1.36; color:#c7d5cf; }
+  .ability-row p b { color:#f0e8d8; font-weight:600; }
+  .char-foot { margin-top:auto; padding-top:2mm; font-family:Consolas,"Courier New",monospace; font-size:5.9pt; letter-spacing:.07em; color:rgba(147,170,162,.8); text-transform:uppercase; }
+  .common-note { margin-top:4mm; padding:2.8mm 4mm; font-size:6.9pt; line-height:1.4; color:var(--muted); background:rgba(50,212,147,.045); border:.2mm solid rgba(50,212,147,.16); }
+  .common-note b { color:var(--emerald); }
+
+  .controls-grid { display:grid; grid-template-columns:1.2fr .8fr; gap:5mm; margin-top:1mm; }
+  .controls { padding:3.4mm 4mm; }
+  .controls-table { width:100%; border-collapse:collapse; }
+  .controls-table th { text-align:left; font-family:Consolas,"Courier New",monospace; font-size:5.8pt; letter-spacing:.12em; text-transform:uppercase; color:var(--gold); font-weight:500; padding:0 0 1.8mm; border-bottom:.25mm solid rgba(226,184,102,.2); }
+  .controls-table td { padding:1.42mm 0; border-bottom:.2mm solid rgba(226,184,102,.08); font-size:7.1pt; line-height:1.25; color:#d6e0db; }
+  .controls-table tr:last-child td { border-bottom:0; }
+  .controls-table td:first-child { color:var(--paper); }
+  .controls-table td:not(:first-child) { font-family:Consolas,"Courier New",monospace; font-size:6.6pt; color:var(--muted); }
+  .feel { padding:3.8mm 4mm; }
+  .feel h3 { font-family:"Palatino Linotype",Georgia,serif; font-size:12pt; margin-bottom:2.2mm; }
+  .feel ul { margin:0; padding:0; list-style:none; }
+  .feel li { position:relative; padding-left:4.2mm; margin-bottom:1.8mm; font-size:6.9pt; line-height:1.38; color:#c7d5cf; }
+  .feel li::before { content:""; position:absolute; left:0; top:1.4mm; width:1.5mm; height:1.5mm; background:var(--gold); transform:rotate(45deg); opacity:.72; }
+  .combat-shot { height:52mm; margin-top:5mm; position:relative; overflow:hidden; border:.25mm solid var(--line); }
+  .combat-shot img { width:100%; height:100%; object-fit:cover; display:block; }
+  .combat-shot::after { content:""; position:absolute; inset:0; background:linear-gradient(0deg,rgba(4,8,8,.85),transparent 50%); }
+  .combat-shot .caption { position:absolute; z-index:2; left:4mm; bottom:3mm; font-family:Consolas,"Courier New",monospace; font-size:6.1pt; letter-spacing:.1em; text-transform:uppercase; color:rgba(236,230,214,.82); }
+  .impact-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:3mm; margin-top:5mm; }
+  .impact-card { padding:3.5mm 3.8mm; }
+  .impact-card h3 { font-size:7.6pt; color:var(--gold); margin-bottom:1.5mm; letter-spacing:.03em; }
+  .impact-card p { font-size:6.6pt; line-height:1.38; color:var(--muted); }
+  .impact-card p b { color:#e4ddd0; font-weight:600; }
+
+  .enemy-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:3.5mm; margin-top:2mm; }
+  .enemy-card { padding:3.8mm; display:flex; flex-direction:column; min-height:122mm; position:relative; overflow:hidden; }
+  .enemy-card::after { content:""; position:absolute; left:0; right:0; top:0; height:.7mm; background:var(--accent,#32d493); opacity:.8; }
+  .enemy-medallion {
+    width:100%;
+    height:34mm;
+    background-color:#06100d;
+    background-repeat:no-repeat;
+    background-position:center;
+    background-size:400% 100%;
+    image-rendering:pixelated;
+    border:.2mm solid rgba(226,184,102,.18);
+    margin-bottom:3mm;
+  }
+  .enemy-medallion.fly { background-size:800% 100%; }
+  .enemy-card .enemy-role { font-family:Consolas,"Courier New",monospace; font-size:5.8pt; letter-spacing:.13em; text-transform:uppercase; color:var(--accent,#32d493); margin-bottom:1mm; }
+  .enemy-card h2 { font-family:"Palatino Linotype",Georgia,serif; font-size:15pt; line-height:1; margin-bottom:2mm; }
+  .enemy-stats { display:grid; grid-template-columns:1fr 1fr; gap:1.4mm 2.5mm; padding:2.2mm 0; border-top:.2mm solid rgba(226,184,102,.13); border-bottom:.2mm solid rgba(226,184,102,.13); margin-bottom:2.2mm; }
+  .enemy-stats b { display:block; font-family:Consolas,"Courier New",monospace; font-size:6.3pt; color:var(--gold); font-weight:500; }
+  .enemy-stats span { display:block; font-size:5.9pt; color:var(--muted); margin-top:.3mm; }
+  .enemy-card p { font-size:6.75pt; line-height:1.4; color:#c4d3cd; margin-bottom:1.7mm; }
+  .enemy-card p:last-of-type { margin-bottom:0; }
+  .enemy-card .behavior { margin-top:auto; padding-top:2mm; border-top:.2mm solid rgba(226,184,102,.10); font-size:6.4pt; line-height:1.38; color:var(--muted); }
+  .enemy-card .behavior b { color:#e8e1d3; font-weight:600; }
+  .bestiary-panel { display:grid; grid-template-columns:1.3fr .7fr; gap:5mm; margin-top:5mm; padding:4mm; }
+  .principles { display:grid; grid-template-columns:1fr 1fr; gap:3mm 5mm; }
+  .principle b { display:block; font-size:7.1pt; color:var(--paper); margin-bottom:.8mm; }
+  .principle span { display:block; font-size:6.5pt; line-height:1.36; color:var(--muted); }
+  .bestiary-visual { position:relative; overflow:hidden; border:.2mm solid rgba(226,184,102,.18); min-height:34mm; }
+  .bestiary-visual img { width:100%; height:100%; object-fit:cover; display:block; }
+  .bestiary-visual .caption { position:absolute; left:2.5mm; bottom:2mm; z-index:2; font-family:Consolas,"Courier New",monospace; font-size:5.6pt; letter-spacing:.09em; color:rgba(236,230,214,.84); text-transform:uppercase; text-shadow:0 1mm 2mm #000; }
+
+  .boss-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:3.5mm; margin-top:2mm; }
+  .boss-card { padding:0; overflow:hidden; display:flex; flex-direction:column; }
+  .boss-shot { position:relative; height:41mm; overflow:hidden; background:#020706; }
+  .boss-shot img { width:100%; height:100%; object-fit:cover; display:block; filter:saturate(.95); }
+  .boss-shot::after { content:""; position:absolute; inset:0; background:linear-gradient(0deg,rgba(4,8,8,.88),transparent 58%); }
+  .boss-shot .wave {
+    position:absolute;
+    z-index:2;
+    left:3mm;
+    top:2.6mm;
+    font-family:Consolas,"Courier New",monospace;
+    font-size:5.8pt;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--gold);
+    background:rgba(4,8,8,.72);
+    border:.2mm solid rgba(226,184,102,.35);
+    padding:.8mm 1.8mm;
+  }
+  .boss-body { padding:3.2mm 3.4mm 3.5mm; display:flex; flex-direction:column; flex:1; }
+  .boss-body .epithet { font-family:Consolas,"Courier New",monospace; font-size:5.5pt; letter-spacing:.12em; text-transform:uppercase; color:var(--emerald); margin-bottom:1.1mm; }
+  .boss-body h2 { font-family:"Palatino Linotype",Georgia,serif; font-size:13pt; line-height:1.05; margin-bottom:1.8mm; }
+  .boss-body h2 span { display:block; font-family:"Segoe UI",sans-serif; font-size:6.7pt; letter-spacing:.02em; color:var(--gold); font-weight:500; margin-top:.9mm; }
+  .boss-data { display:grid; grid-template-columns:1fr 1fr; gap:1.2mm 2mm; margin-bottom:2mm; }
+  .boss-data div { padding-top:1.2mm; border-top:.2mm solid rgba(226,184,102,.12); }
+  .boss-data b { display:block; font-family:Consolas,"Courier New",monospace; font-size:6.9pt; color:var(--gold); font-weight:500; }
+  .boss-data span { display:block; font-size:5.6pt; color:var(--muted); margin-top:.4mm; }
+  .boss-body p { font-size:6.55pt; line-height:1.4; color:#c4d3cd; }
+  .boss-tech { display:grid; grid-template-columns:.82fr 1.18fr; gap:4.5mm; margin-top:5mm; padding:4mm; }
+  .boss-tech-img { position:relative; overflow:hidden; border:.2mm solid rgba(226,184,102,.18); min-height:52mm; }
+  .boss-tech-img img { width:100%; height:100%; object-fit:cover; display:block; }
+  .boss-tech-img .caption { position:absolute; left:2.5mm; bottom:2mm; z-index:2; font-family:Consolas,"Courier New",monospace; font-size:5.6pt; letter-spacing:.08em; color:rgba(236,230,214,.85); text-transform:uppercase; text-shadow:0 1mm 2mm #000; }
+  .tech-grid { display:grid; grid-template-columns:1fr 1fr; gap:2.2mm 4mm; }
+  .tech-grid div { border-top:.2mm solid rgba(226,184,102,.14); padding-top:1.5mm; }
+  .tech-grid b { display:block; font-family:Consolas,"Courier New",monospace; font-size:5.8pt; letter-spacing:.08em; color:var(--muted); text-transform:uppercase; font-weight:500; }
+  .tech-grid span { display:block; font-size:7pt; color:#e5decf; margin-top:.5mm; line-height:1.25; }
+  .boss-note { margin-top:2.2mm; padding-top:2mm; border-top:.2mm solid rgba(226,184,102,.12); font-size:6.4pt; line-height:1.38; color:var(--muted); }
+  .boss-note b { color:var(--gold); }
+
+  .map-hero { display:grid; grid-template-columns:1.45fr .55fr; gap:5mm; margin-top:2mm; }
+  .map-canvas {
+    position:relative;
+    overflow:hidden;
+    border:.25mm solid var(--line);
+    background:#020706;
+  }
+  .map-canvas .bg { position:absolute; inset:0; background-position:center; background-size:cover; image-rendering:pixelated; }
+  .map-canvas .bg::after { content:""; position:absolute; inset:0; background:linear-gradient(0deg,rgba(4,8,8,.84),transparent 58%); }
+  .platform {
+    position:absolute;
+    height:1.1mm;
+    background:linear-gradient(90deg,var(--emerald),rgba(226,184,102,.8));
+    box-shadow:0 0 2mm rgba(50,212,147,.34);
+    border-radius:.4mm;
+    z-index:2;
+  }
+  .ground-line { position:absolute; left:0; right:0; height:1.4mm; background:linear-gradient(90deg,var(--gold-2),var(--emerald),var(--gold-2)); opacity:.72; z-index:2; }
+  .map-label {
+    position:absolute;
+    z-index:3;
+    left:4mm;
+    bottom:3mm;
+    right:4mm;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:4mm;
+  }
+  .map-label h2 { font-family:"Palatino Linotype",Georgia,serif; font-size:14pt; line-height:1; }
+  .map-label span { font-family:Consolas,"Courier New",monospace; font-size:5.8pt; letter-spacing:.1em; color:var(--gold); text-transform:uppercase; }
+  .map-aside { padding:3.8mm; display:flex; flex-direction:column; }
+  .map-aside h3 { font-family:"Palatino Linotype",Georgia,serif; font-size:12pt; margin-bottom:2.2mm; }
+  .map-aside p { font-size:6.8pt; line-height:1.4; color:var(--muted); margin-bottom:2mm; }
+  .map-aside .stat-line { display:flex; justify-content:space-between; gap:3mm; padding:1.2mm 0; border-bottom:.2mm solid rgba(226,184,102,.10); font-size:6.4pt; }
+  .map-aside .stat-line span:first-child { color:var(--muted); }
+  .map-aside .stat-line span:last-child { font-family:Consolas,"Courier New",monospace; color:var(--gold); }
+  .crystal-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:3mm; margin-top:3mm; }
+  .crystal-card { overflow:hidden; }
+  .crystal-card .mini-map { position:relative; height:30mm; overflow:hidden; background:#020706; }
+  .crystal-card .bg { position:absolute; inset:0; background-position:center; background-size:cover; image-rendering:pixelated; }
+  .crystal-card .bg::after { content:""; position:absolute; inset:0; background:linear-gradient(0deg,rgba(4,8,8,.78),transparent 54%); }
+  .crystal-card .mini-platform { position:absolute; height:.8mm; background:var(--emerald); box-shadow:0 0 1.2mm rgba(50,212,147,.3); z-index:2; }
+  .crystal-card .mini-ground { position:absolute; left:0; right:0; height:.8mm; background:rgba(226,184,102,.7); z-index:2; }
+  .crystal-body { padding:2.6mm 2.8mm 3mm; }
+  .crystal-body h3 { font-family:"Palatino Linotype",Georgia,serif; font-size:9.5pt; line-height:1.05; margin-bottom:1.1mm; }
+  .crystal-body p { font-size:5.9pt; color:var(--muted); line-height:1.32; }
+  .crystal-body .chips { margin-top:1.5mm; display:flex; gap:1.4mm; flex-wrap:wrap; }
+  .mini-chip { font-family:Consolas,"Courier New",monospace; font-size:5.1pt; letter-spacing:.04em; color:var(--gold); border:.2mm solid rgba(226,184,102,.24); padding:.4mm 1.1mm; }
+  .map-notes { display:grid; grid-template-columns:repeat(3,1fr); gap:3mm; margin-top:4mm; }
+  .map-note { padding:3.2mm 3.5mm; }
+  .map-note b { display:block; font-size:7pt; color:var(--paper); margin-bottom:.8mm; }
+  .map-note span { display:block; font-size:6.2pt; line-height:1.35; color:var(--muted); }
+
+  .ux-top { display:grid; grid-template-columns:1.15fr .85fr; gap:5mm; margin-top:0; }
+  .ux-shot { position:relative; height:68mm; overflow:hidden; border:.25mm solid var(--line); }
+  .ux-shot img { width:100%; height:100%; object-fit:cover; display:block; }
+  .ux-shot::after { content:""; position:absolute; inset:0; background:linear-gradient(0deg,rgba(4,8,8,.8),transparent 52%); }
+  .ux-shot .caption { position:absolute; z-index:2; left:3.5mm; bottom:2.8mm; font-family:Consolas,"Courier New",monospace; font-size:5.9pt; letter-spacing:.09em; color:rgba(236,230,214,.84); text-transform:uppercase; }
+  .flow { padding:3.6mm 4mm; }
+  .flow h3 { font-family:"Palatino Linotype",Georgia,serif; font-size:12pt; margin-bottom:2mm; }
+  .flow-step { display:grid; grid-template-columns:6mm 1fr; gap:2mm; align-items:start; padding:1.5mm 0; border-bottom:.2mm solid rgba(226,184,102,.10); }
+  .flow-step:last-child { border-bottom:0; }
+  .flow-step b { font-family:Consolas,"Courier New",monospace; font-size:6.2pt; color:var(--gold); font-weight:500; }
+  .flow-step span { font-size:6.5pt; line-height:1.35; color:var(--muted); }
+  .ux-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:3.2mm; margin-top:4mm; }
+  .ux-card { padding:3.5mm 3.8mm; min-height:54mm; }
+  .ux-card h3 { font-family:"Palatino Linotype",Georgia,serif; font-size:11pt; margin-bottom:1.8mm; }
+  .ux-card ul { margin:0; padding:0; list-style:none; }
+  .ux-card li { position:relative; padding-left:3.8mm; margin-bottom:1.5mm; font-size:6.35pt; line-height:1.36; color:var(--muted); }
+  .ux-card li::before { content:""; position:absolute; left:0; top:1.25mm; width:1.2mm; height:1.2mm; background:var(--emerald); transform:rotate(45deg); opacity:.7; }
+  .ux-card b { color:#e8e0d1; font-weight:600; }
+  .feedback-strip { display:grid; grid-template-columns:.72fr 1.28fr; gap:4.5mm; margin-top:4mm; padding:3.8mm; }
+  .feedback-img { position:relative; overflow:hidden; min-height:44mm; border:.2mm solid rgba(226,184,102,.16); }
+  .feedback-img img { width:100%; height:100%; object-fit:cover; display:block; }
+  .feedback-copy h3 { font-family:"Palatino Linotype",Georgia,serif; font-size:12pt; margin-bottom:1.8mm; }
+  .feedback-copy p { font-size:6.7pt; line-height:1.4; color:var(--muted); margin-bottom:1.2mm; }
+  .feedback-copy b { color:var(--gold); }
+
+  .art-grid { display:grid; grid-template-columns:1fr 1fr; gap:3.5mm; margin-top:2mm; }
+  .art-card { position:relative; overflow:hidden; border:.25mm solid var(--line); height:64mm; background:#020706; }
+  .art-card img { width:100%; height:100%; object-fit:cover; display:block; }
+  .art-card::after { content:""; position:absolute; inset:0; background:linear-gradient(0deg,rgba(4,8,8,.82),transparent 55%); }
+  .art-card .caption { position:absolute; z-index:2; left:3mm; bottom:2.5mm; font-family:Consolas,"Courier New",monospace; font-size:5.8pt; letter-spacing:.09em; color:rgba(236,230,214,.82); text-transform:uppercase; }
+  .art-text { display:grid; grid-template-columns:1fr 1fr; gap:5mm; margin-top:4mm; }
+  .art-text h2 { font-family:"Palatino Linotype",Georgia,serif; font-size:12.5pt; margin-bottom:2mm; }
+  .art-text p { font-size:6.85pt; line-height:1.42; color:#c3d2cc; margin-bottom:1.8mm; }
+  .art-text b { color:var(--paper); }
+  .palette { display:flex; gap:1.5mm; margin-top:2.3mm; }
+  .swatch { height:8mm; flex:1; border:.2mm solid rgba(255,255,255,.16); position:relative; }
+  .swatch span {
+    position:absolute;
+    left:0; right:0; bottom:-4.1mm;
+    font-family:Consolas,"Courier New",monospace;
+    font-size:4.9pt;
+    color:rgba(147,170,162,.8);
+    text-align:center;
+  }
+  .audio-list { display:grid; gap:1.7mm; margin-top:1mm; }
+  .audio-row { display:grid; grid-template-columns:17mm 1fr; gap:3mm; padding:1.6mm 0; border-bottom:.2mm solid rgba(226,184,102,.10); }
+  .audio-row:last-child { border-bottom:0; }
+  .audio-row b { font-family:Consolas,"Courier New",monospace; font-size:5.8pt; letter-spacing:.08em; text-transform:uppercase; color:var(--gold); font-weight:500; }
+  .audio-row span { font-size:6.4pt; line-height:1.36; color:var(--muted); }
+  .integration { display:grid; grid-template-columns:repeat(3,1fr); gap:3mm; margin-top:4mm; }
+  .integration div { padding:2.8mm 3.2mm; border-left:.4mm solid rgba(226,184,102,.55); background:rgba(226,184,102,.035); }
+  .integration b { display:block; font-size:6.9pt; color:var(--paper); margin-bottom:.7mm; }
+  .integration span { display:block; font-size:6.05pt; line-height:1.34; color:var(--muted); }
+  .credit-text { margin-top:4mm; padding:3.5mm 4mm; border:.2mm solid rgba(226,184,102,.18); background:rgba(4,10,9,.38); }
+  .credit-text h3 { font-family:"Palatino Linotype",Georgia,serif; font-size:10.5pt; margin-bottom:1.8mm; }
+  .credit-text p { font-family:Consolas,"Courier New",monospace; font-size:5.9pt; line-height:1.55; color:var(--muted); }
+  .credit-text b { color:var(--gold); font-weight:500; }
+  .thanks { margin-top:4mm; padding:3.8mm 4.2mm; display:grid; grid-template-columns:22mm 1fr; gap:4mm; align-items:center; border-left:.5mm solid var(--emerald); background:rgba(50,212,147,.045); }
+  .thanks b { font-family:Consolas,"Courier New",monospace; font-size:6.4pt; letter-spacing:.14em; text-transform:uppercase; color:var(--emerald); }
+  .thanks p { font-family:"Palatino Linotype",Georgia,serif; font-size:9pt; line-height:1.35; color:#d8e2dd; }
+
+  .prod-top { display:grid; grid-template-columns:1.08fr .92fr; gap:5mm; margin-top:0; }
+  .arch { padding:4mm; }
+  .arch h2 { font-family:"Palatino Linotype",Georgia,serif; font-size:12.5pt; margin-bottom:3mm; }
+  .arch-grid { display:grid; grid-template-columns:1fr 1fr; gap:2.2mm; }
+  .arch-box { padding:2.6mm 2.8mm; border:.2mm solid rgba(226,184,102,.18); background:rgba(7,17,15,.62); min-height:19mm; }
+  .arch-box b { display:block; font-family:Consolas,"Courier New",monospace; font-size:6.4pt; color:var(--emerald); margin-bottom:.7mm; }
+  .arch-box span { display:block; font-size:5.8pt; line-height:1.32; color:var(--muted); }
+  .status { padding:4mm; }
+  .status h2 { font-family:"Palatino Linotype",Georgia,serif; font-size:12.5pt; margin-bottom:2.5mm; }
+  .status-row { display:flex; justify-content:space-between; gap:4mm; padding:1.7mm 0; border-bottom:.2mm solid rgba(226,184,102,.10); font-size:6.4pt; }
+  .status-row:last-child { border-bottom:0; }
+  .status-row span:first-child { color:var(--muted); }
+  .status-row span:last-child { font-family:Consolas,"Courier New",monospace; color:var(--gold); text-align:right; }
+  .ok { color:var(--emerald) !important; }
+  .checks { display:grid; grid-template-columns:repeat(3,1fr); gap:3mm; margin-top:4mm; }
+  .check-card { padding:3.2mm 3.5mm; }
+  .check-card h3 { font-family:"Palatino Linotype",Georgia,serif; font-size:10pt; margin-bottom:1.5mm; }
+  .check-card ul { margin:0; padding:0; list-style:none; }
+  .check-card li { display:flex; justify-content:space-between; gap:3mm; padding:1.05mm 0; border-bottom:.18mm solid rgba(226,184,102,.08); font-size:6.15pt; color:var(--muted); }
+  .check-card li:last-child { border-bottom:0; }
+  .check-card li b { font-family:Consolas,"Courier New",monospace; font-size:5.5pt; color:var(--emerald); font-weight:500; }
+  .ops { display:grid; grid-template-columns:1.1fr .9fr; gap:4mm; margin-top:4mm; padding:3.5mm 4mm; }
+  .ops h3 { font-family:"Palatino Linotype",Georgia,serif; font-size:10pt; margin-bottom:1.5mm; }
+  .ops p { font-size:6.35pt; line-height:1.4; color:var(--muted); }
+  .ops code { font-family:Consolas,"Courier New",monospace; color:var(--gold); font-size:6.2pt; }
+  .ops .repo { font-family:Consolas,"Courier New",monospace; font-size:6pt; color:var(--emerald); word-break:break-all; }
+
+  .credits-grid { display:grid; grid-template-columns:.82fr 1.18fr; gap:5mm; margin-top:1mm; }
+  .team { padding:4mm; }
+  .team h2, .resources h2 { font-family:"Palatino Linotype",Georgia,serif; font-size:12.5pt; margin-bottom:2.5mm; }
+  .team p { font-size:6.8pt; line-height:1.42; color:var(--muted); margin-bottom:2mm; }
+  .team .name { font-family:"Palatino Linotype",Georgia,serif; font-size:13pt; color:var(--paper); margin-bottom:.6mm; }
+  .team .role { font-family:Consolas,"Courier New",monospace; font-size:5.9pt; letter-spacing:.08em; text-transform:uppercase; color:var(--gold); margin-bottom:2.5mm; }
+  .team .repo-line { margin-top:2.5mm; padding-top:2mm; border-top:.2mm solid rgba(226,184,102,.14); font-family:Consolas,"Courier New",monospace; font-size:5.9pt; line-height:1.45; color:var(--emerald); word-break:break-all; }
+  .resources { padding:4mm; }
+  .credit-row { display:grid; grid-template-columns:1fr auto; gap:3mm; padding:1.7mm 0; border-bottom:.2mm solid rgba(226,184,102,.10); }
+  .credit-row:last-child { border-bottom:0; }
+  .credit-row b { display:block; font-size:7pt; color:#e8e0d1; margin-bottom:.5mm; font-weight:600; }
+  .credit-row span { display:block; font-size:6.1pt; line-height:1.34; color:var(--muted); }
+  .credit-row a { font-family:Consolas,"Courier New",monospace; font-size:5.7pt; color:var(--gold); text-align:right; max-width:34mm; word-break:break-all; }
+  .license-band { margin-top:4mm; padding:3.8mm 4.2mm; border-left:.6mm solid var(--gold); background:rgba(226,184,102,.045); }
+  .license-band h3 { font-family:"Palatino Linotype",Georgia,serif; font-size:10.5pt; margin-bottom:1.4mm; }
+  .license-band p { font-size:6.45pt; line-height:1.45; color:var(--muted); }
+  .license-band b { color:var(--paper); }
+  .tools { display:grid; grid-template-columns:repeat(4,1fr); gap:2.5mm; margin-top:4mm; }
+  .tool { padding:2.6mm 3mm; border:.2mm solid rgba(226,184,102,.15); }
+  .tool b { display:block; font-family:Consolas,"Courier New",monospace; font-size:6.2pt; color:var(--emerald); margin-bottom:.5mm; }
+  .tool span { display:block; font-size:5.7pt; color:var(--muted); line-height:1.3; }
+
+  .end {
+    background-image:url("../public/assets/fondos/ParallaxCave/4.png");
+    background-size:cover;
+    background-position:center;
+  }
+  .end::before { border-color:rgba(226,184,102,.3); }
+  .end::after { background:linear-gradient(180deg,rgba(2,7,6,.66),rgba(2,7,6,.9)),radial-gradient(circle at 50% 38%,rgba(50,212,147,.17),transparent 42%); }
+  .end-inner {
+    position:relative;
+    z-index:2;
+    height:100%;
+    padding:20mm 18mm 16mm;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+  }
+  .end-kicker { font-family:Consolas,"Courier New",monospace; font-size:6.6pt; letter-spacing:.28em; text-transform:uppercase; color:var(--emerald); margin-bottom:8mm; }
+  .end-sigil {
+    width:16mm;
+    height:16mm;
+    border:.35mm solid rgba(226,184,102,.62);
+    transform:rotate(45deg);
+    display:grid;
+    place-items:center;
+    margin-bottom:12mm;
+  }
+  .end-sigil span { width:7mm; height:7mm; background:var(--emerald); opacity:.75; }
+  .end h1 {
+    font-family:"Palatino Linotype","Book Antiqua",Georgia,serif;
+    font-size:36pt;
+    line-height:1;
+    letter-spacing:-.03em;
+    color:#f6efdf;
+    max-width:150mm;
+    margin-bottom:5mm;
+    text-shadow:0 2mm 8mm #000;
+  }
+  .end h1 em { font-style:normal; color:var(--gold); display:block; }
+  .end-sub { max-width:120mm; font-size:9.5pt; line-height:1.55; color:#c7d5cf; margin-bottom:15mm; }
+  .end-cta {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:3mm;
+    margin-bottom:5mm;
+    font-family:Consolas,"Courier New",monospace;
+    font-size:6.4pt;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--gold);
+  }
+  .end-cta::before, .end-cta::after { content:""; width:14mm; height:.25mm; background:rgba(226,184,102,.45); }
+  .end-url {
+    display:block;
+    font-family:"Palatino Linotype",Georgia,serif;
+    font-size:19pt;
+    letter-spacing:.01em;
+    color:#f3e9d2;
+    border-bottom:.35mm solid rgba(226,184,102,.55);
+    padding-bottom:2.5mm;
+    margin-bottom:10mm;
+  }
+  .end-foot {
+    position:absolute;
+    left:18mm;
+    right:18mm;
+    bottom:11mm;
+    display:flex;
+    justify-content:space-between;
+    font-family:Consolas,"Courier New",monospace;
+    font-size:5.8pt;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    color:rgba(236,230,214,.55);
+  }
+</style>
+</head>
+<body>
+
+<section class="page cover">
+  <div class="cover-layer"></div>
+  <div class="cover-inner">
+    <div class="cover-top">
+      <div class="cover-mark"><span></span> Documento de diseño</div>
+      <div class="cover-code">GDD / v1.0<br>Noviembre 2026<br>Phaser 3 · Web</div>
+    </div>
+    <div class="cover-main">
+      <div class="cover-eyebrow">Acción 2D · Supervivencia por oleadas</div>
+      <h1 class="cover-title">LA GRAN<em>EMBOSCADA</em></h1>
+      <div class="cover-rule"></div>
+      <p class="cover-sub">Cuatro elementales, cinco cavernas y tres guardianes que se turnan cada cinco oleadas. Un manual de juego, diseño y producción.</p>
+    </div>
+    <div class="cover-bottom">
+      <div class="cover-facts">
+        <div class="cover-fact"><b>4</b><span>Personajes</span></div>
+        <div class="cover-fact"><b>5</b><span>Mapas</span></div>
+        <div class="cover-fact"><b>3</b><span>Jefes</span></div>
+        <div class="cover-fact"><b>∞</b><span>Oleadas</span></div>
+      </div>
+      <div class="cover-meta">Proyecto independiente<br><strong>Phaser 3 + Vite</strong><br>Español · Un jugador</div>
+    </div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="page-art" style="background-image:url('../public/assets/fondos/ParallaxCave/7.png')"></div>
+  <div class="page-inner">
+    <div class="topline"><span><strong>La gran emboscada</strong> / Documento de diseño</span><span>01 · Visión</span></div>
+    <div class="section-head">
+      <span class="kicker">La promesa</span>
+      <h1>Una caverna. Cuatro elementales.<br>Ninguna salida fácil.</h1>
+      <p class="lead">Un juego de acción y supervivencia 2D que combina oleadas infinitas, combate por fotogramas y tres jefes exclusivos. La partida se gana leyendo el espacio, no acumulando golpes.</p>
+    </div>
+    <div class="hero-strip">
+      <img src="../test-results/game.png" alt="Gameplay de La gran emboscada">
+      <div class="caption">Caverna ancestral · combate, plataformas y lectura de distancias</div>
+    </div>
+    <div class="vision-grid">
+      <div class="vision-copy">
+        <p><strong>La gran emboscada</strong> es un juego de acción 2D por oleadas para un jugador. El jugador elige uno de cuatro elementales, entra a una de cinco cavernas y sobrevive a enemigos cada vez más rápidos y numerosos.</p>
+        <p>Cada cinco oleadas la arena se cierra y aparece un guardián: <strong>Morgath</strong>, <strong>Hríngar</strong> o <strong>Asterión</strong>. El combate es deliberadamente legible: los golpes se resuelven en fotogramas concretos, los contactos tienen un frente claro y las animaciones comunican el riesgo antes del impacto.</p>
+        <p>La sesión es corta, rejugable y sin fricción: teclado o mando, pausa automática al perder foco, tutorial consultable y récord local. La dificultad escala con la oleada, pero la lectura del enemigo sigue siendo la habilidad central.</p>
+      </div>
+      <div class="ficha panel">
+        <div class="ficha-title">Ficha técnica</div>
+        <div class="ficha-row"><span>Nombre</span><span>La gran emboscada</span></div>
+        <div class="ficha-row"><span>Género</span><span>Acción / supervivencia 2D</span></div>
+        <div class="ficha-row"><span>Formato</span><span>Oleadas infinitas + jefes</span></div>
+        <div class="ficha-row"><span>Plataforma</span><span>Navegador de escritorio</span></div>
+        <div class="ficha-row"><span>Motor</span><span>Phaser 3.90 + Vite 6</span></div>
+        <div class="ficha-row"><span>Controles</span><span>Teclado y mando</span></div>
+        <div class="ficha-row"><span>Idioma</span><span>Español</span></div>
+        <div class="ficha-row"><span>Versión</span><span>1.0 · 2026</span></div>
+        <div class="ficha-row"><span>Estado</span><span>Publicado y jugable</span></div>
+      </div>
+    </div>
+    <div class="pillars">
+      <div class="pillar panel-soft"><div class="num">I</div><h3>Combate que se lee</h3><p>Hitboxes frontales, contactos por fotograma y animaciones con intención. Nada de daño invisible.</p></div>
+      <div class="pillar panel-soft"><div class="num">II</div><h3>Ritmo de cinco</h3><p>Cada cinco oleadas, la presión cambia: arena exclusiva, barra de jefe y un patrón nuevo que aprender.</p></div>
+      <div class="pillar panel-soft"><div class="num">III</div><h3>Cuatro identidades</h3><p>Rango, área, velocidad y control. Cada elemental propone una forma distinta de resolver la misma caverna.</p></div>
+      <div class="pillar panel-soft"><div class="num">IV</div><h3>Accesible, no blando</h3><p>Teclado o mando, tutorial claro, volúmenes separados y pausa al perder foco. La exigencia está en el combate.</p></div>
+    </div>
+    <div class="quote-band">
+      <div class="mark">“</div>
+      <p>La legibilidad manda: si el jugador no puede leer el ataque, el ataque no existe.</p>
+    </div>
+    <div class="footer"><span>La gran emboscada · GDD v1.0</span><span class="page-no">02</span></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="page-art" style="background-image:url('../public/assets/fondos/CrystalCave/PNG/background 3/background 3.png')"></div>
+  <div class="page-inner">
+    <div class="topline"><span><strong>La gran emboscada</strong> / Documento de diseño</span><span>02 · Bucle y progresión</span></div>
+    <div class="section-head">
+      <span class="kicker">El ritmo de la partida</span>
+      <h1>Elegir, sobrevivir, leer, vencer.</h1>
+      <p class="lead">La estructura es simple a propósito: una decisión antes de entrar y una lectura constante dentro de la arena. La progresión no depende de mejoras permanentes, sino de entender mejor el combate.</p>
+    </div>
+    <div class="loop-strip">
+      <div class="loop-step panel"><div class="num">01 / Entrar</div><h3>Elegir</h3><p>Mapa, personaje y primera lectura de la arena.</p></div>
+      <div class="loop-step panel"><div class="num">02 / Resistir</div><h3>Sobrevivir</h3><p>Oleadas con más enemigos, vida y velocidad.</p></div>
+      <div class="loop-step panel"><div class="num">03 / Aprender</div><h3>Leer</h3><p>Rangos, escudos, vuelos y ventanas de castigo.</p></div>
+      <div class="loop-step panel"><div class="num">04 / Cerrar</div><h3>Vencer</h3><p>Cada cinco oleadas: arena exclusiva y guardián.</p></div>
+      <div class="loop-step panel"><div class="num">05 / Volver</div><h3>Reintentar</h3><p>Récord local, nueva combinación y más presión.</p></div>
+    </div>
+    <div class="two-col">
+      <div class="cadence panel">
+        <div class="panel-head"><h2>La cadencia de cinco</h2><span class="tag">Rotación de jefes</span></div>
+        <div class="cadence-row"><span class="wave-chip">1–4</span><div><b>Rampa de entrada</b><span>Enemigos comunes. Cantidad y velocidad suben mientras el jugador explora su personaje.</span></div></div>
+        <div class="cadence-row"><span class="wave-chip boss">5</span><div><b>MORGATH · Devorador del Abismo</b><span>Primer duelo. Tajo amplio y presión constante; la arena queda solo para el jefe.</span></div></div>
+        <div class="cadence-row"><span class="wave-chip boss">10</span><div><b>HRÍNGAR · Titán del Invierno</b><span>El mayor volumen del juego. Un duelo más lento, con alcance que obliga a moverse.</span></div></div>
+        <div class="cadence-row"><span class="wave-chip boss">15</span><div><b>ASTERIÓN · Azote del Laberinto</b><span>El daño más alto del ciclo. Un cierre que castiga la impaciencia.</span></div></div>
+        <div class="cadence-row"><span class="wave-chip">16+</span><div><b>Rotación infinita</b><span>La vida de los jefes sigue subiendo y la rotación vuelve a empezar; el límite es la lectura.</span></div></div>
+      </div>
+      <div>
+        <div class="formulas panel">
+          <div class="panel-head"><h2>Curva de dificultad</h2><span class="tag">Fórmulas</span></div>
+          <div class="formula-row"><div class="label"><b>Enemigos simultáneos</b>Sube con la oleada, con techo para mantener legibilidad.</div><code>min(5 + o × 2, 36)</code></div>
+          <div class="formula-row"><div class="label"><b>Vida enemiga</b>Un aumento lineal y predecible.</div><code>35 + o × 9</code></div>
+          <div class="formula-row"><div class="label"><b>Velocidad</b>El ritmo se acelera, pero nunca se vuelve ilegible.</div><code>min(80 + o × 5, 185)</code></div>
+          <div class="formula-row"><div class="label"><b>Vida de jefe</b>El guardián escala con la oleada, no con el mapa.</div><code>900 + o × 90</code></div>
+        </div>
+      </div>
+    </div>
+    <div class="note-strip"><b>Decisión de diseño:</b> la progresión es de conocimiento, no de estadísticas. No hay árbol de mejoras ni equipo; el jugador mejora porque entiende el rango del escudo, el tiempo del ojo volador y la recuperación del jefe. <b>Puntaje:</b> 100 por enemigo, 1000 por guardián y récord local en el navegador.</div>
+    <div class="footer"><span>Bucle, oleadas y economía de puntaje</span><span class="page-no">03</span></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="page-art" style="background-image:url('../public/assets/fondos/ParallaxCave/4.png')"></div>
+  <div class="page-inner">
+    <div class="topline"><span><strong>La gran emboscada</strong> / Documento de diseño</span><span>03 · Personajes</span></div>
+    <div class="section-head">
+      <span class="kicker">Cuatro formas de sobrevivir</span>
+      <h1>El mismo peligro, cuatro respuestas.</h1>
+      <p class="lead">Cada elemental tiene un básico, un secundario y una habilidad propia. Comparten vida, rodada y defensa, pero cambian el ritmo, la distancia y el riesgo.</p>
+    </div>
+    <div class="char-grid">
+      <div class="char-card panel" style="--accent:#63c982">
+        <div class="char-top">
+          <div class="portrait"><img src="../public/assets/personajes/LeafRanger/leaf_ranger.png" alt="Retrato de Leaf Ranger"></div>
+          <div class="char-title"><span class="role">Rango / control</span><h2>Leaf Ranger</h2><p>Arquera ágil. Castiga a distancia y prepara variantes con la carga del arco.</p></div>
+        </div>
+        <div class="ability-row"><span class="key">X</span><p><b>Golpe cercano.</b> Usa el básico cuerpo a cuerpo para crear espacio cuando el enemigo se acerca.</p></div>
+        <div class="ability-row"><span class="key">Y</span><p><b>Flecha cargada.</b> Mantener 1,5 s prepara área o veneno (10 de daño por segundo durante 5 s). En el aire, el impacto se refuerza tras 0,5 s.</p></div>
+        <div class="ability-row"><span class="key">B</span><p><b>Lluvia de flechas.</b> Cubre una zona y castiga a los enemigos que quedan debajo. Recarga de 9 s.</p></div>
+        <div class="char-foot">Distancia · preparación · control de zona</div>
+      </div>
+      <div class="char-card panel" style="--accent:#9bdcff">
+        <div class="char-top">
+          <div class="portrait"><img src="../public/assets/personajes/CrystalMauler/crystal_mauler.png" alt="Retrato de Crystal Mauler"></div>
+          <div class="char-title"><span class="role">Bruiser / área</span><h2>Crystal Mauler</h2><p>Coloso de cristal. Cambia velocidad por golpes amplios y castigo en el suelo.</p></div>
+        </div>
+        <div class="ability-row"><span class="key">X</span><p><b>Combo de dos golpes.</b> En el aire usa el ataque aéreo; el básico encadena con una segunda pulsación.</p></div>
+        <div class="ability-row"><span class="key">Y</span><p><b>Ataque de área.</b> Exclusivo del suelo. Pulsarlo en el aire no consume la acción ni la recarga.</p></div>
+        <div class="ability-row"><span class="key">B</span><p><b>Especial de cristal.</b> Golpe amplio solo en suelo. Recarga de 10 s; en el aire no se activa.</p></div>
+        <div class="char-foot">Peso · área · compromiso en el suelo</div>
+      </div>
+      <div class="char-card panel" style="--accent:#e2b866">
+        <div class="char-top">
+          <div class="portrait"><img src="../public/assets/personajes/GroundMonk/ground_monk.png" alt="Retrato de Ground Monk"></div>
+          <div class="char-title"><span class="role">DPS / riesgo</span><h2>Ground Monk</h2><p>Luchador veloz. La meditación premia la paciencia con un pico de daño temporal.</p></div>
+        </div>
+        <div class="ability-row"><span class="key">X</span><p><b>Combo de tres golpes.</b> El flujo más rápido del juego; exige estar cerca y elegir cuándo comprometerse.</p></div>
+        <div class="ability-row"><span class="key">Y</span><p><b>Especial.</b> Dos contactos contundentes. El primero entra en el fotograma 8 y el segundo en el 18.</p></div>
+        <div class="ability-row"><span class="key">B</span><p><b>Meditación.</b> Tres segundos inmóvil: +50% de daño y 30% de resistencia durante 8 s. Recibir daño interrumpe la preparación.</p></div>
+        <div class="char-foot">Rapidez · combo · ventana de riesgo</div>
+      </div>
+      <div class="char-card panel" style="--accent:#8bd8ff">
+        <div class="char-top">
+          <div class="portrait"><img src="../public/assets/personajes/WaterPriestess/water_priestess.png" alt="Retrato de Water Priestess"></div>
+          <div class="char-title"><span class="role">Control / soporte</span><h2>Water Priestess</h2><p>Magia de agua. Congela, cura y convierte el espacio frontal en una trampa.</p></div>
+        </div>
+        <div class="ability-row"><span class="key">X</span><p><b>Combo de tres ataques.</b> Encadena presión cercana; en el aire usa el ataque aéreo.</p></div>
+        <div class="ability-row"><span class="key">Y</span><p><b>Área frontal.</b> Explota en el fotograma 13 y causa 100 de daño; desde el 23 congela 3 s sin daño extra.</p></div>
+        <div class="ability-row"><span class="key">B</span><p><b>Curación.</b> Recupera 25 de vida en el fotograma 8, sin superar 100. Recarga de 15 s; a vida completa no se consume.</p></div>
+        <div class="char-foot">Congelación · sustento · control</div>
+      </div>
+    </div>
+    <div class="common-note"><b>Base compartida:</b> 100 de vida, rodada con invulnerabilidad breve, defensa sostenida, combos con ventana de un segundo y habilidades que solo se activan en el suelo. Los básicos corren a 12 fps; los especiales, a 10 fps.</div>
+    <div class="footer"><span>Roster jugable y estilos de combate</span><span class="page-no">04</span></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="page-art" style="background-image:url('../public/assets/fondos/CrystalCave/PNG/background 1/background 1.png')"></div>
+  <div class="page-inner">
+    <div class="topline"><span><strong>La gran emboscada</strong> / Documento de diseño</span><span>04 · Combate y controles</span></div>
+    <div class="section-head">
+      <span class="kicker">La sensación</span>
+      <h1>Golpes con frente, tiempo y consecuencia.</h1>
+      <p class="lead">El combate se apoya en rectángulos frontales y contactos asociados a fotogramas. La animación no es decoración: es la información que permite decidir.</p>
+    </div>
+    <div class="controls-grid">
+      <div class="controls panel">
+        <div class="panel-head"><h2>Controles</h2><span class="tag">Teclado · mando</span></div>
+        <table class="controls-table">
+          <thead><tr><th>Acción</th><th>Teclado</th><th>Xbox</th><th>PlayStation</th></tr></thead>
+          <tbody>
+            <tr><td>Mover</td><td>A / D · flechas</td><td>Stick izq.</td><td>Stick izq.</td></tr>
+            <tr><td>Saltar</td><td>Espacio</td><td>A</td><td>Cruz</td></tr>
+            <tr><td>Atacar</td><td>J</td><td>X</td><td>Cuadrado</td></tr>
+            <tr><td>Secundario</td><td>K</td><td>Y</td><td>Triángulo</td></tr>
+            <tr><td>Habilidad</td><td>L</td><td>B</td><td>Círculo</td></tr>
+            <tr><td>Defender</td><td>S / Abajo</td><td>RB</td><td>R1</td></tr>
+            <tr><td>Rodar</td><td>Shift</td><td>LB</td><td>L1</td></tr>
+            <tr><td>Pausa</td><td>Esc</td><td>Start</td><td>Options</td></tr>
+            <tr><td>Atajo de jefe</td><td>5</td><td>—</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="feel panel">
+        <h3>Reglas de sensación</h3>
+        <ul>
+          <li>Atacar, cargar, defender o usar una habilidad bloquea caminar e iniciar salto; la gravedad sigue en el aire.</li>
+          <li>Los golpes no alcanzan por detrás ni a otra altura. Cada contacto pertenece a un fotograma y no se duplica al permanecer en él.</li>
+          <li>La rodada cancela un ataque en suelo y elimina sus contactos pendientes. Recibir daño no interrumpe el ataque en curso.</li>
+          <li>Defender mantiene la pose y bloquea mientras se sostiene; soltar reproduce la salida y deja de proteger.</li>
+          <li>Encadenar requiere una nueva pulsación, con una ventana de un segundo. Mantener X no repite el combo.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="combat-shot">
+      <img src="../test-results/water-freeze.png" alt="Congelación de enemigos con Water Priestess">
+      <div class="caption">Water Priestess · el área explota en el fotograma 13 y congela desde el 23</div>
+    </div>
+    <div class="impact-grid">
+      <div class="impact-card panel-soft"><h3>Hitboxes</h3><p><b>Rectángulos frontales</b> comparados con el cuerpo físico del enemigo. El ataque tiene un frente claro y una altura concreta.</p></div>
+      <div class="impact-card panel-soft"><h3>Tiempo</h3><p><b>Contactos por fotograma.</b> Los combos tienen varios impactos; la lluvia de flechas daña al aterrizar. Los proyectiles salen en el frame de disparo.</p></div>
+      <div class="impact-card panel-soft"><h3>Respuesta</h3><p><b>Efectos legibles:</b> veneno, congelación, área, retroceso visual y barra de jefe. El juego informa antes de castigar.</p></div>
+    </div>
+    <div class="footer"><span>Controles, hitboxes y feedback de combate</span><span class="page-no">05</span></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="page-art" style="background-image:url('../public/assets/fondos/ParallaxCave/6fx.png')"></div>
+  <div class="page-inner">
+    <div class="topline"><span><strong>La gran emboscada</strong> / Documento de diseño</span><span>05 · Enemigos</span></div>
+    <div class="section-head">
+      <span class="kicker">El bestiario</span>
+      <h1>Tres roles, una conversación.</h1>
+      <p class="lead">El bestiario actual se concentra en tres funciones: presión cercana, timing defensivo y control del aire. Cada enemigo obliga a mirar una cosa distinta.</p>
+    </div>
+    <div class="enemy-grid">
+      <div class="enemy-card panel" style="--accent:#d8a55a">
+        <div class="enemy-medallion" style="background-image:url('../public/assets/enemigos/Fantasy/Mushroom/Idle.png')"></div>
+        <div class="enemy-role">Presión / entrada</div>
+        <h2>Mushroom</h2>
+        <div class="enemy-stats"><div><b>10</b><span>Daño</span></div><div><b>2</b><span>Ataques alternos</span></div><div><b>Cuerpo</b><span>Rango</span></div><div><b>Terrestre</b><span>Movimiento</span></div></div>
+        <p>Alterna sus dos ataques cuerpo a cuerpo y presiona sin pausa. Es el único que persigue al jugador a cualquier altura.</p>
+        <p>Si el jugador está en una plataforma, calcula una ruta (BFS o A*) por las plataformas y salta de una a otra hasta alcanzarlo.</p>
+        <div class="behavior"><b>Lectura:</b> subirse no alcanza para escapar; conviene aprovechar la altura para atacar.</div>
+      </div>
+      <div class="enemy-card panel" style="--accent:#c9d7d1">
+        <div class="enemy-medallion" style="background-image:url('../public/assets/enemigos/Fantasy/Skeleton/Idle.png')"></div>
+        <div class="enemy-role">Timing / defensa</div>
+        <h2>Skeleton</h2>
+        <div class="enemy-stats"><div><b>10 / 18</b><span>Golpe / ataque largo</span></div><div><b>+25 px</b><span>Alcance extra</span></div><div><b>1,05 s</b><span>Recuperación</span></div><div><b>0,85 s</b><span>Escudo</span></div></div>
+        <p>El esqueleto castiga la prisa. Su ataque largo suma 25 px de alcance y deja una recuperación vulnerable de 1,05 s; el escudo levanta una ventana de 0,85 s.</p>
+        <p>Patrulla el piso principal y solo ataca si el jugador está abajo; si sube a una plataforma, lo ignora y sigue patrullando.</p>
+        <div class="behavior"><b>Lectura:</b> esperar el escudo y castigar la recuperación es más rentable que insistir.</div>
+      </div>
+      <div class="enemy-card panel" style="--accent:#8bd8ff">
+        <div class="enemy-medallion fly" style="background-image:url('../public/assets/enemigos/Fantasy/Flying eye/Flight.png')"></div>
+        <div class="enemy-role">Control / aire</div>
+        <h2>Flying Eye</h2>
+        <div class="enemy-stats"><div><b>4,5–6,5 s</b><span>Primer ataque</span></div><div><b>6,5–8 s</b><span>Entre ataques</span></div><div><b>3</b><span>Herramientas</span></div><div><b>Aéreo</b><span>Rango</span></div></div>
+        <p>Patrulla la zona alta y se activa cuando el jugador deja de pisar el piso principal (plataformas o aire); mantiene el ataque un momento más al volver a bajar.</p>
+        <p>Dispara proyectiles dirigidos, alterna con una embestida y muerde si está cerca. Al morir cae por gravedad.</p>
+        <div class="behavior"><b>Lectura:</b> las plataformas ofrecen ventaja contra los terrestres, pero exponen al jugador a este enemigo.</div>
+      </div>
+    </div>
+    <div class="bestiary-panel panel">
+      <div>
+        <div class="panel-head"><h2>Diseño del bestiario</h2><span class="tag">Decisiones</span></div>
+        <div class="principles">
+          <div class="principle"><b>Roles, no ruido</b><span>Tres siluetas y tres comportamientos cubren presión, defensa y aire sin saturar la lectura.</span></div>
+          <div class="principle"><b>Saltos con intención</b><span>Cada enemigo decide según dónde está el jugador: piso, plataforma o aire. Solo el hongo sigue por las plataformas.</span></div>
+          <div class="principle"><b>Techo de legibilidad</b><span>La cantidad simultánea se limita a 36 y la velocidad a 185 para que la arena siga siendo legible.</span></div>
+          <div class="principle"><b>Recorte consciente</b><span>Goblin y el hongo Forest quedaron fuera de la versión actual; el foco está en los tres roles consolidados.</span></div>
+        </div>
+      </div>
+      <div class="bestiary-visual"><img src="../test-results/revision-effects.png" alt="Efectos de combate"><div class="caption">Feedback de impactos y estados</div></div>
+    </div>
+    <div class="footer"><span>Bestiario y reglas de comportamiento</span><span class="page-no">06</span></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="page-art" style="background-image:url('../public/assets/fondos/ParallaxCave/8fx.png')"></div>
+  <div class="page-inner">
+    <div class="topline"><span><strong>La gran emboscada</strong> / Documento de diseño</span><span>06 · Jefes</span></div>
+    <div class="section-head">
+      <span class="kicker">Los guardianes</span>
+      <h1>Tres duelos que cierran el ciclo.</h1>
+      <p class="lead">Cada cinco oleadas la arena se vacía y aparece un jefe. No comparten escenario con los enemigos comunes: el duelo es exclusivo, más grande y más lento.</p>
+    </div>
+    <div class="boss-grid">
+      <div class="boss-card panel">
+        <div class="boss-shot"><img src="../test-results/boss-5.png" alt="Morgath en la oleada 5"><span class="wave">Oleada 5</span></div>
+        <div class="boss-body">
+          <div class="epithet">Demon Slime</div>
+          <h2>MORGATH<span>Devorador del Abismo</span></h2>
+          <div class="boss-data"><div><b>38</b><span>Daño</span></div><div><b>2,8×</b><span>Escala</span></div><div><b>cleave</b><span>Ataque</span></div><div><b>5</b><span>Oleada</span></div></div>
+          <p>Una masa del abismo que presiona caminando y corta con un tajo amplio. Enseña la regla básica del duelo: no quedarse en el mismo plano cuando el jefe carga.</p>
+        </div>
+      </div>
+      <div class="boss-card panel">
+        <div class="boss-shot"><img src="../test-results/boss-10.png" alt="Hríngar en la oleada 10"><span class="wave">Oleada 10</span></div>
+        <div class="boss-body">
+          <div class="epithet">Frost Guardian</div>
+          <h2>HRÍNGAR<span>Titán del Invierno</span></h2>
+          <div class="boss-data"><div><b>42</b><span>Daño</span></div><div><b>3,1×</b><span>Escala</span></div><div><b>1_atk</b><span>Ataque</span></div><div><b>10</b><span>Oleada</span></div></div>
+          <p>El mayor volumen del juego. Su golpe largo y su presencia ocupan la arena; el jugador necesita distancia y paciencia para encontrar la ventana de castigo.</p>
+        </div>
+      </div>
+      <div class="boss-card panel">
+        <div class="boss-shot"><img src="../test-results/boss-15.png" alt="Asterión en la oleada 15"><span class="wave">Oleada 15</span></div>
+        <div class="boss-body">
+          <div class="epithet">Minotaur</div>
+          <h2>ASTERIÓN<span>Azote del Laberinto</span></h2>
+          <div class="boss-data"><div><b>45</b><span>Daño</span></div><div><b>2,8×</b><span>Escala</span></div><div><b>atk_1</b><span>Ataque</span></div><div><b>15</b><span>Oleada</span></div></div>
+          <p>El daño más alto del ciclo. Su origen se ajustó a 0,9 para que los pies y el cuerpo queden apoyados en el suelo; es el cierre que castiga la impaciencia.</p>
+        </div>
+      </div>
+    </div>
+    <div class="boss-tech panel">
+      <div class="boss-tech-img"><img src="../test-results/minotaur-grounded.png" alt="Minotauro apoyado en el suelo"><div class="caption">Asterión · apoyo de pies y cuerpo</div></div>
+      <div>
+        <div class="panel-head"><h2>Anatomía de un duelo</h2><span class="tag">Reglas compartidas</span></div>
+        <div class="tech-grid">
+          <div><b>Vida</b><span>900 + oleada × 90</span></div>
+          <div><b>Barra</b><span>800 px</span></div>
+          <div><b>Hitbox</b><span>180 px de ancho</span></div>
+          <div><b>Activación</b><span>150 px</span></div>
+          <div><b>Recuperación</b><span>700 ms</span></div>
+          <div><b>Impacto</b><span>frame ceil(frames × 0,55)</span></div>
+        </div>
+        <div class="boss-note"><b>Orientación:</b> los tres packs están dibujados mirando a la izquierda; el juego usa <span class="mono">nativeFacing:-1</span> e invierte la mirada según la posición del jugador. <b>Rotación:</b> Morgath → Hríngar → Asterión → Morgath. <b>Atajo de prueba:</b> la tecla 5 salta al siguiente jefe conservando mapa y personaje.</div>
+      </div>
+    </div>
+    <div class="footer"><span>Guardianes, estadísticas y presentación</span><span class="page-no">07</span></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="page-art" style="background-image:url('../public/assets/fondos/CrystalCave/PNG/background 4/background 4.png')"></div>
+  <div class="page-inner">
+    <div class="topline"><span><strong>La gran emboscada</strong> / Documento de diseño</span><span>07 · Mapas</span></div>
+    <div class="section-head">
+      <span class="kicker">Cinco cavernas</span>
+      <h1>La misma regla, distinto espacio.</h1>
+      <p class="lead">Los mapas comparten cámara fija, escala 16:9 y plataformas elevadas, pero cambian la paleta, la altura del suelo y la cantidad de rutas. La silueta también es información.</p>
+    </div>
+    <div class="map-hero">
+      <div class="map-canvas" style="height:78mm">
+        <div class="bg" style="background-image:url('../public/assets/fondos/ParallaxCave/7.png')"></div>
+        <div class="platform" style="left:13.28%;top:70.83%;width:16.41%"></div>
+        <div class="platform" style="left:35.16%;top:54.17%;width:16.41%"></div>
+        <div class="platform" style="left:59.38%;top:70.83%;width:16.41%"></div>
+        <div class="platform" style="left:81.25%;top:54.17%;width:16.41%"></div>
+        <div class="platform" style="left:48.44%;top:41.67%;width:12.5%"></div>
+        <div class="ground-line" style="top:90.28%"></div>
+        <div class="map-label"><h2>Caverna ancestral</h2><span>9 capas · suelo 650</span></div>
+      </div>
+      <div class="map-aside panel">
+        <h3>El mapa base</h3>
+        <p>Nueve capas de parallax y una composición de cinco plataformas. Es la caverna con más profundidad visual y la referencia de escala para el resto.</p>
+        <div class="stat-line"><span>Plataformas</span><span>5</span></div>
+        <div class="stat-line"><span>Telón</span><span>Parallax Cave</span></div>
+        <div class="stat-line"><span>Uso</span><span>Entrada del ciclo</span></div>
+        <div class="stat-line"><span>Cámara</span><span>Fija 16:9</span></div>
+      </div>
+    </div>
+    <div class="crystal-grid">
+      <div class="crystal-card panel">
+        <div class="mini-map">
+          <div class="bg" style="background-image:url('../public/assets/fondos/CrystalCave/PNG/background 1/background 1.png')"></div>
+          <div class="mini-platform" style="left:14.06%;top:66.67%;width:17.19%"></div>
+          <div class="mini-platform" style="left:36.72%;top:50%;width:17.19%"></div>
+          <div class="mini-platform" style="left:60.94%;top:66.67%;width:17.19%"></div>
+          <div class="mini-platform" style="left:82.81%;top:50%;width:15.63%"></div>
+          <div class="mini-platform" style="left:48.44%;top:41.67%;width:12.5%"></div>
+          <div class="mini-ground" style="top:86.11%"></div>
+        </div>
+        <div class="crystal-body"><h3>Cristales azules</h3><p>La ruta más equilibrada. El azul profundo separa a los enemigos del fondo.</p><div class="chips"><span class="mini-chip">5 PLAT.</span><span class="mini-chip">SUELO 620</span></div></div>
+      </div>
+      <div class="crystal-card panel">
+        <div class="mini-map">
+          <div class="bg" style="background-image:url('../public/assets/fondos/CrystalCave/PNG/background 2/background 2.png')"></div>
+          <div class="mini-platform" style="left:11.72%;top:66.67%;width:14.84%"></div>
+          <div class="mini-platform" style="left:32.81%;top:51.39%;width:16.41%"></div>
+          <div class="mini-platform" style="left:54.69%;top:66.67%;width:16.41%"></div>
+          <div class="mini-platform" style="left:77.34%;top:51.39%;width:16.41%"></div>
+          <div class="mini-platform" style="left:91.41%;top:41.67%;width:10.94%"></div>
+          <div class="mini-ground" style="top:86.11%"></div>
+        </div>
+        <div class="crystal-body"><h3>Cristales verdes</h3><p>Plataformas desplazadas y una ruta alta más exigente. El verde acerca el mapa al bosque.</p><div class="chips"><span class="mini-chip">5 PLAT.</span><span class="mini-chip">SUELO 620</span></div></div>
+      </div>
+      <div class="crystal-card panel">
+        <div class="mini-map">
+          <div class="bg" style="background-image:url('../public/assets/fondos/CrystalCave/PNG/background 3/background 3.png')"></div>
+          <div class="mini-platform" style="left:15.63%;top:66.67%;width:16.41%"></div>
+          <div class="mini-platform" style="left:39.84%;top:50%;width:15.63%"></div>
+          <div class="mini-platform" style="left:63.28%;top:66.67%;width:16.41%"></div>
+          <div class="mini-platform" style="left:84.38%;top:50%;width:13.28%"></div>
+          <div class="mini-platform" style="left:50.78%;top:41.67%;width:11.72%"></div>
+          <div class="mini-ground" style="top:86.11%"></div>
+        </div>
+        <div class="crystal-body"><h3>Cristales violetas</h3><p>La paleta más fría. La plataforma central alta cambia el ritmo de los saltos.</p><div class="chips"><span class="mini-chip">5 PLAT.</span><span class="mini-chip">SUELO 620</span></div></div>
+      </div>
+      <div class="crystal-card panel">
+        <div class="mini-map">
+          <div class="bg" style="background-image:url('../public/assets/fondos/CrystalCave/PNG/background 4/background 4.png')"></div>
+          <div class="mini-platform" style="left:13.28%;top:66.67%;width:17.19%"></div>
+          <div class="mini-platform" style="left:37.5%;top:50%;width:15.63%"></div>
+          <div class="mini-platform" style="left:60.94%;top:66.67%;width:17.19%"></div>
+          <div class="mini-platform" style="left:82.81%;top:50%;width:14.84%"></div>
+          <div class="mini-ground" style="top:86.11%"></div>
+        </div>
+        <div class="crystal-body"><h3>Cristales rojos</h3><p>Sin plataforma central: cuatro apoyos y una lectura más horizontal del espacio.</p><div class="chips"><span class="mini-chip">4 PLAT.</span><span class="mini-chip">SUELO 620</span></div></div>
+      </div>
+    </div>
+    <div class="map-notes">
+      <div class="map-note panel-soft"><b>Espacio legible</b><span>Las plataformas se dibujan sobre el fondo para que la ruta sea reconocible aun con enemigos y efectos.</span></div>
+      <div class="map-note panel-soft"><b>Verticalidad útil</b><span>Los enemigos terrestres solo saltan si el jugador está arriba. La altura es una decisión, no un refugio gratis.</span></div>
+      <div class="map-note panel-soft"><b>Identidad por paleta</b><span>Azul, verde, violeta y rojo cambian la temperatura de la caverna; la silueta y la cantidad de plataformas también varían.</span></div>
+    </div>
+    <div class="footer"><span>Mapas, plataformas y lectura del espacio</span><span class="page-no">08</span></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="page-art" style="background-image:url('../public/assets/fondos/CrystalCave/PNG/background 2/background 2.png')"></div>
+  <div class="page-inner">
+    <div class="topline"><span><strong>La gran emboscada</strong> / Documento de diseño</span><span>08 · Interfaz y experiencia</span></div>
+    <div class="section-head">
+      <span class="kicker">La información justa</span>
+      <h1>Que la pantalla explique sin interrumpir.</h1>
+      <p class="lead">La interfaz prioriza lo que cambia la decisión: vida, puntaje, estado de la habilidad y barra del jefe. El resto aparece cuando hace falta.</p>
+    </div>
+    <div class="ux-top">
+      <div class="ux-shot"><img src="../test-results/tutorial.png" alt="Tutorial de controles"><div class="caption">Tutorial · acciones, botones y equivalentes de mando</div></div>
+      <div class="flow panel">
+        <h3>Flujo de pantallas</h3>
+        <div class="flow-step"><b>01</b><span>Menú principal: jugar, opciones, ayuda y créditos.</span></div>
+        <div class="flow-step"><b>02</b><span>Selección de mapa y personaje con descripción de habilidades.</span></div>
+        <div class="flow-step"><b>03</b><span>Partida: HUD, oleadas y aparición de jefes.</span></div>
+        <div class="flow-step"><b>04</b><span>Pausa: continuar, reiniciar, volver o ajustar opciones.</span></div>
+        <div class="flow-step"><b>05</b><span>Derrota o récord: reinicio y regreso al menú.</span></div>
+      </div>
+    </div>
+    <div class="ux-grid">
+      <div class="ux-card panel-soft"><h3>HUD</h3><ul><li><b>Retrato</b> del personaje elegido.</li><li><b>Barra roja</b> de vida y puntaje a la derecha.</li><li><b>Indicador inferior</b> de carga, recarga o beneficio.</li><li><b>Barra de jefe</b> de 800 px durante el duelo.</li></ul></div>
+      <div class="ux-card panel-soft"><h3>Onboarding</h3><ul><li>Tutorial con tabla ampliada de acciones y botones.</li><li>Iconos de Xbox y equivalentes de PlayStation.</li><li>Descripciones de personaje antes de entrar.</li><li>Mapeo estándar activo; se retiró el botón de calibrar del tutorial.</li></ul></div>
+      <div class="ux-card panel-soft"><h3>Accesibilidad</h3><ul><li>Pantalla completa y escalado 16:9.</li><li>Música y efectos con volúmenes independientes.</li><li>Pausa automática al perder foco.</li><li>Teclado y mando; menús también con mouse. Sin controles táctiles de combate.</li></ul></div>
+    </div>
+    <div class="feedback-strip panel">
+      <div class="feedback-img"><img src="../test-results/character-1.png" alt="Personaje en juego"></div>
+      <div class="feedback-copy">
+        <h3>Feedback antes que castigo</h3>
+        <p>La congelación detiene cuerpo y animación durante 3 s y cancela el golpe pendiente. El veneno del elfo informa su duración. La defensa sostiene la pose hasta soltar. La meditación muestra su beneficio en el indicador inferior.</p>
+        <p><b>Persistencia:</b> el récord y los volúmenes viven en localStorage; las asignaciones personalizadas de mando se conservan por identificador de dispositivo. El juego no depende de una cuenta.</p>
+        <p><b>Lectura:</b> cada ataque enemigo se reconoce por su animación y su rango. La barra del jefe y el cierre de la arena separan el duelo del resto de la oleada.</p>
+      </div>
+    </div>
+    <div class="footer"><span>Interfaz, onboarding y accesibilidad</span><span class="page-no">09</span></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="page-art" style="background-image:url('../public/assets/fondos/ParallaxCave/5.png')"></div>
+  <div class="page-inner">
+    <div class="topline"><span><strong>La gran emboscada</strong> / Documento de diseño</span><span>09 · Arte y audio</span></div>
+    <div class="section-head">
+      <span class="kicker">La atmósfera</span>
+      <h1>Piedra fría, luz esmeralda, oro viejo.</h1>
+      <p class="lead">La dirección artística busca contraste: cavernas profundas y frías, personajes de silueta clara y una interfaz con acentos de oro que ordena la lectura.</p>
+    </div>
+    <div class="art-grid">
+      <div class="art-card"><img src="../test-results/game.png" alt="Caverna y combate"><div class="caption">Caverna ancestral · profundidad por capas</div></div>
+      <div class="art-card"><img src="../test-results/boss-facing-left.png" alt="Jefe mirando a la izquierda"><div class="caption">Jefes · orientación nativa y escala</div></div>
+    </div>
+    <div class="art-text">
+      <div>
+        <h2>Dirección visual</h2>
+        <p><b>Pixel art con función.</b> Los personajes tienen siluetas reconocibles y colores elementales; los jefes ocupan mucho más espacio y cambian la composición de la arena.</p>
+        <p>La cámara fija y el formato 16:9 mantienen la escala estable. Los fondos de cristal usan una imagen compuesta; la caverna ancestral usa nueve capas de parallax. La UI reserva el oro para lo importante y el esmeralda para la acción.</p>
+        <div class="palette">
+          <div class="swatch" style="background:#07110f"><span>ABISMO</span></div>
+          <div class="swatch" style="background:#32d493"><span>ESMERALDA</span></div>
+          <div class="swatch" style="background:#8bd8ff"><span>HIELO</span></div>
+          <div class="swatch" style="background:#e2b866"><span>ORO</span></div>
+          <div class="swatch" style="background:#d15b4e"><span>SANGRE</span></div>
+          <div class="swatch" style="background:#ece6d6"><span>PERGAMINO</span></div>
+        </div>
+      </div>
+      <div>
+        <h2>Audio</h2>
+        <p>La música es del pack japonés de <b>Momiziba / MOMIZizm MUSiC</b>. La partida usa el loop de <b>“Shamisen Samurai Rock”</b>; empieza al entrar en juego y acompaña el ritmo de las oleadas.</p>
+        <div class="audio-list">
+          <div class="audio-row"><b>Música</b><span>Japanese fantasy pack · loop de shamisen y percusión.</span></div>
+          <div class="audio-row"><b>SFX</b><span>Efectos sintetizados con WebAudio para impactos, curación, congelación y derrota.</span></div>
+          <div class="audio-row"><b>Mezcla</b><span>Volúmenes separados de música y efectos, persistentes en el navegador.</span></div>
+          <div class="audio-row"><b>Silencio</b><span>La música arranca al iniciar la partida y convive con los efectos; cada canal se ajusta por separado.</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="integration">
+      <div><b>Fotogramas originales</b><span>Se conservan las animaciones de los packs; los efectos se combinan para recrear veneno, área y lluvia.</span></div>
+      <div><b>Anclaje al suelo</b><span>La lluvia de flechas se apoya en la superficie bajo cada flecha; los impactos aéreos no quedan flotando.</span></div>
+      <div><b>Escala y origen</b><span>Jefes a 2,8–3,1×; Minotauro con origen 0,9 para apoyar pies y cuerpo. Los tres miran nativamente a la izquierda.</span></div>
+    </div>
+    <div class="note-strip"><b>Criterio de arte:</b> el color no reemplaza la silueta. Cada mapa conserva una paleta propia, pero la ruta y la altura de las plataformas se leen incluso en blanco y negro. La música acompaña la tensión sin tapar los efectos de impacto.</div>
+    <div class="footer"><span>Dirección de arte, audio e integración</span><span class="page-no">10</span></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="page-art" style="background-image:url('../public/assets/fondos/ParallaxCave/3fx.png')"></div>
+  <div class="page-inner">
+    <div class="topline"><span><strong>La gran emboscada</strong> / Documento de diseño</span><span>10 · Producción</span></div>
+    <div class="section-head">
+      <span class="kicker">Bajo el capó</span>
+      <h1>Un juego pequeño con reglas verificables.</h1>
+      <p class="lead">Phaser 3 y Vite sostienen una arquitectura directa: combate, enemigos, reglas y controles separados, con recursos preparados por manifiesto y pruebas de navegador para los momentos críticos.</p>
+    </div>
+    <div class="prod-top">
+      <div class="arch panel">
+        <h2>Arquitectura</h2>
+        <div class="arch-grid">
+          <div class="arch-box"><b>src/main.js</b><span>Escenas, HUD, tutorial, spawns, pausa y flujo de partida.</span></div>
+          <div class="arch-box"><b>src/combat.js</b><span>Acciones, fotogramas, proyectiles, efectos y estados del jugador.</span></div>
+          <div class="arch-box"><b>src/enemies.js</b><span>FSM de enemigos, escudo, ataques especiales, jefes y proyectiles.</span></div>
+          <div class="arch-box"><b>src/rules.js</b><span>Oleadas, rotación de jefes, puntaje y guardado local.</span></div>
+          <div class="arch-box"><b>src/gamepad.js</b><span>Mapeo estándar y calibraciones persistentes por mando.</span></div>
+          <div class="arch-box"><b>src/navigation.js</b><span>Escenarios aleatorios, grafo de plataformas, BFS y A*.</span></div>
+        </div>
+      </div>
+      <div class="status panel">
+        <h2>Estado de la versión</h2>
+        <div class="status-row"><span>Versión</span><span>1.1 · Campo libre e IA</span></div>
+        <div class="status-row"><span>Rama</span><span>main</span></div>
+        <div class="status-row"><span>Repositorio</span><span>GitHub · main</span></div>
+        <div class="status-row"><span>Despliegue</span><span class="ok">Vercel · online</span></div>
+        <div class="status-row"><span>Build</span><span class="ok">dist/ generado</span></div>
+        <div class="status-row"><span>Pruebas unitarias</span><span class="ok">10 / 10</span></div>
+        <div class="status-row"><span>Smoke de jefes</span><span class="ok">Aprobado</span></div>
+        <div class="status-row"><span>Assets</span><span>Tolerante a packs faltantes</span></div>
+      </div>
+    </div>
+    <div class="checks">
+      <div class="check-card panel-soft"><h3>Núcleo</h3><ul><li><span>Reglas de oleadas</span><b>OK</b></li><li><span>Guardado y volúmenes</span><b>OK</b></li><li><span>Puntaje y récord</span><b>OK</b></li><li><span>Rotación de jefes</span><b>OK</b></li></ul></div>
+      <div class="check-card panel-soft"><h3>Navegador</h3><ul><li><span>Menús y previews</span><b>OK</b></li><li><span>Movimiento y salto</span><b>OK</b></li><li><span>Ataques y defensa</span><b>OK</b></li><li><span>Pausa y derrota</span><b>OK</b></li></ul></div>
+      <div class="check-card panel-soft"><h3>Combate</h3><ul><li><span>Contactos por frame</span><b>OK</b></li><li><span>Orientación y hitboxes</span><b>OK</b></li><li><span>Escudo y congelación</span><b>OK</b></li><li><span>Tres jefes</span><b>OK</b></li></ul></div>
+    </div>
+    <div class="ops panel">
+      <div>
+        <h3>Operación</h3>
+        <p>Desarrollo con <code>npm run dev</code>; build estático con <code>npm run build</code>; recursos con <code>npm run assets</code>. Requiere Node 20.19+ o 22.12+. La versión publicada se sirve desde <code>dist/</code>.</p>
+      </div>
+      <div>
+        <h3>Repositorio</h3>
+        <p class="repo">github.com/sebastian-gg-456/lagranoleada</p>
+        <p>Documentación viva en <b>README.md</b> y <b>REPORTE.txt</b>; capturas de verificación en <b>test-results/</b>.</p>
+      </div>
+    </div>
+    <div class="note-strip"><b>Campo libre y laboratorio de IA:</b> desde el menú se elige personaje y se entra a un piso vacío con un muñeco de práctica que presenta al personaje. El laboratorio permite cambiar entre BFS y A*, entre ruta corta y ruta segura, y generar otro escenario con plataformas en lugares distintos. Especificación en <b>spec/campo-libre-ia.md</b>.</div>
+    <div class="footer"><span>Arquitectura, verificación y estado de publicación</span><span class="page-no">11</span></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="page-art" style="background-image:url('../public/assets/fondos/CrystalCave/PNG/background 4/background 4.png')"></div>
+  <div class="page-inner">
+    <div class="topline"><span><strong>La gran emboscada</strong> / Documento de diseño</span><span>11 · Créditos y licencias</span></div>
+    <div class="section-head">
+      <span class="kicker">Las manos detrás</span>
+      <h1>Créditos, recursos y permisos.</h1>
+      <p class="lead">Este juego existe gracias a una cadena de artistas y músicos. Las licencias se respetan y se acreditan también cuando no son obligatorias.</p>
+    </div>
+    <div class="credits-grid">
+      <div>
+        <div class="team panel">
+          <h2>Equipo</h2>
+          <div class="name">Sebastian Gonzales Garcia</div>
+          <div class="role">Diseño · programación · integración · pruebas</div>
+          <p>Proyecto independiente construido sobre Phaser 3 y Vite. La dirección técnica prioriza el combate legible, la estabilidad del mando y la verificación por pruebas de navegador.</p>
+          <p>Documentación, reporte de rondas y capturas forman parte del repositorio de desarrollo.</p>
+          <div class="repo-line">github.com/sebastian-gg-456/lagranoleada</div>
+        </div>
+        <div class="tools">
+          <div class="tool"><b>Phaser 3.90</b><span>Motor de juego · MIT</span></div>
+          <div class="tool"><b>Vite 6</b><span>Build y desarrollo · MIT</span></div>
+          <div class="tool"><b>Playwright</b><span>Pruebas de navegador · Apache-2.0</span></div>
+          <div class="tool"><b>WebAudio</b><span>Efectos sintetizados</span></div>
+        </div>
+      </div>
+      <div class="resources panel">
+        <h2>Recursos</h2>
+        <div class="credit-row"><div><b>Personajes y jefes · chierit</b><span>Elementals y boss packs. CC-BY 4.0.</span></div><a href="https://chierit.itch.io/">chierit.itch.io</a></div>
+        <div class="credit-row"><div><b>Enemigos · LuizMelo</b><span>Monsters Creatures Fantasy. CC0 1.0.</span></div><a href="https://luizmelo.itch.io/monsters-creatures-fantasy">luizmelo.itch.io</a></div>
+        <div class="credit-row"><div><b>Fondos · SlashDashGamesStudio</b><span>Parallax Cave; arte de Seetyaji. CC-BY 4.0.</span></div><a href="https://slashdashgamesstudio.itch.io/cave-background-assets">slashdashgamesstudio.itch.io</a></div>
+        <div class="credit-row"><div><b>Fondos · CraftPix.net</b><span>Crystal Cave. Licencia CraftPix.</span></div><a href="https://craftpix.net/file-licenses/">craftpix.net/file-licenses</a></div>
+        <div class="credit-row"><div><b>Controles · Vryell</b><span>Iconos de teclado y mando.</span></div><a href="https://vryell.itch.io/">vryell.itch.io</a></div>
+        <div class="credit-row"><div><b>Música · Momiziba</b><span>“Shamisen Samurai Rock”. MOMIZizm MUSiC.</span></div><a href="https://music.storyinvention.com/en/">music.storyinvention.com</a></div>
+        <div class="credit-row"><div><b>Música · pack</b><span>Free Japanese Fantasy Music Pack.</span></div><a href="https://momiziba.itch.io/free-japanese-music-pack">momiziba.itch.io</a></div>
+      </div>
+    </div>
+    <div class="license-band">
+      <h3>Atribuciones y cumplimiento</h3>
+      <p><b>chierit:</b> personajes Elementals y jefes, bajo CC-BY 4.0; se acredita al autor y se enlaza su página. <b>SlashDashGamesStudio / Seetyaji:</b> fondos Parallax Cave, CC-BY 4.0. <b>Momiziba / MOMIZizm MUSiC:</b> crédito requerido; se incluye el texto de atribución y el enlace al proyecto. <b>LuizMelo:</b> CC0; se acredita igual. <b>CraftPix:</b> se conserva y respeta su licencia. Los documentos originales se mantienen dentro de los packs cuando están incluidos; revisarlos antes de redistribuir los recursos.</p>
+    </div>
+    <div class="credit-text">
+      <h3>Texto de créditos listo para copiar</h3>
+      <p><b>Personajes y jefes:</b> chierit — https://chierit.itch.io/ — CC-BY 4.0<br><b>Fondos Parallax Cave:</b> SlashDashGamesStudio / Seetyaji — CC-BY 4.0<br><b>Enemigos:</b> LuizMelo — Monsters Creatures Fantasy — CC0 1.0<br><b>Música:</b> Free Music : MOMIZizm MUSiC — https://music.storyinvention.com/en/</p>
+    </div>
+    <div class="thanks"><b>Gracias a</b><p>chierit, LuizMelo, SlashDashGamesStudio, Seetyaji, CraftPix, Vryell y Momiziba / MOMIZizm MUSiC por compartir su trabajo. Este documento cierra la versión 1.0; el repositorio conserva el historial completo de rondas, pruebas y ajustes.</p></div>
+    <div class="footer"><span>Autoría, atribuciones y licencias de terceros</span><span class="page-no">12</span></div>
+  </div>
+</section>
+
+<section class="page end">
+  <div class="end-inner">
+    <div class="end-kicker">Fin del documento · GDD v1.0</div>
+    <div class="end-sigil"><span></span></div>
+    <h1>La caverna<em>te espera.</em></h1>
+    <p class="end-sub">Elegí tu elemental. Leé la emboscada. Sobreviví a la siguiente oleada.</p>
+    <div class="end-cta">Jugar ahora</div>
+    <a class="end-url" href="https://lagranoleada.vercel.app/">https://lagranoleada.vercel.app/</a>
+  </div>
+</section>
+
+</body>
+</html>

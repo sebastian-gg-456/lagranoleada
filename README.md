@@ -2,6 +2,8 @@
 
 Juego web de supervivencia 2D con oleadas infinitas. Proyecto independiente de Unity.
 
+**Integrante:** Sebastian Gonzales Garcia
+
 ## Abrir el juego
 
 Requiere Node.js 20.19+ o 22.12+.
