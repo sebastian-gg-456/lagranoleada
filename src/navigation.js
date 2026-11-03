@@ -1,4 +1,6 @@
 const floorPositions=[80,320,560,800,1040,1200];
+// Highest rise an enemy jump can cover.
+const MAX_RISE=160;
 
 export function generateScenario(seed=1){
  let state=seed>>>0;
@@ -7,7 +9,7 @@ export function generateScenario(seed=1){
  const platforms=columns.map((base,index)=>({
   id:`platform-${index}`,
   x:Math.round(base+(random()-0.5)*70),
-  y:[370,420,470,510][Math.floor(random()*4)],
+  y:index%3===0?[510,530][Math.floor(random()*2)]:[400,430,460,490][Math.floor(random()*4)],
   w:160+Math.floor(random()*51),
   exposed:false
  }));
@@ -33,11 +35,11 @@ export function createNavigationGraph(ground,platforms=[]){
  const floors=nodes.filter(node=>node.type==='ground');
  const ledges=nodes.filter(node=>node.type==='platform');
  for(const ledge of ledges){
-  for(const floor of floors)if(Math.abs(floor.x-ledge.x)<=180&&ground-ledge.y<=320)connect(ledge,floor);
+  for(const floor of floors)if(Math.abs(floor.x-ledge.x)<=260&&ground-ledge.y<=MAX_RISE)connect(ledge,floor);
  }
  for(let i=0;i<ledges.length;i++)for(let j=i+1;j<ledges.length;j++){
   const a=ledges[i],b=ledges[j];
-  if(Math.abs(a.x-b.x)<=400&&Math.abs(a.y-b.y)<=230)connect(a,b);
+  if(Math.abs(a.x-b.x)<=360&&Math.abs(a.y-b.y)<=MAX_RISE)connect(a,b);
  }
  return {nodes,edges,byId:Object.fromEntries(nodes.map(node=>[node.id,node]))};
 }

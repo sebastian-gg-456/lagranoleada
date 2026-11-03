@@ -328,41 +328,69 @@ class Training extends FieldArena {
   this.controls=new Controls(this);this.enemies=[];this.projectiles=[];this.enemyProjectiles=[];this.heals=[];
   this.createFloor();this.createHero();
   const g=this.make.graphics({x:0,y:0,add:false});
-  g.fillStyle(0x8e674a);g.fillRect(23,37,42,12);g.fillRect(38,45,12,42);g.fillRect(20,84,48,8);g.fillRect(24,92,12,25);g.fillRect(52,92,12,25);
-  g.fillStyle(0xd6b17c);g.fillCircle(44,23,17);g.fillStyle(0x293443);g.fillRect(36,20,5,4);g.fillRect(47,20,5,4);
-  g.generateTexture('training-dummy',88,124);g.destroy();
-  const sprite=this.physics.add.sprite(900,this.ground,'training-dummy').setOrigin(0.5,1).setDepth(20);
-  sprite.body.setAllowGravity(false);sprite.body.setImmovable(true);sprite.body.setSize(48,88).setOffset(20,34);
+  // Wooden training dummy: base, post, arms, straw torso with target, stitched sack head.
+  g.fillStyle(0x000000,0.28);g.fillEllipse(60,168,100,16);
+  g.fillStyle(0x5b3d2a);g.fillRect(14,154,92,14);g.fillStyle(0x7a5539);g.fillRect(14,154,92,5);
+  g.fillStyle(0x6b4630);g.fillRect(52,70,16,86);g.fillStyle(0x8a6244);g.fillRect(52,70,6,86);
+  g.fillStyle(0x6b4630);g.fillRect(14,76,92,12);g.fillStyle(0x8a6244);g.fillRect(14,76,92,4);
+  g.fillStyle(0x4a2f20);g.fillRect(10,72,10,20);g.fillRect(100,72,10,20);
+  g.fillStyle(0xcfa65a);g.fillRoundedRect(32,60,56,62,10);g.fillStyle(0xe5c377);g.fillRoundedRect(32,60,56,16,8);
+  g.fillStyle(0x9c7a3c);g.fillRect(32,108,56,6);g.fillRect(32,92,56,4);
+  g.fillStyle(0xf4efe4);g.fillCircle(60,92,19);g.fillStyle(0xd9473f);g.fillCircle(60,92,14);g.fillStyle(0xf4efe4);g.fillCircle(60,92,9);g.fillStyle(0xd9473f);g.fillCircle(60,92,4);
+  g.fillStyle(0xc9a06a);g.fillCircle(60,36,26);g.fillStyle(0xdeb882);g.fillCircle(55,31,18);
+  g.fillStyle(0x2a2320);g.fillRect(46,30,6,6);g.fillRect(66,30,6,6);g.fillRect(50,46,20,3);
+  g.fillRect(52,44,2,7);g.fillRect(58,44,2,7);g.fillRect(64,44,2,7);
+  g.fillStyle(0x9c3d3d);g.fillRect(36,56,48,7);
+  g.generateTexture('training-dummy',120,172);g.destroy();
+  const sprite=this.physics.add.sprite(900,this.ground+4,'training-dummy').setOrigin(0.5,1).setScale(0.8).setDepth(20);
+  sprite.body.setAllowGravity(false);sprite.body.setImmovable(true);sprite.body.setSize(56,120).setOffset(32,46);
   this.dummy={sprite,id:'TrainingDummy',boss:false,hp:10000,max:10000,dead:false,frozen:false,shieldUntil:0};
-  this.enemies=[this.dummy];this.hitCount=0;this.lastDamage=0;
+  this.enemies=[this.dummy];this.hitCount=0;this.lastDamage=0;this.talkIndex=0;this.talkReady=0;
   this.add.rectangle(640,45,1280,90,0x07101d,0.88).setDepth(90);
   text(this,30,20,`CAMPO LIBRE · ${names[session.character]}`,23,'#82f5c8').setDepth(100);
-  text(this,30,55,'Piso de práctica · J/K/L o X/Y/B · A del mando: hablar · Esc: volver',17).setDepth(100);
-  this.dummyStatus=text(this,900,520,'Muñeco de pruebas · golpes recibidos: 0',19,'#ffd382').setOrigin(0.5).setDepth(100);
-  this.talkBox=this.add.rectangle(640,590,1160,145,0x07101d,0.96).setStrokeStyle(3,0x82f5c8).setDepth(100);
-  this.talkText=text(this,100,540,'Presioná A del mando o Enter para escuchar sobre tus habilidades.',21,'#edf5ff').setWordWrapWidth(1060).setLineSpacing(8).setDepth(101);
-  this.talkBox.setVisible(false);this.talkText.setVisible(false);
+  text(this,30,55,'Piso de práctica · atacá al muñeco · A del mando o Enter: hablar con él · Esc: volver',17).setDepth(100);
+  this.dummyStatus=text(this,900,450,'',18,'#ffd382').setOrigin(0.5).setDepth(100);
+  this.dummyName=text(this,900,476,'MAESTRO MUÑECO',16,'#82f5c8').setOrigin(0.5).setDepth(100);
+  this.prompt=text(this,900,498,'▼ Hablá con él (A / Enter)',15,'#edf5ff').setOrigin(0.5).setDepth(100);
+  this.tweens.add({targets:this.prompt,alpha:0.35,yoyo:true,repeat:-1,duration:700});
+  this.talkBox=this.add.rectangle(640,185,1180,150,0x07101d,0.96).setStrokeStyle(3,0x82f5c8).setDepth(100);
+  this.talkPortrait=this.add.image(110,185,`${this.id}:portrait`).setScale(1.3).setDepth(101);
+  this.talkName=text(this,190,125,'',20,'#ffd382').setDepth(101);
+  this.talkText=text(this,190,157,'',21,'#edf5ff').setWordWrapWidth(1020).setLineSpacing(8).setDepth(101);
+  this.talkItems=[this.talkBox,this.talkPortrait,this.talkName,this.talkText];this.talkItems.forEach(item=>item.setVisible(false));
+  this.updateDummyStatus();
   this.playerStatus=text(this,1250,22,'100 / 100',18,'#ffffff').setOrigin(1,0).setDepth(100);
   const back=this.add.rectangle(1130,62,190,32,0x14263a).setStrokeStyle(2,0x82f5c8).setDepth(100).setInteractive({useHandCursor:true});
   text(this,1130,62,'Volver al campo',15).setOrigin(0.5).setDepth(101);back.on('pointerdown',()=>this.returnToField());
  }
+ updateDummyStatus(){
+  this.dummyStatus.setText(this.hitCount?`Golpes: ${this.hitCount} · último daño: ${this.lastDamage}`:'Sin un rasguño (todavía)');
+ }
  hitEnemy(e,damage){
   this.hitCount++;this.lastDamage=Math.round(damage);e.hp=e.max;
   e.sprite.setTint(0xffd49a);this.time.delayedCall(120,()=>{if(e.sprite.active)e.sprite.clearTint();});
-  this.dummyStatus.setText(`Muñeco de pruebas · golpes: ${this.hitCount} · último daño: ${this.lastDamage}`);
+  // Wobble away from the hero, like a real training post.
+  const side=this.hero.x<e.sprite.x?1:-1;this.tweens.killTweensOf(e.sprite);e.sprite.setAngle(0);
+  this.tweens.add({targets:e.sprite,angle:{from:side*9,to:0},duration:420,ease:'Elastic.easeOut'});
+  this.updateDummyStatus();
   return true;
  }
  update(time){
   const c=this.controls.poll(time);if(c.pause){this.returnToField();return;}
-  if(c.jump||c.ok){
-   const tips={
-    LeafRanger:'X/J: golpe cercano. Y/K: flecha; mantenelo para cargar área o veneno. B/L: lluvia de flechas. RB/S: defender. LB/Shift: rodar.',
-    CrystalMauler:'X/J: combo de dos golpes. Y/K: ataque de área. B/L: especial. Sus ataques Y y B requieren estar en el suelo. RB/S: defender. LB/Shift: rodar.',
-    GroundMonk:'X/J: combo de tres golpes. Y/K: especial. B/L: meditar para potenciar daño y resistencia. RB/S: defender. LB/Shift: rodar.',
-    WaterPriestess:'X/J: combo de tres ataques. Y/K: esfera de daño y congelación. B/L: curar 25 de vida. RB/S: defender. LB/Shift: rodar.'
-   };
-   this.talkBox.setVisible(true);this.talkText.setText(`Muñeco: ${tips[this.id]}\nNo dudes en probar tus ataques conmigo; total, no siento nada.`);
-   this.talkText.setVisible(true);
+  if((c.jump||c.ok)&&time>=this.talkReady){
+   this.talkReady=time+500;
+   const lines={
+    LeafRanger:['Tenés puntería de elfa: tu fuerte es pelear de lejos. Mantené la distancia y dejá que cada flecha haga el trabajo.','Cargá bien el disparo y vas a cubrir una zona entera. De cerca sos frágil, así que no me pegues desde acá, ¡alejate!','Dicen que una elfa no falla. Yo no me muevo: ¡demostralo!'],
+    CrystalMauler:['Sos una muralla de cristal: lento, pero cada golpe tuyo pesa de verdad. Dejá que se acerquen y aplastalos.','Tu fuerza bruta rompe formaciones enteras. Hacé temblar el suelo y no des un paso atrás.','Pegame con todo lo que tengas, coloso. Yo aguanto.'],
+    GroundMonk:['Sos puro ritmo y disciplina: combos veloces, siempre pegado al enemigo. Quien te toca, ya perdió.','Cuando medites te volvés más duro y más fuerte. Aprovechá cada respiro para ganar ventaja.','Esquivá, golpeá, esquivá. Así se entrena un monje.'],
+    WaterPriestess:['Dominás el agua: congelás al enemigo y cuidás a los tuyos. Con calma, sos la más difícil de vencer.','Tu magia te cura y detiene a quien se acerque. Sobrevivir también es una forma de ganar.','El hielo te obedece. Practicá conmigo, que no me quejo.']
+   }[this.id];
+   const line=lines[this.talkIndex%lines.length];
+   const outro=this.talkIndex%lines.length===0?'\nNo dudes en probar tus ataques conmigo; total, no siento nada.':'';
+   this.talkIndex++;
+   this.talkName.setText(`MAESTRO MUÑECO · ${names[session.character]}`);this.talkText.setText(`${line}${outro}`);
+   this.talkItems.forEach(item=>item.setVisible(true));this.prompt.setVisible(false);
+   this.talkHide?.remove();this.talkHide=this.time.delayedCall(9000,()=>{this.talkItems.forEach(item=>item.setVisible(false));this.prompt.setVisible(true);});
   }
   const grounded=this.hero.body.blocked.down||this.hero.body.touching.down;
   this.movePlayer(c,time,grounded,false);this.updatePlayerProjectiles(time);

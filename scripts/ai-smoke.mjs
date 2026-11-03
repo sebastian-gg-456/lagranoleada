@@ -42,6 +42,17 @@ try{
  assert.equal(after.navigation,'safe','E activa ruta segura');
  assert.notDeepEqual(after.platforms,before.platforms,'R cambia plataformas/riesgos');
  assert.equal(after.hasMushroomRoute,true);
+ await page.evaluate(()=>{const g=window.__emboscada;g.scene.stop('AILab');g.scene.start('Game');});
+ await page.waitForFunction(()=>window.__emboscada.scene.isActive('Game')&&window.__emboscada.scene.getScene('Game').hero);
+ await page.evaluate(()=>{const s=window.__emboscada.scene.getScene('Game');s.time.removeAllEvents();for(const e of s.enemies)e.sprite.destroy();s.enemies=[];s.wave=0;s.hp=100000;s.maxHp=100000;s.hero.body.reset(620,300);s.hero.body.setVelocity(0,0);s.plan={hp:100000,speed:105};s.wave=3;s.spawnEnemy(false,0);const e=s.enemies.at(-1);e.sprite.body.reset(150,s.ground);e.next=Infinity;window.__mush=e;});
+ await page.waitForFunction(()=>{const s=window.__emboscada.scene.getScene('Game'),e=window.__mush;s.hero.body.reset(620,300);s.hero.body.setVelocity(0,0);window.__maxRoute=Math.max(window.__maxRoute||0,e.route?.length||0);return e.id==='Mushroom'&&e.sprite.body.bottom<=312&&Math.abs(e.sprite.x-620)<130;},{},{timeout:25000});
+ assert.ok(await page.evaluate(()=>window.__maxRoute>=3),'hongo sigue una ruta de varias plataformas');
+ await page.evaluate(()=>{const s=window.__emboscada.scene.getScene('Game');for(const e of s.enemies)e.sprite.destroy();s.enemies=[];s.wave=0;s.plan={hp:100000,speed:80};s.wave=1;s.spawnEnemy(false,1);const e=s.enemies.at(-1);e.sprite.body.reset(900,200);e.next=Infinity;window.__eye=e;s.hero.body.reset(300,s.ground);});
+ await page.waitForTimeout(300);
+ assert.equal(await page.evaluate(()=>window.__eye.id+':'+window.__eye.state),'Flying eye:patrol','el ojo ignora al jugador en el piso');
+ await page.evaluate(()=>{const s=window.__emboscada.scene.getScene('Game');s.hero.body.reset(300,420);s.hero.body.setVelocity(0,0);s.hero.body.setAllowGravity(false);});
+ await page.waitForTimeout(300);
+ assert.equal(await page.evaluate(()=>window.__eye.state),'pursue','el ojo ataca al jugador en el aire');
  assert.deepEqual(errors,[]);
  console.log('OK: menú Campo libre, práctica y diálogo, laboratorio BFS/A*, rutas segura/corta y escenario regenerable.');
 }finally{await browser?.close();server.kill();}

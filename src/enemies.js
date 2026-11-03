@@ -42,6 +42,8 @@ export const enemyMethods={
  updateEnemies(time){
   const h=this.hero,heroGrounded=h.body.blocked.down||h.body.touching.down;
   const heroElevated=heroGrounded&&h.body.bottom<this.ground-45;
+  // For the eyes, anything off the main floor (platform or air) counts.
+  const heroOffFloor=h.body.bottom<this.ground-45;
   for(const e of this.enemies){
    const s=e.sprite;if(!s.active)continue;
    if(e.dead){
@@ -64,7 +66,8 @@ export const enemyMethods={
    if(time<e.recoverUntil){this.setEnemyState(e,'recover',time);s.setVelocityX(0);continue;}
     const dx=h.x-s.x,dist=Math.abs(dx);s.setFlipX((dx<0?-1:1)!==(bosses[e.id]?.nativeFacing||1));
    if(e.id==='Flying eye'){
-    if(!heroElevated){
+    if(heroOffFloor)e.aggroUntil=time+1200;
+    if(!(time<e.aggroUntil)){
      this.setEnemyState(e,'patrol',time);
      if(!e.patrol||Math.hypot(s.x-e.patrol.x,s.y-e.patrol.y)<25)e.patrol={x:100+Math.random()*1080,y:145+Math.random()*90};
      const px=e.patrol.x-s.x,py=e.patrol.y-s.y,len=Math.hypot(px,py)||1;
@@ -98,8 +101,11 @@ export const enemyMethods={
     continue;
    }
    if(e.id==='Mushroom'&&!grounded){
-    this.setEnemyState(e,'jump',time);s.setVelocityX(Math.sign(dx)*e.speed);s.play('Mushroom:move',true);continue;
+    // Keep steering toward the landing platform chosen at take-off.
+    const aim=e.airTarget?e.airTarget.x-s.x:dx;
+    this.setEnemyState(e,'jump',time);s.setVelocityX(Math.max(-340,Math.min(340,aim*3)));s.setFlipX(aim<0);s.play('Mushroom:move',true);continue;
    }
+   e.airTarget=null;
    const sameSurface=grounded&&heroGrounded&&Math.abs(h.body.bottom-s.body.bottom)<100;
    if(this.navigationGraph&&e.id==='Mushroom'&&grounded){
     const from=nearestSurfaceNode(this.navigationGraph,s.x,s.body.bottom,this.ground);
@@ -111,17 +117,20 @@ export const enemyMethods={
     }
     const routeIndex=e.route?.indexOf(from?.id)??-1;
     const next=routeIndex>=0?this.navigationGraph.byId[e.route[routeIndex+1]]:null;
-    const waypoint=next||target;
+    const sameNode=from&&target&&from.id===target.id;
+    const waypoint=sameNode?null:(next||target);
     const direction=waypoint?Math.sign(waypoint.x-s.x):Math.sign(dx);
     let jumped=false;
-    if(next?.type==='platform'&&next.y<s.body.bottom-35&&Math.abs(next.x-s.x)<190&&time>=e.jumpAt){
-     s.setVelocityY(-680);e.jumpAt=time+1200;jumped=true;
+    const rise=next?s.body.bottom-next.y:0;
+    // Jump power scales with the height of the next stop in the route.
+    if(next?.type==='platform'&&rise>35&&Math.abs(next.x-s.x)<=300&&time>=e.jumpAt){
+     s.setVelocityY(-Math.min(760,Math.sqrt(2*1500*(rise+35))));e.airTarget=next;e.jumpAt=time+900;jumped=true;
     }
     if(sameSurface&&dist<75&&Math.abs(h.y-s.y)<120&&time>=e.next){
      this.startEnemyAttack(e,time,Math.random()<0.5?'attack2':'attack');continue;
     }
     this.setEnemyState(e,jumped?'jump':'chase',time);
-    s.setVelocityX(waypoint&&Math.abs(waypoint.x-s.x)>24?direction*e.speed:Math.sign(dx)*Math.min(e.speed,Math.abs(dx)));
+    s.setVelocityX(jumped?direction*e.speed:waypoint&&Math.abs(waypoint.x-s.x)>24?direction*e.speed:Math.sign(dx)*Math.min(e.speed,Math.abs(dx)));
     s.setFlipX(direction<0);s.play(`Mushroom:${Math.abs(dx)>45?'move':'idle'}`,true);continue;
    }
    if(grounded&&heroElevated&&dist<480&&time>=e.jumpAt){s.setVelocityY(e.boss?-720:-680);e.jumpAt=time+(e.boss?1800:1200);}

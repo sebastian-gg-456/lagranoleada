@@ -969,3 +969,14 @@ VERIFICACION REALIZADA
   de bundle mayor a 500 kB.
 
 FIN DE LA RONDA 6 - conservar historial y agregar futuras rondas al final.
+
+========================================================================
+RONDA 7: HONGO POR RUTAS, OJO VOLADOR Y MUNECO
+========================================================================
+
+- Mushroom: sigue la ruta plataforma por plataforma; el impulso del salto se calcula segun la altura de la siguiente parada y en el aire se dirige a la plataforma elegida. El grafo solo conecta saltos alcanzables (subida maxima 160 px). Los escenarios del laboratorio garantizan una plataforma alcanzable desde el piso.
+- Flying eye: ataca cuando el jugador no pisa el piso principal (plataforma o aire); mantiene la persecucion 1,2 s extra y vuelve a patrullar.
+- Muneco de pruebas: nuevo arte, oscilacion al recibir golpes, nombre y cartel de dialogo con retrato. Ya no lista botones; describe el estilo de cada personaje.
+- Pruebas: ai-smoke verifica ruta de varias plataformas hasta una plataforma alta y el comportamiento del ojo en piso/aire. scripts/verify-controls.mjs tiene una espera de combo que falla de forma intermitente sin relacion con estos cambios.
+
+FIN DE LA RONDA 7 - conservar historial y agregar futuras rondas al final.
