@@ -1,0 +1,1468 @@
+{
+  "actors": {
+    "LeafRanger": {
+      "id": "LeafRanger",
+      "foot": 1,
+      "actions": {
+        "idle": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/idle/idle_1.png",
+            "personajes/LeafRanger/animations/PNG/idle/idle_2.png",
+            "personajes/LeafRanger/animations/PNG/idle/idle_3.png",
+            "personajes/LeafRanger/animations/PNG/idle/idle_4.png",
+            "personajes/LeafRanger/animations/PNG/idle/idle_5.png",
+            "personajes/LeafRanger/animations/PNG/idle/idle_6.png",
+            "personajes/LeafRanger/animations/PNG/idle/idle_7.png",
+            "personajes/LeafRanger/animations/PNG/idle/idle_8.png",
+            "personajes/LeafRanger/animations/PNG/idle/idle_9.png",
+            "personajes/LeafRanger/animations/PNG/idle/idle_10.png",
+            "personajes/LeafRanger/animations/PNG/idle/idle_11.png",
+            "personajes/LeafRanger/animations/PNG/idle/idle_12.png"
+          ]
+        },
+        "move": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/run/run_1.png",
+            "personajes/LeafRanger/animations/PNG/run/run_2.png",
+            "personajes/LeafRanger/animations/PNG/run/run_3.png",
+            "personajes/LeafRanger/animations/PNG/run/run_4.png",
+            "personajes/LeafRanger/animations/PNG/run/run_5.png",
+            "personajes/LeafRanger/animations/PNG/run/run_6.png",
+            "personajes/LeafRanger/animations/PNG/run/run_7.png",
+            "personajes/LeafRanger/animations/PNG/run/run_8.png",
+            "personajes/LeafRanger/animations/PNG/run/run_9.png",
+            "personajes/LeafRanger/animations/PNG/run/run_10.png"
+          ]
+        },
+        "attack": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/1_atk/1_atk_1.png",
+            "personajes/LeafRanger/animations/PNG/1_atk/1_atk_2.png",
+            "personajes/LeafRanger/animations/PNG/1_atk/1_atk_3.png",
+            "personajes/LeafRanger/animations/PNG/1_atk/1_atk_4.png",
+            "personajes/LeafRanger/animations/PNG/1_atk/1_atk_5.png",
+            "personajes/LeafRanger/animations/PNG/1_atk/1_atk_6.png",
+            "personajes/LeafRanger/animations/PNG/1_atk/1_atk_7.png",
+            "personajes/LeafRanger/animations/PNG/1_atk/1_atk_8.png",
+            "personajes/LeafRanger/animations/PNG/1_atk/1_atk_9.png",
+            "personajes/LeafRanger/animations/PNG/1_atk/1_atk_10.png"
+          ]
+        },
+        "attack2": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/2_atk/2_atk_1.png",
+            "personajes/LeafRanger/animations/PNG/2_atk/2_atk_2.png",
+            "personajes/LeafRanger/animations/PNG/2_atk/2_atk_3.png",
+            "personajes/LeafRanger/animations/PNG/2_atk/2_atk_4.png",
+            "personajes/LeafRanger/animations/PNG/2_atk/2_atk_5.png",
+            "personajes/LeafRanger/animations/PNG/2_atk/2_atk_6.png",
+            "personajes/LeafRanger/animations/PNG/2_atk/2_atk_7.png",
+            "personajes/LeafRanger/animations/PNG/2_atk/2_atk_8.png",
+            "personajes/LeafRanger/animations/PNG/2_atk/2_atk_9.png",
+            "personajes/LeafRanger/animations/PNG/2_atk/2_atk_10.png",
+            "personajes/LeafRanger/animations/PNG/2_atk/2_atk_11.png",
+            "personajes/LeafRanger/animations/PNG/2_atk/2_atk_12.png",
+            "personajes/LeafRanger/animations/PNG/2_atk/2_atk_13.png",
+            "personajes/LeafRanger/animations/PNG/2_atk/2_atk_14.png",
+            "personajes/LeafRanger/animations/PNG/2_atk/2_atk_15.png"
+          ]
+        },
+        "attack3": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/3_atk/3_atk_1.png",
+            "personajes/LeafRanger/animations/PNG/3_atk/3_atk_2.png",
+            "personajes/LeafRanger/animations/PNG/3_atk/3_atk_3.png",
+            "personajes/LeafRanger/animations/PNG/3_atk/3_atk_4.png",
+            "personajes/LeafRanger/animations/PNG/3_atk/3_atk_5.png",
+            "personajes/LeafRanger/animations/PNG/3_atk/3_atk_6.png",
+            "personajes/LeafRanger/animations/PNG/3_atk/3_atk_7.png",
+            "personajes/LeafRanger/animations/PNG/3_atk/3_atk_8.png",
+            "personajes/LeafRanger/animations/PNG/3_atk/3_atk_9.png",
+            "personajes/LeafRanger/animations/PNG/3_atk/3_atk_10.png",
+            "personajes/LeafRanger/animations/PNG/3_atk/3_atk_11.png",
+            "personajes/LeafRanger/animations/PNG/3_atk/3_atk_12.png"
+          ]
+        },
+        "airAttack": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/air_atk/air_atk_1.png",
+            "personajes/LeafRanger/animations/PNG/air_atk/air_atk_2.png",
+            "personajes/LeafRanger/animations/PNG/air_atk/air_atk_3.png",
+            "personajes/LeafRanger/animations/PNG/air_atk/air_atk_4.png",
+            "personajes/LeafRanger/animations/PNG/air_atk/air_atk_5.png",
+            "personajes/LeafRanger/animations/PNG/air_atk/air_atk_6.png",
+            "personajes/LeafRanger/animations/PNG/air_atk/air_atk_7.png",
+            "personajes/LeafRanger/animations/PNG/air_atk/air_atk_8.png",
+            "personajes/LeafRanger/animations/PNG/air_atk/air_atk_9.png",
+            "personajes/LeafRanger/animations/PNG/air_atk/air_atk_10.png"
+          ]
+        },
+        "special": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/sp_atk/sp_atk_1.png",
+            "personajes/LeafRanger/animations/PNG/sp_atk/sp_atk_2.png",
+            "personajes/LeafRanger/animations/PNG/sp_atk/sp_atk_3.png",
+            "personajes/LeafRanger/animations/PNG/sp_atk/sp_atk_4.png",
+            "personajes/LeafRanger/animations/PNG/sp_atk/sp_atk_5.png",
+            "personajes/LeafRanger/animations/PNG/sp_atk/sp_atk_6.png",
+            "personajes/LeafRanger/animations/PNG/sp_atk/sp_atk_7.png",
+            "personajes/LeafRanger/animations/PNG/sp_atk/sp_atk_8.png",
+            "personajes/LeafRanger/animations/PNG/sp_atk/sp_atk_9.png",
+            "personajes/LeafRanger/animations/PNG/sp_atk/sp_atk_10.png",
+            "personajes/LeafRanger/animations/PNG/sp_atk/sp_atk_11.png",
+            "personajes/LeafRanger/animations/PNG/sp_atk/sp_atk_12.png",
+            "personajes/LeafRanger/animations/PNG/sp_atk/sp_atk_13.png",
+            "personajes/LeafRanger/animations/PNG/sp_atk/sp_atk_14.png",
+            "personajes/LeafRanger/animations/PNG/sp_atk/sp_atk_15.png",
+            "personajes/LeafRanger/animations/PNG/sp_atk/sp_atk_16.png",
+            "personajes/LeafRanger/animations/PNG/sp_atk/sp_atk_17.png"
+          ]
+        },
+        "hurt": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/take_hit/take_hit_1.png",
+            "personajes/LeafRanger/animations/PNG/take_hit/take_hit_2.png",
+            "personajes/LeafRanger/animations/PNG/take_hit/take_hit_3.png",
+            "personajes/LeafRanger/animations/PNG/take_hit/take_hit_4.png",
+            "personajes/LeafRanger/animations/PNG/take_hit/take_hit_5.png",
+            "personajes/LeafRanger/animations/PNG/take_hit/take_hit_6.png"
+          ]
+        },
+        "death": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/death/death_1.png",
+            "personajes/LeafRanger/animations/PNG/death/death_2.png",
+            "personajes/LeafRanger/animations/PNG/death/death_3.png",
+            "personajes/LeafRanger/animations/PNG/death/death_4.png",
+            "personajes/LeafRanger/animations/PNG/death/death_5.png",
+            "personajes/LeafRanger/animations/PNG/death/death_6.png",
+            "personajes/LeafRanger/animations/PNG/death/death_7.png",
+            "personajes/LeafRanger/animations/PNG/death/death_8.png",
+            "personajes/LeafRanger/animations/PNG/death/death_9.png",
+            "personajes/LeafRanger/animations/PNG/death/death_10.png",
+            "personajes/LeafRanger/animations/PNG/death/death_11.png",
+            "personajes/LeafRanger/animations/PNG/death/death_12.png",
+            "personajes/LeafRanger/animations/PNG/death/death_13.png",
+            "personajes/LeafRanger/animations/PNG/death/death_14.png",
+            "personajes/LeafRanger/animations/PNG/death/death_15.png",
+            "personajes/LeafRanger/animations/PNG/death/death_16.png",
+            "personajes/LeafRanger/animations/PNG/death/death_17.png",
+            "personajes/LeafRanger/animations/PNG/death/death_18.png",
+            "personajes/LeafRanger/animations/PNG/death/death_19.png"
+          ]
+        },
+        "roll": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/roll/roll_1.png",
+            "personajes/LeafRanger/animations/PNG/roll/roll_2.png",
+            "personajes/LeafRanger/animations/PNG/roll/roll_3.png",
+            "personajes/LeafRanger/animations/PNG/roll/roll_4.png",
+            "personajes/LeafRanger/animations/PNG/roll/roll_5.png",
+            "personajes/LeafRanger/animations/PNG/roll/roll_6.png",
+            "personajes/LeafRanger/animations/PNG/roll/roll_7.png",
+            "personajes/LeafRanger/animations/PNG/roll/roll_8.png"
+          ]
+        },
+        "defend": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/defend/defend_1.png",
+            "personajes/LeafRanger/animations/PNG/defend/defend_2.png",
+            "personajes/LeafRanger/animations/PNG/defend/defend_3.png",
+            "personajes/LeafRanger/animations/PNG/defend/defend_4.png",
+            "personajes/LeafRanger/animations/PNG/defend/defend_5.png",
+            "personajes/LeafRanger/animations/PNG/defend/defend_6.png",
+            "personajes/LeafRanger/animations/PNG/defend/defend_7.png",
+            "personajes/LeafRanger/animations/PNG/defend/defend_8.png",
+            "personajes/LeafRanger/animations/PNG/defend/defend_9.png",
+            "personajes/LeafRanger/animations/PNG/defend/defend_10.png",
+            "personajes/LeafRanger/animations/PNG/defend/defend_11.png",
+            "personajes/LeafRanger/animations/PNG/defend/defend_12.png",
+            "personajes/LeafRanger/animations/PNG/defend/defend_13.png",
+            "personajes/LeafRanger/animations/PNG/defend/defend_14.png",
+            "personajes/LeafRanger/animations/PNG/defend/defend_15.png",
+            "personajes/LeafRanger/animations/PNG/defend/defend_16.png",
+            "personajes/LeafRanger/animations/PNG/defend/defend_17.png",
+            "personajes/LeafRanger/animations/PNG/defend/defend_18.png",
+            "personajes/LeafRanger/animations/PNG/defend/defend_19.png"
+          ]
+        },
+        "up": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/jump_up/jump_up_1.png",
+            "personajes/LeafRanger/animations/PNG/jump_up/jump_up_2.png",
+            "personajes/LeafRanger/animations/PNG/jump_up/jump_up_3.png"
+          ]
+        },
+        "down": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/jump_down/jump_down_1.png",
+            "personajes/LeafRanger/animations/PNG/jump_down/jump_down_2.png",
+            "personajes/LeafRanger/animations/PNG/jump_down/jump_down_3.png"
+          ]
+        },
+        "jump": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_1.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_2.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_3.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_4.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_5.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_6.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_7.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_8.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_9.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_10.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_11.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_12.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_13.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_14.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_15.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_16.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_17.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_18.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_19.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_20.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_21.png",
+            "personajes/LeafRanger/animations/PNG/jump_full/jump_22.png"
+          ]
+        },
+        "slide": {
+          "files": [
+            "personajes/LeafRanger/animations/PNG/slide/slide_1.png",
+            "personajes/LeafRanger/animations/PNG/slide/slide_2.png",
+            "personajes/LeafRanger/animations/PNG/slide/slide_3.png",
+            "personajes/LeafRanger/animations/PNG/slide/slide_4.png",
+            "personajes/LeafRanger/animations/PNG/slide/slide_5.png",
+            "personajes/LeafRanger/animations/PNG/slide/slide_6.png",
+            "personajes/LeafRanger/animations/PNG/slide/slide_7.png",
+            "personajes/LeafRanger/animations/PNG/slide/slide_8.png",
+            "personajes/LeafRanger/animations/PNG/slide/slide_9.png",
+            "personajes/LeafRanger/animations/PNG/slide/slide_10.png",
+            "personajes/LeafRanger/animations/PNG/slide/slide_11.png",
+            "personajes/LeafRanger/animations/PNG/slide/slide_12.png",
+            "personajes/LeafRanger/animations/PNG/slide/slide_13.png"
+          ]
+        }
+      },
+      "portrait": "personajes/LeafRanger/leaf_ranger.png"
+    },
+    "CrystalMauler": {
+      "id": "CrystalMauler",
+      "foot": 1,
+      "actions": {
+        "idle": {
+          "files": [
+            "personajes/CrystalMauler/animations/PNG/idle/idle_1.png",
+            "personajes/CrystalMauler/animations/PNG/idle/idle_2.png",
+            "personajes/CrystalMauler/animations/PNG/idle/idle_3.png",
+            "personajes/CrystalMauler/animations/PNG/idle/idle_4.png",
+            "personajes/CrystalMauler/animations/PNG/idle/idle_5.png",
+            "personajes/CrystalMauler/animations/PNG/idle/idle_6.png",
+            "personajes/CrystalMauler/animations/PNG/idle/idle_7.png",
+            "personajes/CrystalMauler/animations/PNG/idle/idle_8.png"
+          ]
+        },
+        "move": {
+          "files": [
+            "personajes/CrystalMauler/animations/PNG/run/run_1.png",
+            "personajes/CrystalMauler/animations/PNG/run/run_2.png",
+            "personajes/CrystalMauler/animations/PNG/run/run_3.png",
+            "personajes/CrystalMauler/animations/PNG/run/run_4.png",
+            "personajes/CrystalMauler/animations/PNG/run/run_5.png",
+            "personajes/CrystalMauler/animations/PNG/run/run_6.png",
+            "personajes/CrystalMauler/animations/PNG/run/run_7.png",
+            "personajes/CrystalMauler/animations/PNG/run/run_8.png"
+          ]
+        },
+        "attack": {
+          "files": [
+            "personajes/CrystalMauler/animations/PNG/1_atk/1_atk_1.png",
+            "personajes/CrystalMauler/animations/PNG/1_atk/1_atk_2.png",
+            "personajes/CrystalMauler/animations/PNG/1_atk/1_atk_3.png",
+            "personajes/CrystalMauler/animations/PNG/1_atk/1_atk_4.png",
+            "personajes/CrystalMauler/animations/PNG/1_atk/1_atk_5.png",
+            "personajes/CrystalMauler/animations/PNG/1_atk/1_atk_6.png",
+            "personajes/CrystalMauler/animations/PNG/1_atk/1_atk_7.png"
+          ]
+        },
+        "attack2": {
+          "files": [
+            "personajes/CrystalMauler/animations/PNG/2_atk/2_atk_1.png",
+            "personajes/CrystalMauler/animations/PNG/2_atk/2_atk_2.png",
+            "personajes/CrystalMauler/animations/PNG/2_atk/2_atk_3.png",
+            "personajes/CrystalMauler/animations/PNG/2_atk/2_atk_4.png",
+            "personajes/CrystalMauler/animations/PNG/2_atk/2_atk_5.png",
+            "personajes/CrystalMauler/animations/PNG/2_atk/2_atk_6.png",
+            "personajes/CrystalMauler/animations/PNG/2_atk/2_atk_7.png"
+          ]
+        },
+        "attack3": {
+          "files": [
+            "personajes/CrystalMauler/animations/PNG/3_atk/3_atk_1.png",
+            "personajes/CrystalMauler/animations/PNG/3_atk/3_atk_2.png",
+            "personajes/CrystalMauler/animations/PNG/3_atk/3_atk_3.png",
+            "personajes/CrystalMauler/animations/PNG/3_atk/3_atk_4.png",
+            "personajes/CrystalMauler/animations/PNG/3_atk/3_atk_5.png",
+            "personajes/CrystalMauler/animations/PNG/3_atk/3_atk_6.png",
+            "personajes/CrystalMauler/animations/PNG/3_atk/3_atk_7.png",
+            "personajes/CrystalMauler/animations/PNG/3_atk/3_atk_8.png",
+            "personajes/CrystalMauler/animations/PNG/3_atk/3_atk_9.png",
+            "personajes/CrystalMauler/animations/PNG/3_atk/3_atk_10.png",
+            "personajes/CrystalMauler/animations/PNG/3_atk/3_atk_11.png",
+            "personajes/CrystalMauler/animations/PNG/3_atk/3_atk_12.png",
+            "personajes/CrystalMauler/animations/PNG/3_atk/3_atk_13.png",
+            "personajes/CrystalMauler/animations/PNG/3_atk/3_atk_14.png",
+            "personajes/CrystalMauler/animations/PNG/3_atk/3_atk_15.png",
+            "personajes/CrystalMauler/animations/PNG/3_atk/3_atk_16.png",
+            "personajes/CrystalMauler/animations/PNG/3_atk/3_atk_17.png"
+          ]
+        },
+        "airAttack": {
+          "files": [
+            "personajes/CrystalMauler/animations/PNG/air_atk/air_atk_1.png",
+            "personajes/CrystalMauler/animations/PNG/air_atk/air_atk_2.png",
+            "personajes/CrystalMauler/animations/PNG/air_atk/air_atk_3.png",
+            "personajes/CrystalMauler/animations/PNG/air_atk/air_atk_4.png",
+            "personajes/CrystalMauler/animations/PNG/air_atk/air_atk_5.png",
+            "personajes/CrystalMauler/animations/PNG/air_atk/air_atk_6.png",
+            "personajes/CrystalMauler/animations/PNG/air_atk/air_atk_7.png",
+            "personajes/CrystalMauler/animations/PNG/air_atk/air_atk_8.png"
+          ]
+        },
+        "special": {
+          "files": [
+            "personajes/CrystalMauler/animations/PNG/sp_atk/sp_atk_1.png",
+            "personajes/CrystalMauler/animations/PNG/sp_atk/sp_atk_2.png",
+            "personajes/CrystalMauler/animations/PNG/sp_atk/sp_atk_3.png",
+            "personajes/CrystalMauler/animations/PNG/sp_atk/sp_atk_4.png",
+            "personajes/CrystalMauler/animations/PNG/sp_atk/sp_atk_5.png",
+            "personajes/CrystalMauler/animations/PNG/sp_atk/sp_atk_6.png",
+            "personajes/CrystalMauler/animations/PNG/sp_atk/sp_atk_7.png",
+            "personajes/CrystalMauler/animations/PNG/sp_atk/sp_atk_8.png",
+            "personajes/CrystalMauler/animations/PNG/sp_atk/sp_atk_9.png",
+            "personajes/CrystalMauler/animations/PNG/sp_atk/sp_atk_10.png",
+            "personajes/CrystalMauler/animations/PNG/sp_atk/sp_atk_11.png",
+            "personajes/CrystalMauler/animations/PNG/sp_atk/sp_atk_12.png",
+            "personajes/CrystalMauler/animations/PNG/sp_atk/sp_atk_13.png",
+            "personajes/CrystalMauler/animations/PNG/sp_atk/sp_atk_14.png",
+            "personajes/CrystalMauler/animations/PNG/sp_atk/sp_atk_15.png"
+          ]
+        },
+        "hurt": {
+          "files": [
+            "personajes/CrystalMauler/animations/PNG/take_hit/take_hit_1.png",
+            "personajes/CrystalMauler/animations/PNG/take_hit/take_hit_2.png",
+            "personajes/CrystalMauler/animations/PNG/take_hit/take_hit_3.png",
+            "personajes/CrystalMauler/animations/PNG/take_hit/take_hit_4.png",
+            "personajes/CrystalMauler/animations/PNG/take_hit/take_hit_5.png",
+            "personajes/CrystalMauler/animations/PNG/take_hit/take_hit_6.png"
+          ]
+        },
+        "death": {
+          "files": [
+            "personajes/CrystalMauler/animations/PNG/death/death_1.png",
+            "personajes/CrystalMauler/animations/PNG/death/death_2.png",
+            "personajes/CrystalMauler/animations/PNG/death/death_3.png",
+            "personajes/CrystalMauler/animations/PNG/death/death_4.png",
+            "personajes/CrystalMauler/animations/PNG/death/death_5.png",
+            "personajes/CrystalMauler/animations/PNG/death/death_6.png",
+            "personajes/CrystalMauler/animations/PNG/death/death_7.png",
+            "personajes/CrystalMauler/animations/PNG/death/death_8.png",
+            "personajes/CrystalMauler/animations/PNG/death/death_9.png",
+            "personajes/CrystalMauler/animations/PNG/death/death_10.png",
+            "personajes/CrystalMauler/animations/PNG/death/death_11.png",
+            "personajes/CrystalMauler/animations/PNG/death/death_12.png",
+            "personajes/CrystalMauler/animations/PNG/death/death_13.png",
+            "personajes/CrystalMauler/animations/PNG/death/death_14.png",
+            "personajes/CrystalMauler/animations/PNG/death/death_15.png"
+          ]
+        },
+        "roll": {
+          "files": [
+            "personajes/CrystalMauler/animations/PNG/roll/roll_1.png",
+            "personajes/CrystalMauler/animations/PNG/roll/roll_2.png",
+            "personajes/CrystalMauler/animations/PNG/roll/roll_3.png",
+            "personajes/CrystalMauler/animations/PNG/roll/roll_4.png",
+            "personajes/CrystalMauler/animations/PNG/roll/roll_5.png",
+            "personajes/CrystalMauler/animations/PNG/roll/roll_6.png",
+            "personajes/CrystalMauler/animations/PNG/roll/roll_7.png",
+            "personajes/CrystalMauler/animations/PNG/roll/roll_8.png"
+          ]
+        },
+        "defend": {
+          "files": [
+            "personajes/CrystalMauler/animations/PNG/defend/defend_1.png",
+            "personajes/CrystalMauler/animations/PNG/defend/defend_2.png",
+            "personajes/CrystalMauler/animations/PNG/defend/defend_3.png",
+            "personajes/CrystalMauler/animations/PNG/defend/defend_4.png",
+            "personajes/CrystalMauler/animations/PNG/defend/defend_5.png",
+            "personajes/CrystalMauler/animations/PNG/defend/defend_6.png",
+            "personajes/CrystalMauler/animations/PNG/defend/defend_7.png",
+            "personajes/CrystalMauler/animations/PNG/defend/defend_8.png",
+            "personajes/CrystalMauler/animations/PNG/defend/defend_9.png"
+          ]
+        },
+        "up": {
+          "files": [
+            "personajes/CrystalMauler/animations/PNG/j_up/j_up_1.png",
+            "personajes/CrystalMauler/animations/PNG/j_up/j_up_2.png",
+            "personajes/CrystalMauler/animations/PNG/j_up/j_up_3.png"
+          ]
+        },
+        "down": {
+          "files": [
+            "personajes/CrystalMauler/animations/PNG/j_down/j_down_1.png",
+            "personajes/CrystalMauler/animations/PNG/j_down/j_down_2.png",
+            "personajes/CrystalMauler/animations/PNG/j_down/j_down_3.png"
+          ]
+        },
+        "jump": {
+          "files": [
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_1.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_2.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_3.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_4.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_5.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_6.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_7.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_8.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_9.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_10.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_11.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_12.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_13.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_14.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_15.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_16.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_17.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_18.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_19.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_20.png",
+            "personajes/CrystalMauler/animations/PNG/jump_full/jump_full_21.png"
+          ]
+        }
+      },
+      "portrait": "personajes/CrystalMauler/crystal_mauler.png"
+    },
+    "GroundMonk": {
+      "id": "GroundMonk",
+      "foot": 1,
+      "actions": {
+        "idle": {
+          "files": [
+            "personajes/GroundMonk/png/idle/idle_1.png",
+            "personajes/GroundMonk/png/idle/idle_2.png",
+            "personajes/GroundMonk/png/idle/idle_3.png",
+            "personajes/GroundMonk/png/idle/idle_4.png",
+            "personajes/GroundMonk/png/idle/idle_5.png",
+            "personajes/GroundMonk/png/idle/idle_6.png"
+          ]
+        },
+        "move": {
+          "files": [
+            "personajes/GroundMonk/png/run/run_1.png",
+            "personajes/GroundMonk/png/run/run_2.png",
+            "personajes/GroundMonk/png/run/run_3.png",
+            "personajes/GroundMonk/png/run/run_4.png",
+            "personajes/GroundMonk/png/run/run_5.png",
+            "personajes/GroundMonk/png/run/run_6.png",
+            "personajes/GroundMonk/png/run/run_7.png",
+            "personajes/GroundMonk/png/run/run_8.png"
+          ]
+        },
+        "attack": {
+          "files": [
+            "personajes/GroundMonk/png/1_atk/1_atk_1.png",
+            "personajes/GroundMonk/png/1_atk/1_atk_2.png",
+            "personajes/GroundMonk/png/1_atk/1_atk_3.png",
+            "personajes/GroundMonk/png/1_atk/1_atk_4.png",
+            "personajes/GroundMonk/png/1_atk/1_atk_5.png",
+            "personajes/GroundMonk/png/1_atk/1_atk_6.png"
+          ]
+        },
+        "attack2": {
+          "files": [
+            "personajes/GroundMonk/png/2_atk/2_atk_1.png",
+            "personajes/GroundMonk/png/2_atk/2_atk_2.png",
+            "personajes/GroundMonk/png/2_atk/2_atk_3.png",
+            "personajes/GroundMonk/png/2_atk/2_atk_4.png",
+            "personajes/GroundMonk/png/2_atk/2_atk_5.png",
+            "personajes/GroundMonk/png/2_atk/2_atk_6.png",
+            "personajes/GroundMonk/png/2_atk/2_atk_7.png",
+            "personajes/GroundMonk/png/2_atk/2_atk_8.png",
+            "personajes/GroundMonk/png/2_atk/2_atk_9.png",
+            "personajes/GroundMonk/png/2_atk/2_atk_10.png",
+            "personajes/GroundMonk/png/2_atk/2_atk_11.png",
+            "personajes/GroundMonk/png/2_atk/2_atk_12.png"
+          ]
+        },
+        "attack3": {
+          "files": [
+            "personajes/GroundMonk/png/3_atk/3_atk_1.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_2.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_3.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_4.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_5.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_6.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_7.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_8.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_9.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_10.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_11.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_12.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_13.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_14.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_15.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_16.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_17.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_18.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_19.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_20.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_21.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_22.png",
+            "personajes/GroundMonk/png/3_atk/3_atk_23.png"
+          ]
+        },
+        "airAttack": {
+          "files": [
+            "personajes/GroundMonk/png/air_atk/air_atk_1.png",
+            "personajes/GroundMonk/png/air_atk/air_atk_2.png",
+            "personajes/GroundMonk/png/air_atk/air_atk_3.png",
+            "personajes/GroundMonk/png/air_atk/air_atk_4.png",
+            "personajes/GroundMonk/png/air_atk/air_atk_5.png",
+            "personajes/GroundMonk/png/air_atk/air_atk_6.png",
+            "personajes/GroundMonk/png/air_atk/air_atk_7.png"
+          ]
+        },
+        "special": {
+          "files": [
+            "personajes/GroundMonk/png/sp_atk/sp_atk_1.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_2.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_3.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_4.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_5.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_6.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_7.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_8.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_9.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_10.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_11.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_12.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_13.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_14.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_15.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_16.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_17.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_18.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_19.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_20.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_21.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_22.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_23.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_24.png",
+            "personajes/GroundMonk/png/sp_atk/sp_atk_25.png"
+          ]
+        },
+        "hurt": {
+          "files": [
+            "personajes/GroundMonk/png/take_hit/take_hit_1.png",
+            "personajes/GroundMonk/png/take_hit/take_hit_2.png",
+            "personajes/GroundMonk/png/take_hit/take_hit_3.png",
+            "personajes/GroundMonk/png/take_hit/take_hit_4.png",
+            "personajes/GroundMonk/png/take_hit/take_hit_5.png",
+            "personajes/GroundMonk/png/take_hit/take_hit_6.png"
+          ]
+        },
+        "death": {
+          "files": [
+            "personajes/GroundMonk/png/death/death_1.png",
+            "personajes/GroundMonk/png/death/death_2.png",
+            "personajes/GroundMonk/png/death/death_3.png",
+            "personajes/GroundMonk/png/death/death_4.png",
+            "personajes/GroundMonk/png/death/death_5.png",
+            "personajes/GroundMonk/png/death/death_6.png",
+            "personajes/GroundMonk/png/death/death_7.png",
+            "personajes/GroundMonk/png/death/death_8.png",
+            "personajes/GroundMonk/png/death/death_9.png",
+            "personajes/GroundMonk/png/death/death_10.png",
+            "personajes/GroundMonk/png/death/death_11.png",
+            "personajes/GroundMonk/png/death/death_12.png",
+            "personajes/GroundMonk/png/death/death_13.png",
+            "personajes/GroundMonk/png/death/death_14.png",
+            "personajes/GroundMonk/png/death/death_15.png",
+            "personajes/GroundMonk/png/death/death_16.png",
+            "personajes/GroundMonk/png/death/death_17.png",
+            "personajes/GroundMonk/png/death/death_18.png"
+          ]
+        },
+        "roll": {
+          "files": [
+            "personajes/GroundMonk/png/roll/roll_1.png",
+            "personajes/GroundMonk/png/roll/roll_2.png",
+            "personajes/GroundMonk/png/roll/roll_3.png",
+            "personajes/GroundMonk/png/roll/roll_4.png",
+            "personajes/GroundMonk/png/roll/roll_5.png",
+            "personajes/GroundMonk/png/roll/roll_6.png"
+          ]
+        },
+        "defend": {
+          "files": [
+            "personajes/GroundMonk/png/defend/defend_1.png",
+            "personajes/GroundMonk/png/defend/defend_2.png",
+            "personajes/GroundMonk/png/defend/defend_3.png",
+            "personajes/GroundMonk/png/defend/defend_4.png",
+            "personajes/GroundMonk/png/defend/defend_5.png",
+            "personajes/GroundMonk/png/defend/defend_6.png",
+            "personajes/GroundMonk/png/defend/defend_7.png",
+            "personajes/GroundMonk/png/defend/defend_8.png",
+            "personajes/GroundMonk/png/defend/defend_9.png",
+            "personajes/GroundMonk/png/defend/defend_10.png",
+            "personajes/GroundMonk/png/defend/defend_11.png",
+            "personajes/GroundMonk/png/defend/defend_12.png",
+            "personajes/GroundMonk/png/defend/defend_13.png"
+          ]
+        },
+        "up": {
+          "files": [
+            "personajes/GroundMonk/png/j_up/j_up_1.png",
+            "personajes/GroundMonk/png/j_up/j_up_2.png",
+            "personajes/GroundMonk/png/j_up/j_up_3.png"
+          ]
+        },
+        "down": {
+          "files": [
+            "personajes/GroundMonk/png/j_down/j_down_1.png",
+            "personajes/GroundMonk/png/j_down/j_down_2.png",
+            "personajes/GroundMonk/png/j_down/j_down_3.png"
+          ]
+        },
+        "meditate": {
+          "files": [
+            "personajes/GroundMonk/png/meditate/meditate_1.png",
+            "personajes/GroundMonk/png/meditate/meditate_2.png",
+            "personajes/GroundMonk/png/meditate/meditate_3.png",
+            "personajes/GroundMonk/png/meditate/meditate_4.png",
+            "personajes/GroundMonk/png/meditate/meditate_5.png",
+            "personajes/GroundMonk/png/meditate/meditate_6.png",
+            "personajes/GroundMonk/png/meditate/meditate_7.png",
+            "personajes/GroundMonk/png/meditate/meditate_8.png",
+            "personajes/GroundMonk/png/meditate/meditate_9.png",
+            "personajes/GroundMonk/png/meditate/meditate_10.png",
+            "personajes/GroundMonk/png/meditate/meditate_11.png",
+            "personajes/GroundMonk/png/meditate/meditate_12.png",
+            "personajes/GroundMonk/png/meditate/meditate_13.png",
+            "personajes/GroundMonk/png/meditate/meditate_14.png",
+            "personajes/GroundMonk/png/meditate/meditate_15.png",
+            "personajes/GroundMonk/png/meditate/meditate_16.png"
+          ]
+        }
+      },
+      "portrait": "personajes/GroundMonk/ground_monk.png"
+    },
+    "WaterPriestess": {
+      "id": "WaterPriestess",
+      "foot": 1,
+      "actions": {
+        "idle": {
+          "files": [
+            "personajes/WaterPriestess/png/01_idle/idle_1.png",
+            "personajes/WaterPriestess/png/01_idle/idle_2.png",
+            "personajes/WaterPriestess/png/01_idle/idle_3.png",
+            "personajes/WaterPriestess/png/01_idle/idle_4.png",
+            "personajes/WaterPriestess/png/01_idle/idle_5.png",
+            "personajes/WaterPriestess/png/01_idle/idle_6.png",
+            "personajes/WaterPriestess/png/01_idle/idle_7.png",
+            "personajes/WaterPriestess/png/01_idle/idle_8.png"
+          ]
+        },
+        "move": {
+          "files": [
+            "personajes/WaterPriestess/png/02_walk/walk_1.png",
+            "personajes/WaterPriestess/png/02_walk/walk_2.png",
+            "personajes/WaterPriestess/png/02_walk/walk_3.png",
+            "personajes/WaterPriestess/png/02_walk/walk_4.png",
+            "personajes/WaterPriestess/png/02_walk/walk_5.png",
+            "personajes/WaterPriestess/png/02_walk/walk_6.png",
+            "personajes/WaterPriestess/png/02_walk/walk_7.png",
+            "personajes/WaterPriestess/png/02_walk/walk_8.png",
+            "personajes/WaterPriestess/png/02_walk/walk_9.png",
+            "personajes/WaterPriestess/png/02_walk/walk_10.png"
+          ]
+        },
+        "attack": {
+          "files": [
+            "personajes/WaterPriestess/png/07_1_atk/1_atk_1.png",
+            "personajes/WaterPriestess/png/07_1_atk/1_atk_2.png",
+            "personajes/WaterPriestess/png/07_1_atk/1_atk_3.png",
+            "personajes/WaterPriestess/png/07_1_atk/1_atk_4.png",
+            "personajes/WaterPriestess/png/07_1_atk/1_atk_5.png",
+            "personajes/WaterPriestess/png/07_1_atk/1_atk_6.png",
+            "personajes/WaterPriestess/png/07_1_atk/1_atk_7.png"
+          ]
+        },
+        "attack2": {
+          "files": [
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_1.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_2.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_3.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_4.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_5.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_6.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_7.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_8.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_9.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_10.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_11.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_12.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_13.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_14.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_15.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_16.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_17.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_18.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_19.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_20.png",
+            "personajes/WaterPriestess/png/08_2_atk/2_atk_21.png"
+          ]
+        },
+        "attack3": {
+          "files": [
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_1.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_2.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_3.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_4.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_5.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_6.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_7.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_8.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_9.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_10.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_11.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_12.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_13.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_14.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_15.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_16.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_17.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_18.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_19.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_20.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_21.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_22.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_23.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_24.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_25.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_26.png",
+            "personajes/WaterPriestess/png/09_3_atk/3_atk_27.png"
+          ]
+        },
+        "airAttack": {
+          "files": [
+            "personajes/WaterPriestess/png/air_atk/air_atk_1.png",
+            "personajes/WaterPriestess/png/air_atk/air_atk_2.png",
+            "personajes/WaterPriestess/png/air_atk/air_atk_3.png",
+            "personajes/WaterPriestess/png/air_atk/air_atk_4.png",
+            "personajes/WaterPriestess/png/air_atk/air_atk_5.png",
+            "personajes/WaterPriestess/png/air_atk/air_atk_6.png",
+            "personajes/WaterPriestess/png/air_atk/air_atk_7.png",
+            "personajes/WaterPriestess/png/air_atk/air_atk_8.png"
+          ]
+        },
+        "special": {
+          "files": [
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_1.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_2.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_3.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_4.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_5.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_6.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_7.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_8.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_9.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_10.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_11.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_12.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_13.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_14.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_15.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_16.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_17.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_18.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_19.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_20.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_21.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_22.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_23.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_24.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_25.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_26.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_27.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_28.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_29.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_30.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_31.png",
+            "personajes/WaterPriestess/png/10_sp_atk/sp_atk_32.png"
+          ]
+        },
+        "hurt": {
+          "files": [
+            "personajes/WaterPriestess/png/13_take_hit/take_hit_1.png",
+            "personajes/WaterPriestess/png/13_take_hit/take_hit_2.png",
+            "personajes/WaterPriestess/png/13_take_hit/take_hit_3.png",
+            "personajes/WaterPriestess/png/13_take_hit/take_hit_4.png",
+            "personajes/WaterPriestess/png/13_take_hit/take_hit_5.png",
+            "personajes/WaterPriestess/png/13_take_hit/take_hit_6.png",
+            "personajes/WaterPriestess/png/13_take_hit/take_hit_7.png"
+          ]
+        },
+        "death": {
+          "files": [
+            "personajes/WaterPriestess/png/14_death/death_1.png",
+            "personajes/WaterPriestess/png/14_death/death_2.png",
+            "personajes/WaterPriestess/png/14_death/death_3.png",
+            "personajes/WaterPriestess/png/14_death/death_4.png",
+            "personajes/WaterPriestess/png/14_death/death_5.png",
+            "personajes/WaterPriestess/png/14_death/death_6.png",
+            "personajes/WaterPriestess/png/14_death/death_7.png",
+            "personajes/WaterPriestess/png/14_death/death_8.png",
+            "personajes/WaterPriestess/png/14_death/death_9.png",
+            "personajes/WaterPriestess/png/14_death/death_10.png",
+            "personajes/WaterPriestess/png/14_death/death_11.png",
+            "personajes/WaterPriestess/png/14_death/death_12.png",
+            "personajes/WaterPriestess/png/14_death/death_13.png",
+            "personajes/WaterPriestess/png/14_death/death_14.png",
+            "personajes/WaterPriestess/png/14_death/death_15.png",
+            "personajes/WaterPriestess/png/14_death/death_16.png"
+          ]
+        },
+        "roll": {
+          "files": [
+            "personajes/WaterPriestess/png/06_tumble/tumble_1.png",
+            "personajes/WaterPriestess/png/06_tumble/tumble_2.png",
+            "personajes/WaterPriestess/png/06_tumble/tumble_3.png",
+            "personajes/WaterPriestess/png/06_tumble/tumble_4.png",
+            "personajes/WaterPriestess/png/06_tumble/tumble_5.png",
+            "personajes/WaterPriestess/png/06_tumble/tumble_6.png"
+          ]
+        },
+        "defend": {
+          "files": [
+            "personajes/WaterPriestess/png/12_defend/defend_1.png",
+            "personajes/WaterPriestess/png/12_defend/defend_2.png",
+            "personajes/WaterPriestess/png/12_defend/defend_3.png",
+            "personajes/WaterPriestess/png/12_defend/defend_4.png",
+            "personajes/WaterPriestess/png/12_defend/defend_5.png",
+            "personajes/WaterPriestess/png/12_defend/defend_6.png",
+            "personajes/WaterPriestess/png/12_defend/defend_7.png",
+            "personajes/WaterPriestess/png/12_defend/defend_8.png",
+            "personajes/WaterPriestess/png/12_defend/defend_9.png",
+            "personajes/WaterPriestess/png/12_defend/defend_10.png",
+            "personajes/WaterPriestess/png/12_defend/defend_11.png",
+            "personajes/WaterPriestess/png/12_defend/defend_12.png"
+          ]
+        },
+        "heal": {
+          "files": [
+            "personajes/WaterPriestess/png/11_heal/heal_1.png",
+            "personajes/WaterPriestess/png/11_heal/heal_2.png",
+            "personajes/WaterPriestess/png/11_heal/heal_3.png",
+            "personajes/WaterPriestess/png/11_heal/heal_4.png",
+            "personajes/WaterPriestess/png/11_heal/heal_5.png",
+            "personajes/WaterPriestess/png/11_heal/heal_6.png",
+            "personajes/WaterPriestess/png/11_heal/heal_7.png",
+            "personajes/WaterPriestess/png/11_heal/heal_8.png",
+            "personajes/WaterPriestess/png/11_heal/heal_9.png",
+            "personajes/WaterPriestess/png/11_heal/heal_10.png",
+            "personajes/WaterPriestess/png/11_heal/heal_11.png",
+            "personajes/WaterPriestess/png/11_heal/heal_12.png"
+          ]
+        },
+        "surf": {
+          "files": [
+            "personajes/WaterPriestess/png/03_surf/surf_1.png",
+            "personajes/WaterPriestess/png/03_surf/surf_2.png",
+            "personajes/WaterPriestess/png/03_surf/surf_3.png",
+            "personajes/WaterPriestess/png/03_surf/surf_4.png",
+            "personajes/WaterPriestess/png/03_surf/surf_5.png",
+            "personajes/WaterPriestess/png/03_surf/surf_6.png",
+            "personajes/WaterPriestess/png/03_surf/surf_7.png",
+            "personajes/WaterPriestess/png/03_surf/surf_8.png"
+          ]
+        },
+        "up": {
+          "files": [
+            "personajes/WaterPriestess/png/04_j_up/j_up_1.png",
+            "personajes/WaterPriestess/png/04_j_up/j_up_2.png",
+            "personajes/WaterPriestess/png/04_j_up/j_up_3.png"
+          ]
+        },
+        "down": {
+          "files": [
+            "personajes/WaterPriestess/png/05_j_down/j_down_1.png",
+            "personajes/WaterPriestess/png/05_j_down/j_down_2.png",
+            "personajes/WaterPriestess/png/05_j_down/j_down_3.png"
+          ]
+        }
+      },
+      "portrait": "personajes/WaterPriestess/water_priestess.png"
+    },
+    "DemonSlime": {
+      "id": "DemonSlime",
+      "foot": 1,
+      "actions": {
+        "idle": {
+          "files": [
+            "jefes/DemonSlime/individual sprites/01_demon_idle/demon_idle_1.png",
+            "jefes/DemonSlime/individual sprites/01_demon_idle/demon_idle_2.png",
+            "jefes/DemonSlime/individual sprites/01_demon_idle/demon_idle_3.png",
+            "jefes/DemonSlime/individual sprites/01_demon_idle/demon_idle_4.png",
+            "jefes/DemonSlime/individual sprites/01_demon_idle/demon_idle_5.png",
+            "jefes/DemonSlime/individual sprites/01_demon_idle/demon_idle_6.png"
+          ]
+        },
+        "move": {
+          "files": [
+            "jefes/DemonSlime/individual sprites/02_demon_walk/demon_walk_1.png",
+            "jefes/DemonSlime/individual sprites/02_demon_walk/demon_walk_2.png",
+            "jefes/DemonSlime/individual sprites/02_demon_walk/demon_walk_3.png",
+            "jefes/DemonSlime/individual sprites/02_demon_walk/demon_walk_4.png",
+            "jefes/DemonSlime/individual sprites/02_demon_walk/demon_walk_5.png",
+            "jefes/DemonSlime/individual sprites/02_demon_walk/demon_walk_6.png",
+            "jefes/DemonSlime/individual sprites/02_demon_walk/demon_walk_7.png",
+            "jefes/DemonSlime/individual sprites/02_demon_walk/demon_walk_8.png",
+            "jefes/DemonSlime/individual sprites/02_demon_walk/demon_walk_9.png",
+            "jefes/DemonSlime/individual sprites/02_demon_walk/demon_walk_10.png",
+            "jefes/DemonSlime/individual sprites/02_demon_walk/demon_walk_11.png",
+            "jefes/DemonSlime/individual sprites/02_demon_walk/demon_walk_12.png"
+          ]
+        },
+        "attack": {
+          "files": [
+            "jefes/DemonSlime/individual sprites/03_demon_cleave/demon_cleave_1.png",
+            "jefes/DemonSlime/individual sprites/03_demon_cleave/demon_cleave_2.png",
+            "jefes/DemonSlime/individual sprites/03_demon_cleave/demon_cleave_3.png",
+            "jefes/DemonSlime/individual sprites/03_demon_cleave/demon_cleave_4.png",
+            "jefes/DemonSlime/individual sprites/03_demon_cleave/demon_cleave_5.png",
+            "jefes/DemonSlime/individual sprites/03_demon_cleave/demon_cleave_6.png",
+            "jefes/DemonSlime/individual sprites/03_demon_cleave/demon_cleave_7.png",
+            "jefes/DemonSlime/individual sprites/03_demon_cleave/demon_cleave_8.png",
+            "jefes/DemonSlime/individual sprites/03_demon_cleave/demon_cleave_9.png",
+            "jefes/DemonSlime/individual sprites/03_demon_cleave/demon_cleave_10.png",
+            "jefes/DemonSlime/individual sprites/03_demon_cleave/demon_cleave_11.png",
+            "jefes/DemonSlime/individual sprites/03_demon_cleave/demon_cleave_12.png",
+            "jefes/DemonSlime/individual sprites/03_demon_cleave/demon_cleave_13.png",
+            "jefes/DemonSlime/individual sprites/03_demon_cleave/demon_cleave_14.png",
+            "jefes/DemonSlime/individual sprites/03_demon_cleave/demon_cleave_15.png"
+          ]
+        },
+        "hurt": {
+          "files": [
+            "jefes/DemonSlime/individual sprites/04_demon_take_hit/demon_take_hit_1.png",
+            "jefes/DemonSlime/individual sprites/04_demon_take_hit/demon_take_hit_2.png",
+            "jefes/DemonSlime/individual sprites/04_demon_take_hit/demon_take_hit_3.png",
+            "jefes/DemonSlime/individual sprites/04_demon_take_hit/demon_take_hit_4.png",
+            "jefes/DemonSlime/individual sprites/04_demon_take_hit/demon_take_hit_5.png"
+          ]
+        },
+        "death": {
+          "files": [
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_1.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_2.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_3.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_4.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_5.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_6.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_7.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_8.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_9.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_10.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_11.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_12.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_13.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_14.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_15.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_16.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_17.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_18.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_19.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_20.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_21.png",
+            "jefes/DemonSlime/individual sprites/05_demon_death/demon_death_22.png"
+          ]
+        }
+      }
+    },
+    "FrostGuardian": {
+      "id": "FrostGuardian",
+      "foot": 0.86,
+      "actions": {
+        "idle": {
+          "files": [
+            "jefes/FrostGuardian/PNG files/idle/idle_1.png",
+            "jefes/FrostGuardian/PNG files/idle/idle_2.png",
+            "jefes/FrostGuardian/PNG files/idle/idle_3.png",
+            "jefes/FrostGuardian/PNG files/idle/idle_4.png",
+            "jefes/FrostGuardian/PNG files/idle/idle_5.png",
+            "jefes/FrostGuardian/PNG files/idle/idle_6.png"
+          ]
+        },
+        "move": {
+          "files": [
+            "jefes/FrostGuardian/PNG files/walk/walk_1.png",
+            "jefes/FrostGuardian/PNG files/walk/walk_2.png",
+            "jefes/FrostGuardian/PNG files/walk/walk_3.png",
+            "jefes/FrostGuardian/PNG files/walk/walk_4.png",
+            "jefes/FrostGuardian/PNG files/walk/walk_5.png",
+            "jefes/FrostGuardian/PNG files/walk/walk_6.png",
+            "jefes/FrostGuardian/PNG files/walk/walk_7.png",
+            "jefes/FrostGuardian/PNG files/walk/walk_8.png",
+            "jefes/FrostGuardian/PNG files/walk/walk_9.png",
+            "jefes/FrostGuardian/PNG files/walk/walk_10.png"
+          ]
+        },
+        "attack": {
+          "files": [
+            "jefes/FrostGuardian/PNG files/1_atk/1_atk_1.png",
+            "jefes/FrostGuardian/PNG files/1_atk/1_atk_2.png",
+            "jefes/FrostGuardian/PNG files/1_atk/1_atk_3.png",
+            "jefes/FrostGuardian/PNG files/1_atk/1_atk_4.png",
+            "jefes/FrostGuardian/PNG files/1_atk/1_atk_5.png",
+            "jefes/FrostGuardian/PNG files/1_atk/1_atk_6.png",
+            "jefes/FrostGuardian/PNG files/1_atk/1_atk_7.png",
+            "jefes/FrostGuardian/PNG files/1_atk/1_atk_8.png",
+            "jefes/FrostGuardian/PNG files/1_atk/1_atk_9.png",
+            "jefes/FrostGuardian/PNG files/1_atk/1_atk_10.png",
+            "jefes/FrostGuardian/PNG files/1_atk/1_atk_11.png",
+            "jefes/FrostGuardian/PNG files/1_atk/1_atk_12.png",
+            "jefes/FrostGuardian/PNG files/1_atk/1_atk_13.png",
+            "jefes/FrostGuardian/PNG files/1_atk/1_atk_14.png"
+          ]
+        },
+        "hurt": {
+          "files": [
+            "jefes/FrostGuardian/PNG files/take_hit/take_hit_1.png",
+            "jefes/FrostGuardian/PNG files/take_hit/take_hit_2.png",
+            "jefes/FrostGuardian/PNG files/take_hit/take_hit_3.png",
+            "jefes/FrostGuardian/PNG files/take_hit/take_hit_4.png",
+            "jefes/FrostGuardian/PNG files/take_hit/take_hit_5.png",
+            "jefes/FrostGuardian/PNG files/take_hit/take_hit_6.png",
+            "jefes/FrostGuardian/PNG files/take_hit/take_hit_7.png"
+          ]
+        },
+        "death": {
+          "files": [
+            "jefes/FrostGuardian/PNG files/death/death_1.png",
+            "jefes/FrostGuardian/PNG files/death/death_2.png",
+            "jefes/FrostGuardian/PNG files/death/death_3.png",
+            "jefes/FrostGuardian/PNG files/death/death_4.png",
+            "jefes/FrostGuardian/PNG files/death/death_5.png",
+            "jefes/FrostGuardian/PNG files/death/death_6.png",
+            "jefes/FrostGuardian/PNG files/death/death_7.png",
+            "jefes/FrostGuardian/PNG files/death/death_8.png",
+            "jefes/FrostGuardian/PNG files/death/death_9.png",
+            "jefes/FrostGuardian/PNG files/death/death_10.png",
+            "jefes/FrostGuardian/PNG files/death/death_11.png",
+            "jefes/FrostGuardian/PNG files/death/death_12.png",
+            "jefes/FrostGuardian/PNG files/death/death_13.png",
+            "jefes/FrostGuardian/PNG files/death/death_14.png",
+            "jefes/FrostGuardian/PNG files/death/death_15.png",
+            "jefes/FrostGuardian/PNG files/death/death_16.png"
+          ]
+        }
+      }
+    },
+    "Minotaur": {
+      "id": "Minotaur",
+      "foot": 1,
+      "actions": {
+        "idle": {
+          "files": [
+            "jefes/Minotaur/animations/idle/idle_1.png",
+            "jefes/Minotaur/animations/idle/idle_2.png",
+            "jefes/Minotaur/animations/idle/idle_3.png",
+            "jefes/Minotaur/animations/idle/idle_4.png",
+            "jefes/Minotaur/animations/idle/idle_5.png",
+            "jefes/Minotaur/animations/idle/idle_6.png",
+            "jefes/Minotaur/animations/idle/idle_7.png",
+            "jefes/Minotaur/animations/idle/idle_8.png",
+            "jefes/Minotaur/animations/idle/idle_9.png",
+            "jefes/Minotaur/animations/idle/idle_10.png",
+            "jefes/Minotaur/animations/idle/idle_11.png",
+            "jefes/Minotaur/animations/idle/idle_12.png",
+            "jefes/Minotaur/animations/idle/idle_13.png",
+            "jefes/Minotaur/animations/idle/idle_14.png",
+            "jefes/Minotaur/animations/idle/idle_15.png",
+            "jefes/Minotaur/animations/idle/idle_16.png"
+          ]
+        },
+        "move": {
+          "files": [
+            "jefes/Minotaur/animations/walk/walk_1.png",
+            "jefes/Minotaur/animations/walk/walk_2.png",
+            "jefes/Minotaur/animations/walk/walk_3.png",
+            "jefes/Minotaur/animations/walk/walk_4.png",
+            "jefes/Minotaur/animations/walk/walk_5.png",
+            "jefes/Minotaur/animations/walk/walk_6.png",
+            "jefes/Minotaur/animations/walk/walk_7.png",
+            "jefes/Minotaur/animations/walk/walk_8.png",
+            "jefes/Minotaur/animations/walk/walk_9.png",
+            "jefes/Minotaur/animations/walk/walk_10.png",
+            "jefes/Minotaur/animations/walk/walk_11.png",
+            "jefes/Minotaur/animations/walk/walk_12.png"
+          ]
+        },
+        "attack": {
+          "files": [
+            "jefes/Minotaur/animations/atk_1/atk_1_1.png",
+            "jefes/Minotaur/animations/atk_1/atk_1_2.png",
+            "jefes/Minotaur/animations/atk_1/atk_1_3.png",
+            "jefes/Minotaur/animations/atk_1/atk_1_4.png",
+            "jefes/Minotaur/animations/atk_1/atk_1_5.png",
+            "jefes/Minotaur/animations/atk_1/atk_1_6.png",
+            "jefes/Minotaur/animations/atk_1/atk_1_7.png",
+            "jefes/Minotaur/animations/atk_1/atk_1_8.png",
+            "jefes/Minotaur/animations/atk_1/atk_1_9.png",
+            "jefes/Minotaur/animations/atk_1/atk_1_10.png",
+            "jefes/Minotaur/animations/atk_1/atk_1_11.png",
+            "jefes/Minotaur/animations/atk_1/atk_1_12.png",
+            "jefes/Minotaur/animations/atk_1/atk_1_13.png",
+            "jefes/Minotaur/animations/atk_1/atk_1_14.png",
+            "jefes/Minotaur/animations/atk_1/atk_1_15.png",
+            "jefes/Minotaur/animations/atk_1/atk_1_16.png"
+          ]
+        }
+      }
+    },
+    "Mushroom": {
+      "id": "Mushroom",
+      "foot": 0.67,
+      "actions": {
+        "idle": {
+          "sheet": "enemigos/Fantasy/Mushroom/Idle.png",
+          "width": 150,
+          "height": 150
+        },
+        "move": {
+          "sheet": "enemigos/Fantasy/Mushroom/Run.png",
+          "width": 150,
+          "height": 150
+        },
+        "attack": {
+          "sheet": "enemigos/Fantasy/Mushroom/Attack.png",
+          "width": 150,
+          "height": 150
+        },
+        "hurt": {
+          "sheet": "enemigos/Fantasy/Mushroom/Take Hit.png",
+          "width": 150,
+          "height": 150
+        },
+        "death": {
+          "sheet": "enemigos/Fantasy/Mushroom/Death.png",
+          "width": 150,
+          "height": 150
+        }
+      }
+    },
+    "Goblin": {
+      "id": "Goblin",
+      "foot": 0.67,
+      "actions": {
+        "idle": {
+          "sheet": "enemigos/Fantasy/Goblin/Idle.png",
+          "width": 150,
+          "height": 150
+        },
+        "move": {
+          "sheet": "enemigos/Fantasy/Goblin/Run.png",
+          "width": 150,
+          "height": 150
+        },
+        "attack": {
+          "sheet": "enemigos/Fantasy/Goblin/Attack.png",
+          "width": 150,
+          "height": 150
+        },
+        "hurt": {
+          "sheet": "enemigos/Fantasy/Goblin/Take Hit.png",
+          "width": 150,
+          "height": 150
+        },
+        "death": {
+          "sheet": "enemigos/Fantasy/Goblin/Death.png",
+          "width": 150,
+          "height": 150
+        }
+      }
+    },
+    "Skeleton": {
+      "id": "Skeleton",
+      "foot": 0.67,
+      "actions": {
+        "idle": {
+          "sheet": "enemigos/Fantasy/Skeleton/Idle.png",
+          "width": 150,
+          "height": 150
+        },
+        "move": {
+          "sheet": "enemigos/Fantasy/Skeleton/Walk.png",
+          "width": 150,
+          "height": 150
+        },
+        "attack": {
+          "sheet": "enemigos/Fantasy/Skeleton/Attack.png",
+          "width": 150,
+          "height": 150
+        },
+        "hurt": {
+          "sheet": "enemigos/Fantasy/Skeleton/Take Hit.png",
+          "width": 150,
+          "height": 150
+        },
+        "death": {
+          "sheet": "enemigos/Fantasy/Skeleton/Death.png",
+          "width": 150,
+          "height": 150
+        }
+      }
+    },
+    "Flying eye": {
+      "id": "Flying eye",
+      "foot": 0.67,
+      "actions": {
+        "idle": {
+          "sheet": "enemigos/Fantasy/Flying eye/Flight.png",
+          "width": 150,
+          "height": 150
+        },
+        "move": {
+          "sheet": "enemigos/Fantasy/Flying eye/Flight.png",
+          "width": 150,
+          "height": 150
+        },
+        "attack": {
+          "sheet": "enemigos/Fantasy/Flying eye/Attack.png",
+          "width": 150,
+          "height": 150
+        },
+        "hurt": {
+          "sheet": "enemigos/Fantasy/Flying eye/Take Hit.png",
+          "width": 150,
+          "height": 150
+        },
+        "death": {
+          "sheet": "enemigos/Fantasy/Flying eye/Death.png",
+          "width": 150,
+          "height": 150
+        }
+      }
+    },
+    "ForestMushroom": {
+      "id": "ForestMushroom",
+      "foot": 0.8,
+      "actions": {
+        "idle": {
+          "sheet": "enemigos/Forest/Mushroom/Mushroom without VFX/Mushroom-Idle.png",
+          "width": 80,
+          "height": 64
+        },
+        "move": {
+          "sheet": "enemigos/Forest/Mushroom/Mushroom without VFX/Mushroom-Run.png",
+          "width": 80,
+          "height": 64
+        },
+        "attack": {
+          "sheet": "enemigos/Forest/Mushroom/Mushroom without VFX/Mushroom-Attack.png",
+          "width": 80,
+          "height": 64
+        },
+        "hurt": {
+          "sheet": "enemigos/Forest/Mushroom/Mushroom without VFX/Mushroom-Hit.png",
+          "width": 80,
+          "height": 64
+        },
+        "death": {
+          "sheet": "enemigos/Forest/Mushroom/Mushroom without VFX/Mushroom-Die.png",
+          "width": 80,
+          "height": 64
+        }
+      }
+    }
+  },
+  "maps": [
+    {
+      "name": "Caverna ancestral",
+      "layers": [
+        "fondos/ParallaxCave/1.png",
+        "fondos/ParallaxCave/2.png",
+        "fondos/ParallaxCave/3fx.png",
+        "fondos/ParallaxCave/4.png",
+        "fondos/ParallaxCave/5.png",
+        "fondos/ParallaxCave/6fx.png",
+        "fondos/ParallaxCave/7.png",
+        "fondos/ParallaxCave/8fx.png",
+        "fondos/ParallaxCave/9.png"
+      ],
+      "ground": 650,
+      "platforms": [
+        {
+          "x": 170,
+          "y": 510,
+          "w": 210
+        },
+        {
+          "x": 450,
+          "y": 390,
+          "w": 210
+        },
+        {
+          "x": 760,
+          "y": 510,
+          "w": 210
+        },
+        {
+          "x": 1040,
+          "y": 390,
+          "w": 210
+        },
+        {
+          "x": 620,
+          "y": 300,
+          "w": 160
+        }
+      ]
+    },
+    {
+      "name": "Cristales azules",
+      "layers": [
+        "fondos/CrystalCave/PNG/background 1/background 1.png"
+      ],
+      "ground": 620,
+      "platforms": [
+        {
+          "x": 180,
+          "y": 480,
+          "w": 220
+        },
+        {
+          "x": 470,
+          "y": 360,
+          "w": 220
+        },
+        {
+          "x": 780,
+          "y": 480,
+          "w": 220
+        },
+        {
+          "x": 1060,
+          "y": 360,
+          "w": 200
+        },
+        {
+          "x": 620,
+          "y": 300,
+          "w": 160
+        }
+      ]
+    },
+    {
+      "name": "Cristales verdes",
+      "layers": [
+        "fondos/CrystalCave/PNG/background 2/background 2.png"
+      ],
+      "ground": 620,
+      "platforms": [
+        {
+          "x": 150,
+          "y": 480,
+          "w": 190
+        },
+        {
+          "x": 420,
+          "y": 370,
+          "w": 210
+        },
+        {
+          "x": 700,
+          "y": 480,
+          "w": 210
+        },
+        {
+          "x": 990,
+          "y": 370,
+          "w": 210
+        },
+        {
+          "x": 1170,
+          "y": 300,
+          "w": 140
+        }
+      ]
+    },
+    {
+      "name": "Cristales violetas",
+      "layers": [
+        "fondos/CrystalCave/PNG/background 3/background 3.png"
+      ],
+      "ground": 620,
+      "platforms": [
+        {
+          "x": 200,
+          "y": 480,
+          "w": 210
+        },
+        {
+          "x": 510,
+          "y": 360,
+          "w": 200
+        },
+        {
+          "x": 810,
+          "y": 480,
+          "w": 210
+        },
+        {
+          "x": 1080,
+          "y": 360,
+          "w": 170
+        },
+        {
+          "x": 650,
+          "y": 300,
+          "w": 150
+        }
+      ]
+    },
+    {
+      "name": "Cristales rojos",
+      "layers": [
+        "fondos/CrystalCave/PNG/background 4/background 4.png"
+      ],
+      "ground": 620,
+      "platforms": [
+        {
+          "x": 170,
+          "y": 480,
+          "w": 220
+        },
+        {
+          "x": 480,
+          "y": 360,
+          "w": 200
+        },
+        {
+          "x": 780,
+          "y": 480,
+          "w": 220
+        },
+        {
+          "x": 1060,
+          "y": 360,
+          "w": 190
+        }
+      ]
+    }
+  ],
+  "music": "audio/Shamisen Samurai Rock_Loop.ogg"
+}

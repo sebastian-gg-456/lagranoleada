@@ -1,0 +1,396 @@
+REPORTE DEL PROYECTO
+LA GRAN EMBOSCADA
+Fecha del reporte: 02/11/2026
+Ubicacion: C:\Users\USER\Desktop\juego de programacion\La gran emboscada
+
+
+============================================================
+1. PROMPT INICIAL
+============================================================
+
+El texto literal del prompt inicial no quedo guardado en el historial disponible
+de esta sesion. Para que el reporte quede completo, se reconstruyeron los
+requisitos que se usaron como base del trabajo:
+
+- Crear un juego web de supervivencia sin fin con Phaser 3 y Vite.
+- Cinco mapas con fondos Parallax y plataformas.
+- Cuatro personajes jugables: Leaf Ranger, Crystal Mauler, Ground Monk y
+  Water Priestess.
+- Oleadas de enemigos, jefes cada cinco oleadas y dificultad progresiva.
+- Combate basico y ataque secundario con teclado y mando.
+- Movimiento, salto, esquiva/rodada, dano, muerte y recuperacion de vida.
+- HUD con retrato, barra de vida, puntos, oleada y jefe.
+- Menu principal, seleccion de mapa, seleccion de personaje, opciones, ayuda,
+  creditos y pausa.
+- Sonido, musica, volumen de musica y efectos, pantalla completa y guardado
+  del record en localStorage.
+- Controles de teclado y mando estandar.
+- Pruebas automatizadas y build de produccion.
+
+Si se consigue el texto exacto del prompt inicial, se puede pegar en esta
+seccion sin cambiar el resto del reporte.
+
+
+============================================================
+2. FEEDBACK RECIBIDO DESPUES DE LA PRIMERA REVISION
+============================================================
+
+El usuario pidio una segunda ronda de mejoras:
+
+- Arreglar la hitbox entre el jugador y las plataformas.
+- Subir un poco mas las plataformas y separarlas mas entre si.
+- Hacer que los enemigos salten a las plataformas.
+- Corregir el preview del primer mapa: se veia solamente la primera capa del
+  fondo Parallax y no la imagen completa.
+- Hacer mas grande al personaje en el preview de seleccion.
+- Revisar las animaciones de cada personaje porque habia animaciones que no se
+  estaban usando bien.
+- Hacer mas lentas las animaciones del juego.
+- Corregir el ataque secundario para usar las animaciones reales de cada
+  personaje, incluyendo las variantes con nombres como atk2 y atk3.
+- Usar todas las animaciones disponibles de cada personaje.
+
+
+============================================================
+3. TRABAJO REALIZADO
+============================================================
+
+3.1. Base del juego
+
+- Proyecto Phaser 3 con Vite.
+- Escenas Boot, Load, Menu, Game y Overlay.
+- Cinco mapas con fondos Parallax y plataformas.
+- Cuatro personajes jugables con estadisticas, descripciones y animaciones
+  propias.
+- Oleadas infinitas, enemigos de distintos packs, jefes cada cinco oleadas y
+  dificultad progresiva.
+- Ataque basico, ataque secundario, combo basico, ataque aereo, ataque especial,
+  defensa, rodada y salto.
+- HUD con retrato del personaje, barra roja de vida, puntos a la derecha, oleada
+  y vida del jefe.
+- Pausa con opciones desde la partida.
+- Menu de opciones con musica, efectos y pantalla completa.
+- Guardado del record y de las opciones en localStorage.
+- Controles de teclado y mando simulado.
+- Musica y efectos sintetizados.
+- Pruebas unitarias y prueba de humo con Playwright.
+
+3.2. Preparacion de recursos
+
+Archivo modificado:
+scripts/prepare-assets.mjs
+
+Cambios:
+
+- Se agregaron acciones de animacion para los personajes:
+  - airAttack (air_atk)
+  - special (sp_atk)
+  - defend
+  - heal para Water Priestess
+  - meditate para Ground Monk
+  - jump para los personajes que tienen animacion completa de salto
+  - slide para Leaf Ranger
+  - surf para Water Priestess
+- Se mantuvieron las acciones existentes:
+  - idle
+  - move
+  - attack
+  - attack2
+  - attack3
+  - hurt
+  - death
+  - roll
+  - up
+  - down
+- Se agregaron los retratos de los cuatro personajes.
+- Se actualizaron las plataformas de los cinco mapas para que esten mas altas y
+  mas separadas.
+- Se regenero public/assets/manifest.json con npm.cmd run assets.
+
+Mapa 0, plataformas actuales (superficie en Y):
+510, 390, 510, 390, 300
+
+Mapa 1:
+480, 360, 480, 360, 300
+
+Mapa 2:
+480, 370, 480, 370, 300
+
+Mapa 3:
+480, 360, 480, 360, 300
+
+Mapa 4:
+480, 360, 480, 360
+
+3.3. Cambios en el juego
+
+Archivo modificado:
+src/main.js
+
+Controles:
+
+- Se agrego la defensa con S, flecha abajo o D-pad abajo.
+- Se agrego defendHeld para detectar la defensa mientras el boton se mantiene
+  presionado.
+- La defensa solo funciona en el suelo, sin movimiento horizontal y fuera de
+  ataque, rodada o dano.
+- Al defender, el dano recibido se reduce y se reproduce la animacion de
+  defensa.
+- Se mantuvieron los controles existentes:
+  - Mover: A/D o flechas
+  - Saltar: Espacio o A
+  - Atacar: J o X
+  - Ataque secundario: K o Y
+  - Rodar: Shift o B
+  - Pausa: Esc o Start
+
+Plataformas y hitbox:
+
+- El cuerpo fisico de las plataformas ahora tiene 16 px de alto.
+- La superficie fisica se alineo con la parte visual superior de la plataforma.
+- Se redujo el problema de que el jugador quedara flotando o golpeando antes de
+  tocar la plataforma.
+- La colision sigue siendo de un solo sentido: se puede pasar desde abajo, pero
+  se aterriza desde arriba.
+- El salto del jugador subio de -610 a -700.
+- Los enemigos pueden saltar:
+  - Salto normal: -680.
+  - Salto de jefe: -720.
+  - Tiempo de recarga: 1200 ms para enemigos normales y 1800 ms para jefes.
+  - Saltan cuando el jugador esta arriba y a menos de 480 px de distancia.
+
+Preview de mapa:
+
+- Antes se mostraba solamente la primera capa con setTexture.
+- Ahora se crea un contenedor con las nueve capas Parallax del mapa.
+- El preview se actualiza al cambiar de mapa con las flechas.
+- El preview ya no muestra una sola capa.
+
+Preview de personaje:
+
+- La escala del personaje subio de 3.2 a 4.
+- Se cambio la posicion para que el personaje mas grande no tape el titulo.
+- La descripcion se movio debajo del personaje.
+
+Animaciones:
+
+- Se agregaron ritmos mas lentos por accion:
+  - idle: 6
+  - move: 8
+  - attack: 10
+  - attack2: 9
+  - attack3: 9
+  - airAttack: 10
+  - special: 8
+  - hurt: 7
+  - death: 6
+  - roll: 8
+  - defend: 6
+  - heal: 8
+  - meditate: 5
+  - up: 8
+  - down: 8
+- Las animaciones de idle, move y defend se reproducen en bucle.
+- El ataque basico sigue usando attack y attack3 para el combo.
+- El ataque secundario usa attack2 en el suelo y special en el aire.
+- El ataque basico en el aire usa airAttack.
+- El jugador reproduce hurt al recibir dano.
+- Los enemigos reproducen hurt al recibir dano.
+- Water Priestess reproduce heal al recoger vida.
+- Ground Monk reproduce meditate al superar una oleada.
+- Se mantienen up y down para el salto y la caida.
+- La duracion del bloqueo de ataque ahora se calcula segun la duracion real de
+  la animacion, con limites para que el combate no se sienta congelado.
+- El combo tiene una ventana de 900 ms.
+
+Combate y vida:
+
+- El dano se reduce al defender.
+- El jugador queda invulnerable brevemente despues de recibir dano.
+- Los enemigos quedan bloqueados brevemente mientras reproducen hurt.
+- Se mantiene el ataque de area de los jefes avanzados.
+- Se mantiene la recuperacion de vida al recoger el objeto de cura y al superar
+  una oleada.
+
+3.4. Documentacion y pruebas
+
+Archivo modificado:
+README.md
+
+- Se agrego la defensa a la tabla de controles.
+- Se actualizo la descripcion de plataformas, enemigos que saltan y
+  animaciones.
+- Se actualizo la descripcion de la prueba de navegador.
+
+Archivo modificado:
+scripts/smoke.mjs
+
+La prueba de humo ahora verifica:
+
+- Carga del juego.
+- Menu principal.
+- Preview del mapa con las nueve capas.
+- Preview del personaje a escala 4.
+- Descripcion individual de los personajes.
+- Existencia de plataformas.
+- Hitbox de plataforma de 16 px.
+- Superficie de plataforma en las coordenadas correctas.
+- Movimiento.
+- Salto.
+- Ataque basico.
+- Ataque secundario.
+- Ataque aereo.
+- Ataque especial aereo.
+- Defensa.
+- Enemigo que salta a una plataforma.
+- Combate de los cuatro personajes.
+- Los cinco mapas.
+- HUD con retrato, barra roja y puntos a la derecha.
+- Pausa con opciones.
+- Derrota.
+- Record guardado.
+- Reinicio.
+- Jefe.
+- Avance de oleada.
+- Mando simulado.
+
+
+============================================================
+4. ARCHIVOS IMPORTANTES
+============================================================
+
+src/main.js
+  Escenas, controles, combate, plataformas, animaciones, HUD, menus y opciones.
+
+src/rules.js
+  Personajes, nombres, descripciones, oleadas, puntajes y guardado.
+
+scripts/prepare-assets.mjs
+  Copia recursos, define animaciones, retratos y plataformas, y genera el
+  manifiesto.
+
+public/assets/manifest.json
+  Manifiesto generado. No se edita a mano.
+
+scripts/smoke.mjs
+  Prueba de navegador con Playwright.
+
+tests/rules.test.js
+  Pruebas unitarias de reglas y descripciones.
+
+README.md
+  Documentacion del proyecto y controles.
+
+test-results/game.png
+test-results/character-0.png
+test-results/character-1.png
+test-results/character-2.png
+test-results/character-3.png
+  Capturas generadas por la prueba de humo.
+
+
+============================================================
+5. COMANDOS EJECUTADOS Y RESULTADOS
+============================================================
+
+Preparar recursos:
+
+  npm.cmd run assets
+
+Resultado:
+
+  Recursos preparados: 12 actores, 5 mapas.
+
+Pruebas unitarias:
+
+  npm.cmd test
+
+Resultado:
+
+  4 pruebas aprobadas.
+  0 fallidas.
+
+Build de produccion:
+
+  npm.cmd run build
+
+Resultado:
+
+  Build correcto.
+  Se genera dist/.
+  Vite muestra una advertencia de tamano de chunk mayor a 500 kB, pero no es un
+  error y el build termina correctamente.
+
+Prueba de humo:
+
+  node scripts/smoke.mjs
+
+Resultado:
+
+  OK: carga, menus, previews completos, plataformas, salto enemigo a
+  plataformas, movimiento, salto, ataque basico, secundario, aereo y especial,
+  defensa, combate de los cuatro personajes, cinco mapas, pausa con opciones,
+  derrota, record, reinicio, jefe, avance de oleada y mando simulado.
+
+
+============================================================
+6. ESTADO ACTUAL
+============================================================
+
+- El juego compila y las pruebas pasan.
+- Las plataformas estan mas altas y separadas.
+- La hitbox de plataforma esta ajustada a 16 px.
+- Los enemigos pueden saltar a las plataformas.
+- El preview del mapa muestra todas las capas Parallax.
+- El personaje del preview se ve mas grande.
+- Las animaciones relevantes de los cuatro personajes estan conectadas.
+- Las animaciones son mas lentas.
+- El ataque secundario, aereo y especial usan las animaciones correctas.
+- La defensa esta disponible con teclado y mando.
+- README y smoke test estan actualizados.
+
+
+============================================================
+7. LIMITACIONES Y OBSERVACIONES
+============================================================
+
+- No se pudo inspeccionar visualmente las capturas adjuntas por una limitacion
+  del modelo. La validacion se hizo con estados de escena, texturas,
+  animaciones y pruebas automatizadas.
+- El texto literal del prompt inicial no esta disponible en el historial de la
+  sesion. La seccion 1 contiene una reconstruccion de los requisitos.
+- Las variantes slide, surf y jump quedaron disponibles en el manifiesto, pero
+  no todas se usan en una accion de juego porque no encajan con el flujo actual.
+  Las acciones principales si estan conectadas.
+- El record y las opciones se guardan localmente en cada navegador/origen.
+- El proyecto no es un repositorio Git en esta carpeta.
+
+
+============================================================
+8. COMO EJECUTAR EL JUEGO
+============================================================
+
+Desde la carpeta del proyecto:
+
+  npm.cmd install
+  npm.cmd run dev
+
+Luego abrir la direccion que muestra Vite.
+
+Para generar la version de produccion:
+
+  npm.cmd run build
+
+Para probar la version generada:
+
+  npm.cmd run preview
+
+Para ejecutar las pruebas:
+
+  npm.cmd test
+  node scripts/smoke.mjs
+
+
+============================================================
+FIN DEL REPORTE
+============================================================
