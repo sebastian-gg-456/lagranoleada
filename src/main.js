@@ -345,7 +345,7 @@ class Training extends FieldArena {
   const sprite=this.physics.add.sprite(900,this.ground+4,'training-dummy').setOrigin(0.5,1).setScale(0.8).setDepth(20);
   sprite.body.setAllowGravity(false);sprite.body.setImmovable(true);sprite.body.setSize(56,120).setOffset(32,46);
   this.dummy={sprite,id:'TrainingDummy',boss:false,hp:10000,max:10000,dead:false,frozen:false,shieldUntil:0};
-  this.enemies=[this.dummy];this.hitCount=0;this.lastDamage=0;this.talkIndex=0;this.talkReady=0;
+  this.enemies=[this.dummy];this.hitCount=0;this.lastDamage=0;this.talkIndex=0;this.talkHeld=false;
   this.add.rectangle(640,45,1280,90,0x07101d,0.88).setDepth(90);
   text(this,30,20,`CAMPO LIBRE · ${names[session.character]}`,23,'#82f5c8').setDepth(100);
   text(this,30,55,'Piso de práctica · atacá al muñeco · A del mando o Enter: hablar con él · Esc: volver',17).setDepth(100);
@@ -354,7 +354,15 @@ class Training extends FieldArena {
   this.prompt=text(this,900,498,'▼ Hablá con él (A / Enter)',15,'#edf5ff').setOrigin(0.5).setDepth(100);
   this.tweens.add({targets:this.prompt,alpha:0.35,yoyo:true,repeat:-1,duration:700});
   this.talkBox=this.add.rectangle(640,185,1180,150,0x07101d,0.96).setStrokeStyle(3,0x82f5c8).setDepth(100);
-  this.talkPortrait=this.add.image(110,185,`${this.id}:portrait`).setScale(1.3).setDepth(101);
+  const pg=this.make.graphics({x:0,y:0,add:false});
+  pg.fillStyle(0x14263a);pg.fillRect(0,0,110,110);
+  pg.fillStyle(0x6b4630);pg.fillRect(0,92,110,18);pg.fillStyle(0xcfa65a);pg.fillRoundedRect(12,84,86,40,10);
+  pg.fillStyle(0x9c3d3d);pg.fillRect(26,80,58,9);
+  pg.fillStyle(0xc9a06a);pg.fillCircle(55,46,34);pg.fillStyle(0xdeb882);pg.fillCircle(49,40,24);
+  pg.fillStyle(0x2a2320);pg.fillRect(38,38,8,8);pg.fillRect(64,38,8,8);pg.fillRect(42,60,26,4);
+  pg.fillRect(44,58,3,9);pg.fillRect(52,58,3,9);pg.fillRect(60,58,3,9);
+  pg.generateTexture('dummy-portrait',110,110);pg.destroy();
+  this.talkPortrait=this.add.image(110,185,'dummy-portrait').setScale(1.1).setDepth(101);
   this.talkName=text(this,190,125,'',20,'#ffd382').setDepth(101);
   this.talkText=text(this,190,157,'',21,'#edf5ff').setWordWrapWidth(1020).setLineSpacing(8).setDepth(101);
   this.talkItems=[this.talkBox,this.talkPortrait,this.talkName,this.talkText];this.talkItems.forEach(item=>item.setVisible(false));
@@ -362,6 +370,10 @@ class Training extends FieldArena {
   this.playerStatus=text(this,1250,22,'100 / 100',18,'#ffffff').setOrigin(1,0).setDepth(100);
   const back=this.add.rectangle(1130,62,190,32,0x14263a).setStrokeStyle(2,0x82f5c8).setDepth(100).setInteractive({useHandCursor:true});
   text(this,1130,62,'Volver al campo',15).setOrigin(0.5).setDepth(101);back.on('pointerdown',()=>this.returnToField());
+ }
+ closeTalk(){
+  this.talkHide?.remove();this.talkIndex=0;
+  this.talkItems.forEach(item=>item.setVisible(false));this.prompt.setVisible(true);
  }
  updateDummyStatus(){
   this.dummyStatus.setText(this.hitCount?`Golpes: ${this.hitCount} · último daño: ${this.lastDamage}`:'Sin un rasguño (todavía)');
@@ -377,20 +389,23 @@ class Training extends FieldArena {
  }
  update(time){
   const c=this.controls.poll(time);if(c.pause){this.returnToField();return;}
-  if((c.jump||c.ok)&&time>=this.talkReady){
-   this.talkReady=time+500;
+  const talkPressed=!!(c.jump||c.ok),talkEdge=talkPressed&&!this.talkHeld;this.talkHeld=talkPressed;
+  if(talkEdge){
    const lines={
     LeafRanger:['Tenés puntería de elfa: tu fuerte es pelear de lejos. Mantené la distancia y dejá que cada flecha haga el trabajo.','Cargá bien el disparo y vas a cubrir una zona entera. De cerca sos frágil, así que no me pegues desde acá, ¡alejate!','Dicen que una elfa no falla. Yo no me muevo: ¡demostralo!'],
     CrystalMauler:['Sos una muralla de cristal: lento, pero cada golpe tuyo pesa de verdad. Dejá que se acerquen y aplastalos.','Tu fuerza bruta rompe formaciones enteras. Hacé temblar el suelo y no des un paso atrás.','Pegame con todo lo que tengas, coloso. Yo aguanto.'],
     GroundMonk:['Sos puro ritmo y disciplina: combos veloces, siempre pegado al enemigo. Quien te toca, ya perdió.','Cuando medites te volvés más duro y más fuerte. Aprovechá cada respiro para ganar ventaja.','Esquivá, golpeá, esquivá. Así se entrena un monje.'],
     WaterPriestess:['Dominás el agua: congelás al enemigo y cuidás a los tuyos. Con calma, sos la más difícil de vencer.','Tu magia te cura y detiene a quien se acerque. Sobrevivir también es una forma de ganar.','El hielo te obedece. Practicá conmigo, que no me quejo.']
    }[this.id];
-   const line=lines[this.talkIndex%lines.length];
-   const outro=this.talkIndex%lines.length===0?'\nNo dudes en probar tus ataques conmigo; total, no siento nada.':'';
-   this.talkIndex++;
-   this.talkName.setText(`MAESTRO MUÑECO · ${names[session.character]}`);this.talkText.setText(`${line}${outro}`);
-   this.talkItems.forEach(item=>item.setVisible(true));this.prompt.setVisible(false);
-   this.talkHide?.remove();this.talkHide=this.time.delayedCall(9000,()=>{this.talkItems.forEach(item=>item.setVisible(false));this.prompt.setVisible(true);});
+   if(this.talkIndex>=lines.length)this.closeTalk();
+   else{
+    const outro=this.talkIndex===0?'\nNo dudes en probar tus ataques conmigo; total, no siento nada.':'';
+    this.talkName.setText('MAESTRO MUÑECO');this.talkText.setText(`${lines[this.talkIndex]}${outro}`);
+    this.talkIndex++;
+    this.talkItems.forEach(item=>item.setVisible(true));this.prompt.setVisible(false);
+    // The dialogue ends by itself after the last line instead of looping.
+    this.talkHide?.remove();this.talkHide=this.time.delayedCall(this.talkIndex>=lines.length?7000:12000,()=>this.closeTalk());
+   }
   }
   const grounded=this.hero.body.blocked.down||this.hero.body.touching.down;
   this.movePlayer(c,time,grounded,false);this.updatePlayerProjectiles(time);

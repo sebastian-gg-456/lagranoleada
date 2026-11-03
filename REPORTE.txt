@@ -980,3 +980,64 @@ RONDA 7: HONGO POR RUTAS, OJO VOLADOR Y MUNECO
 - Pruebas: ai-smoke verifica ruta de varias plataformas hasta una plataforma alta y el comportamiento del ojo en piso/aire. scripts/verify-controls.mjs tiene una espera de combo que falla de forma intermitente sin relacion con estos cambios.
 
 FIN DE LA RONDA 7 - conservar historial y agregar futuras rondas al final.
+
+========================================================================
+RONDA 8: DIALOGO DEL MUNECO Y RESUMEN ACUMULADO (RONDAS 6 A 8)
+========================================================================
+
+1. Dialogo del muneco de practica
+
+- El cartel de dialogo muestra ahora el rostro del muneco (retrato
+  propio, "dummy-portrait") con el nombre "Maestro Muneco", en lugar
+  del retrato del personaje elegido.
+- Cada pulsacion de A (mando) o Enter avanza a la frase siguiente. Al
+  terminar la ultima, el cartel desaparece y no se reinicia solo; la
+  siguiente pulsacion vuelve a empezar desde la primera frase.
+- Se detecta el flanco de la pulsacion: mantener el boton ya no repite
+  ni salta frases. Si no se pulsa nada, el cartel se cierra solo (12 s
+  en las frases intermedias, 7 s en la ultima).
+- Cada personaje tiene tres frases que describen su estilo (por ejemplo,
+  la elfa destaca por su punteria y su fuerza a distancia). La primera
+  cierra con "No dudes en probar tus ataques conmigo; total, no siento
+  nada."
+- Verificado en navegador: secuencia 1, 2, 3, cierre y nueva apertura.
+
+2. Resumen de todo lo hecho en las rondas 6 a 8
+
+Campo libre
+- Nueva entrada en el menu de inicio: Practica de personaje y
+  Laboratorio de IA, ambos precedidos por la seleccion de personaje.
+- Practica: solo el piso y un muneco indestructible con arte propio, que
+  se balancea al recibir golpes y cuenta golpes y ultimo dano.
+
+Comportamiento de enemigos (FSM)
+- Skeleton: patrulla el piso principal; no persigue al jugador en
+  plataformas altas; conserva el escudo.
+- Flying eye: patrulla arriba mientras el jugador pisa el piso; ataca
+  en cuanto este esta en una plataforma o en el aire.
+- Mushroom: sigue una ruta plataforma por plataforma y salta con impulso
+  segun la altura de la siguiente parada, incluso hasta plataformas muy
+  altas.
+- Estados: patrol, pursue, chase, jump, attack, defend, recover, hurt,
+  frozen, dash y dead.
+
+Busqueda y navegacion
+- BFS y A* seleccionables, con sus limites explicados: BFS supone costos
+  uniformes y minimiza saltos; A* minimiza distancia estimada.
+- Ruta corta y ruta segura (evita plataformas expuestas).
+- Escenarios variables por semilla: cambian plataformas y zonas
+  expuestas, y el grafo se reconstruye. Q, E y R (o botones en pantalla)
+  alternan algoritmo, ruta y variante.
+
+Proceso
+- Especificacion previa en spec/campo-libre-ia.md.
+- OpenCode esta instalado pero no se uso con el codigo del proyecto;
+  no se atribuye a esa herramienta ningun trabajo.
+
+Pruebas
+- node --test: 10 aprobadas.
+- ai-smoke, smoke, boss-smoke y compilacion: aprobados.
+- revision-smoke: falla a veces en una espera de combo de
+  scripts/verify-controls.mjs; tambien ocurria antes de estos cambios.
+
+FIN DE LA RONDA 8 - conservar historial y agregar futuras rondas al final.
