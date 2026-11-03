@@ -1161,7 +1161,7 @@
     },
     "Minotaur": {
       "id": "Minotaur",
-      "foot": 1,
+      "foot": 0.9,
       "actions": {
         "idle": {
           "files": [
@@ -1249,35 +1249,9 @@
           "sheet": "enemigos/Fantasy/Mushroom/Death.png",
           "width": 150,
           "height": 150
-        }
-      }
-    },
-    "Goblin": {
-      "id": "Goblin",
-      "foot": 0.67,
-      "actions": {
-        "idle": {
-          "sheet": "enemigos/Fantasy/Goblin/Idle.png",
-          "width": 150,
-          "height": 150
         },
-        "move": {
-          "sheet": "enemigos/Fantasy/Goblin/Run.png",
-          "width": 150,
-          "height": 150
-        },
-        "attack": {
-          "sheet": "enemigos/Fantasy/Goblin/Attack.png",
-          "width": 150,
-          "height": 150
-        },
-        "hurt": {
-          "sheet": "enemigos/Fantasy/Goblin/Take Hit.png",
-          "width": 150,
-          "height": 150
-        },
-        "death": {
-          "sheet": "enemigos/Fantasy/Goblin/Death.png",
+        "attack2": {
+          "sheet": "enemigos/Version1.2/Mushroom/Attack2.png",
           "width": 150,
           "height": 150
         }
@@ -1311,6 +1285,16 @@
           "sheet": "enemigos/Fantasy/Skeleton/Death.png",
           "width": 150,
           "height": 150
+        },
+        "attack2": {
+          "sheet": "enemigos/Version1.2/Skeleton/Attack2.png",
+          "width": 150,
+          "height": 150
+        },
+        "shield": {
+          "sheet": "enemigos/Fantasy/Skeleton/Shield.png",
+          "width": 150,
+          "height": 150
         }
       }
     },
@@ -1342,37 +1326,21 @@
           "sheet": "enemigos/Fantasy/Flying eye/Death.png",
           "width": 150,
           "height": 150
-        }
-      }
-    },
-    "ForestMushroom": {
-      "id": "ForestMushroom",
-      "foot": 0.8,
-      "actions": {
-        "idle": {
-          "sheet": "enemigos/Forest/Mushroom/Mushroom without VFX/Mushroom-Idle.png",
-          "width": 80,
-          "height": 64
         },
-        "move": {
-          "sheet": "enemigos/Forest/Mushroom/Mushroom without VFX/Mushroom-Run.png",
-          "width": 80,
-          "height": 64
+        "attack2": {
+          "sheet": "enemigos/Version1.2/Flying eye/Attack2.png",
+          "width": 150,
+          "height": 150
         },
-        "attack": {
-          "sheet": "enemigos/Forest/Mushroom/Mushroom without VFX/Mushroom-Attack.png",
-          "width": 80,
-          "height": 64
+        "attack3": {
+          "sheet": "enemigos/Version1.3/Flying eye/Attack3.png",
+          "width": 150,
+          "height": 150
         },
-        "hurt": {
-          "sheet": "enemigos/Forest/Mushroom/Mushroom without VFX/Mushroom-Hit.png",
-          "width": 80,
-          "height": 64
-        },
-        "death": {
-          "sheet": "enemigos/Forest/Mushroom/Mushroom without VFX/Mushroom-Die.png",
-          "width": 80,
-          "height": 64
+        "projectile": {
+          "sheet": "enemigos/Version1.3/Flying eye/projectile_sprite.png",
+          "width": 48,
+          "height": 48
         }
       }
     }

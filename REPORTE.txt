@@ -586,3 +586,311 @@ Capturas: test-results/frames-*.png y test-results/water-freeze.png,
   ademas de las capturas generales de la partida.
 
 FIN DE LA ACTUALIZACION - conservar esta entrada y agregar las siguientes.
+
+
+============================================================
+ACTUALIZACION 03/11/2026 - RONDA 3: AJUSTES FINALES Y ENEMIGOS
+============================================================
+
+Se conserva todo el historial. Esta ronda reemplaza las reglas anteriores
+donde haya diferencias, especialmente movimiento durante ataques, impacto
+de agua, tipos de enemigos y encuentros con jefes.
+
+PEDIDO DEL USUARIO
+
+- Corregir direccion y altura de impactos/flechas/lluvia del elfo.
+- Impedir 3_atk y sp_atk de cristal en el aire.
+- Respetar X/Y/B por personaje y LB para rodar.
+- Adelantar el golpe de tierra del monje.
+- Agua: dano cuando explota la esfera, despues hielo sin dano adicional.
+- No permitir caminar ni saltar durante una accion.
+- Evitar que los enemigos copien el salto del jugador.
+- Ojo volador con patrulla, proyectil, embestida, mordisco y muerte en caida.
+- Retirar Goblin y ForestMushroom; agregar variantes de Mushroom y Skeleton.
+- Jefes grandes cada cinco oleadas, con nombres y barra de vida destacada.
+- Actualizar tutorial con controles y conservar este reporte acumulativo.
+
+CAMBIOS REALIZADOS
+
+1. Jugador, efectos y controles
+
+- X/J basico, Y/K secundario, B/L habilidad, RB/S/Abajo defensa,
+  LB/Shift rodada y A/Espacio salto. Se verifican los cinco botones de
+  combate por separado para los cuatro personajes con mando simulado.
+- Ataques, carga, defensa y habilidades bloquean movimiento horizontal
+  e inicio de salto. Las acciones aereas conservan la gravedad.
+- LB permite cancelar un ataque en suelo; sus contactos pendientes se
+  eliminan. Se mantiene la orientacion fija y la ausencia de stun al herir.
+- Crystal Mauler conserva X aereo; Y (3_atk) y B (sp_atk) requieren suelo.
+- Los impactos del elfo conservan la direccion del proyectil, incluyendo
+  flechas hacia la izquierda. La lluvia usa origen inferior alineado con
+  la superficie, en vez de quedar enterrada bajo los pies.
+- Las flechas aereas detectan suelo y plataformas al descender. El efecto
+  queda anclado en la punta de impacto sobre la superficie, sin flotar.
+- La lluvia calcula la superficie debajo de cada flecha.
+- Monje: contacto final de 3_atk al frame 17 (antes 18); primer contacto
+  de sp_atk al 8 (antes 9). El segundo sigue al 18.
+- Agua: sp_atk causa 100 de dano una sola vez al frame 13, cuando la
+  esfera cae y explota. NO congela en ese momento. Desde el frame 23
+  congela durante 3 s sin dano extra, incluyendo nuevos objetivos.
+
+2. Enemigos terrestres
+
+- Se retiran Goblin y ForestMushroom de las oleadas y del manifiesto de
+  actores cargados. Sus recursos originales se conservan en los packs.
+- Mushroom alterna Attack y Attack2; ambos golpes cercanos hacen 10 de dano.
+- Skeleton alterna golpe normal (10) y Attack2 (18). El segundo alcanza
+  110 px frente a 85 px del normal y deja 1050 ms de recuperacion vulnerable.
+- Escudo de Skeleton: bloquea golpes durante 850 ms, con 4200 ms entre
+  defensas. Lo levanta ante acciones cercanas o de forma ocasional.
+  Un proyectil bloqueado no aplica veneno nuevo. Veneno previo no se cura.
+- Solo saltan hacia un jugador apoyado en una superficie elevada; no
+  saltan por el mero hecho de que el jugador este en el aire.
+- Las muertes con animacion disponible se reproducen completas.
+
+3. Flying Eye
+
+- Vuela sin gravedad entre puntos de patrulla independientes del jugador.
+- Attack3 dispara el sprite original de proyectil, dirigido a la posicion
+  del jugador al disparar. Dano: 12; velocidad: 265 px/s.
+- Se usan los primeros frames del proyectil para vuelo y los restantes
+  para impacto. Los proyectiles tienen tiempo de vida limitado.
+- Alterna tres ataques de distancia con una embestida Attack2 de 430 ms,
+  velocidad 520 px/s y 16 de dano al contacto, una vez por embestida.
+  No explota ni muere por embestir.
+- Si esta libre y a menos de 100 px usa el mordisco Attack (10 de dano).
+- Herir o congelar cancela su ataque/embestida pendientes.
+- Al morir se habilita gravedad y reproduce frames 1 y 2 de Death.
+  Mantiene el 2 mientras cae; al tocar suelo/plataforma reproduce el resto.
+- Se corrigio tambien la sincronizacion final entre cuerpo fisico y
+  sprite antes de deshabilitar fisicas al aterrizar el cadaver.
+
+4. Jefes
+
+- Oleadas 5, 10, 15 y siguientes multiplos de cinco: un jefe solo,
+  sin enemigos comunes en esa oleada. Los tres rotan en orden.
+- MORGATH, DEVORADOR DEL ABISMO: DemonSlime, cleave, 38 de dano.
+- HRIMGAR, TITAN DEL INVIERNO: FrostGuardian, 1_atk, 42 de dano.
+- ASTERION, AZOTE DEL LABERINTO: Minotaur, atk_1, 45 de dano.
+- Escalas 2.8 / 3.1 / 2.8, vida 900 + oleada * 90, barra destacada de
+  800 px y nombre sobre ella. Aparecen mas adentro para no quedar cortados.
+- Se reemplazan los ataques rojos genericos por sus ataques originales.
+- Minotaur usa desvanecimiento porque el pack gratuito solo incluye
+  idle, walk y atk_1; los otros dos tienen hurt y death originales.
+
+5. Tutorial y documentacion
+
+- Tutorial con tabla por accion, teclado, Xbox y equivalencias PlayStation.
+- Iconos del spritesheet de controles para acciones y etiquetas claras
+  LB/RB. Explicaciones de X/Y/B de cada personaje, carga, combos, bloqueo
+  de movimiento, cancelacion y habilidades terrestres.
+- Se revisaron capturas del tutorial, efectos y jefes. Se ajusto el texto
+  para que ninguna linea quede cortada a 1280 x 720.
+- README actualizado con las nuevas reglas y pruebas.
+
+ARCHIVOS PRINCIPALES
+
+src/combat.js: contactos, restricciones, anclajes y direccion de efectos.
+src/enemies.js: nueva IA, ataques, escudo, proyectiles y muerte del ojo.
+src/main.js: integracion, carga de animaciones, controles/tutorial y HUD.
+src/rules.js: jefes con nombres/estadisticas y oleadas exclusivas.
+scripts/prepare-assets.mjs: nuevas animaciones y seleccion de 10 actores.
+public/assets/manifest.json: regenerado por el script.
+scripts/verify-combat.mjs: nuevos fotogramas e inmovilidad en ataques.
+scripts/verify-revision.mjs y revision-smoke.mjs: pruebas de esta ronda.
+tests/rules.test.js: oleadas de jefe exclusivas.
+README.md y REPORTE.txt: documentacion e historial.
+
+VERIFICACION
+
+- npm.cmd run assets: 10 actores, 5 mapas.
+- npm.cmd test: 7 pruebas aprobadas.
+- node scripts/combat-smoke.mjs: aprobado.
+- node scripts/smoke.mjs: aprobado, incluyendo combate por fotogramas.
+- node scripts/revision-smoke.mjs: aprobado; verifica controles, bloqueo
+  de movimiento/salto, restricciones de cristal, efectos del elfo,
+  persecucion, escudo/veneno, golpes alternativos, vuelo, proyectiles,
+  embestida, mordisco, muerte sobre plataforma y tres jefes exclusivos.
+- npm.cmd run build: compilacion correcta. Vite conserva su advertencia
+  de paquete principal mayor de 500 kB.
+
+Capturas nuevas en test-results/: revision-effects.png, tutorial.png,
+boss-5.png, boss-10.png y boss-15.png. Mando validado por simulacion de
+Gamepad API; no se probo un dispositivo fisico en esta sesion.
+
+FIN DE LA RONDA 3 - conservar el historial y agregar futuras rondas al final.
+
+
+============================================================
+ACTUALIZACION 03/11/2026 - RONDA 4: MANDO, CADENCIA Y PRUEBA DE JEFES
+============================================================
+
+PEDIDO DEL USUARIO
+
+- Bajar mucho la cadencia de los Flying Eye.
+- Respetar los combos basicos con X y los secundarios/habilidades Y/B.
+- Rodada con LB, nunca con Y.
+- Retirar el bloque inferior del tutorial y ampliar tabla e imagenes.
+- Tecla 5 para ir directamente a una oleada de jefe.
+- Registrar esta ronda sin borrar el historial previo.
+
+CAMBIOS
+
+1. Flying Eye
+
+- Antes iniciaba ataques aproximadamente cada segundo.
+- Ahora espera 4500-6500 ms desde su aparicion antes del primer ataque.
+- Tras cada animacion espera 6500-8000 ms antes del siguiente ataque.
+  El intervalo total tambien incluye la duracion de la animacion.
+- La espera varia por enemigo para evitar disparos sincronizados.
+- Conserva patrulla, proyectil, embestida y mordisco. Los mordiscos
+  tampoco evitan la nueva espera.
+
+2. Mando y combos
+
+- Agua: X encadena 07_1_atk -> 08_2_atk -> 09_3_atk;
+  Y usa 10_sp_atk; B usa heal y cura 25.
+- Cristal: X encadena 1_atk -> 2_atk; Y usa 3_atk; B usa sp_atk.
+  Y y B siguen requiriendo suelo.
+- Monje: X encadena 1_atk -> 2_atk -> 3_atk; Y usa sp_atk;
+  B conserva meditate.
+- Elfo conserva X golpe, Y flecha/carga y B lluvia.
+- Se agrega cola de una pulsacion del basico: pulsar X durante un
+  basico guarda el siguiente golpe para el final. Ya no se descarta
+  esa pulsacion por estar terminando una animacion. Mantener X no
+  repite automaticamente; la ventana posterior sigue siendo 1 segundo.
+- Rodar cancela el ataque y su pulsacion en cola.
+- La asignacion estandar ya separaba Y (indice 3) de LB (indice 4).
+  No se pudo inspeccionar un mando fisico del usuario. Para corregir
+  dispositivos con indices diferentes se agrego calibracion real por
+  boton, en Controles -> Calibrar mando (tambien accesible con mouse).
+- La calibracion solicita X, Y, B, LB, RB, A y Start, exige soltar entre
+  pasos e impide asignar el mismo boton a dos acciones.
+- Guarda un perfil por identificador del dispositivo en localStorage,
+  separado del record/opciones, y lo aplica al combate y menus.
+- Se probo un mando simulado no estandar cuyo Y fisico es indice 4:
+  tras calibrar, ese boton hace sp_atk y no rueda; el LB fisico rueda.
+  Se verifico tambien que el perfil funciona despues de recargar.
+
+3. Tutorial
+
+- Eliminado todo el bloque inferior senalado en la imagen del usuario.
+- Tabla expandida al ancho disponible; texto de filas de 18 a 25 px,
+  encabezados de 19 a 26 px, iconos de escala 1.8 a 3.
+- Botones de volver/calibrar arriba; tabla con nueve filas, incluida
+  la tecla 5. Etiquetas LB/RB grandes y separadas de Y.
+- Corregidas las filas del spritesheet para iconos A y B.
+- Se reviso captura a 1280 x 720: contenido dentro de la pantalla.
+
+4. Tecla 5: siguiente jefe
+
+- Durante una partida activa, 5 inicia un encuentro limpio en el
+  siguiente multiplo de cinco: 5, 10, 15, 20, etc.
+- Conserva mapa y personaje; reinicia vida a 100 y puntaje a cero.
+- Reiniciar la escena elimina enemigos, proyectiles, efectos y eventos
+  de la oleada anterior, evitando que reaparezcan despues del salto.
+- Conserva el anuncio de oleada y la entrada del jefe tras 1.2 segundos.
+- Se verificaron con la tecla real del navegador los tres primeros
+  encuentros: DemonSlime, FrostGuardian y Minotaur.
+
+ARCHIVOS
+
+src/main.js: entrada de mando, calibracion, tutorial y tecla 5.
+src/gamepad.js: mapa estandar y perfiles persistentes por dispositivo.
+src/combat.js: cola de entrada para combos basicos.
+src/enemies.js: nueva cadencia del ojo.
+scripts/verify-controls.mjs: comprobaciones con botones simulados reales
+  de Gamepad API, combos, habilidades, calibracion, tecla 5 y cadencia.
+scripts/revision-smoke.mjs: integra las pruebas de controles nuevas.
+README.md y REPORTE.txt: instrucciones y registro acumulativo.
+
+VERIFICACION REALIZADA
+
+- npm.cmd test: 7 aprobadas, 0 fallidas.
+- node scripts/revision-smoke.mjs: aprobado. Incluye todas las pruebas
+  anteriores de la ronda 3 y las nuevas pruebas de controles de la 4.
+- node scripts/smoke.mjs: aprobado, incluida verificacion de impactos
+  por fotograma y mecanicas de combate.
+- npm.cmd run build: correcto. Continua la advertencia informativa de
+  Vite por paquete mayor de 500 kB.
+
+Nota: se valida mando estandar y mando no estandar mediante simulacion;
+si el dispositivo fisico del usuario expone indices distintos, debe
+completarse una vez la calibracion con ese mando en su navegador.
+
+FIN DE LA RONDA 4 - conservar historial y agregar futuras rondas al final.
+
+
+========================================================================
+RONDA 5: ORIENTACION DE JEFES, APOYO EN EL SUELO Y TUTORIAL
+========================================================================
+
+1. Jefes mirando en la direccion correcta
+
+- Se revisaron las siluetas y la direccion de los ataques de los tres
+  packs de jefe: los tres estan dibujados mirando hacia la izquierda.
+- El codigo aplicaba el giro suponiendo que el arte miraba a la derecha,
+  por eso el jefe caminaba hacia un lado mirando al contrario.
+- Se agrego nativeFacing: -1 para DemonSlime, FrostGuardian y Minotaur
+  en src/rules.js. La orientacion visual de caminar, idle, ataque, dano
+  y muerte ahora coincide siempre con el lado hacia el que se mueve.
+- El rectangulo de dano usa la misma orientacion visual, de modo que el
+  golpe sigue saliendo por delante del jefe.
+
+2. Alcance de los jefes reducido
+
+- Ancho del golpe de jefe: de 210 a 180 px.
+- Distancia a la que inicia el ataque: de 170 a 150 px.
+- La altura y el dano (38, 42 y 45) no cambiaron.
+- Verificado en ambos lados: a 120 px golpea y a 210 px no alcanza.
+
+3. Minotauro apoyado en el suelo
+
+- Su pack deja 16 px transparentes debajo de los pies en cada cuadro
+  (el borde visible termina en 144 de 160 px). Con origen 1 el cuerpo
+  quedaba flotando unos 45 px al escalarse a 2,8.
+- Se genera el manifiesto del Minotauro con foot 0.9, de modo que los
+  pies coinciden con el suelo y el cuerpo fisico termina en la misma
+  linea. El resto de jefes ya tenia el origen correcto.
+- Medido en el navegador: separacion de pies 0 y de cuerpo 0.
+
+4. Tutorial sin el boton de calibracion
+
+- Se quito "Calibrar mando" del menu de tutorial (pagina help de
+  src/main.js); la pantalla queda solo con "Volver".
+- Las calibraciones ya guardadas por identificador de mando se siguen
+  aplicando al jugar; solo se retiro el acceso desde el tutorial.
+
+5. Preparacion de recursos mas tolerante
+
+- Si una carpeta original de packs ya no existe junto al proyecto pero
+  el pack preparado sigue en public/assets, npm run assets conserva el
+  paquete existente en lugar de abortar. Asi se puede regenerar el
+  manifiesto aunque falte, por ejemplo, extras/Shadow.
+
+ARCHIVOS
+
+src/rules.js: nativeFacing -1 en los tres jefes.
+src/enemies.js: orientacion visual, ancho de golpe 180 y activacion 150.
+src/main.js: tutorial sin el boton Calibrar mando.
+scripts/prepare-assets.mjs: foot 0.9 del Minotauro y conservacion de
+  packs ya preparados.
+scripts/boss-smoke.mjs: nueva prueba de tutorial, orientacion, alcance,
+  pies y cuerpo del jefe.
+README.md y REPORTE.txt: documentacion y registro acumulativo.
+
+VERIFICACION REALIZADA
+
+- npm.cmd test: 7 aprobadas, 0 fallidas.
+- node scripts/boss-smoke.mjs: aprobado. Tutorial solo con Volver,
+  Morgath camina mirando hacia donde avanza, golpe a 120 px y fallo a
+  210 px, pies y cuerpo del Minotauro a 0 px del suelo.
+- node scripts/revision-smoke.mjs: aprobado, incluye las pruebas de las
+  rondas 3 y 4.
+- node scripts/smoke.mjs: aprobado.
+- npm.cmd run build: correcto. Continua la advertencia informativa de
+  Vite por paquete mayor de 500 kB.
+- Capturas nuevas: test-results/tutorial.png,
+  test-results/boss-facing-left.png y test-results/minotaur-grounded.png.
+
+FIN DE LA RONDA 5 - conservar historial y agregar futuras rondas al final.

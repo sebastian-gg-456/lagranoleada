@@ -4,8 +4,8 @@ export async function verifyCombatTiming(page){
  const cases=[
   [{frame:5},{secondary:true,frame:9,projectile:true},{secondary:true,air:true,frame:6,projectile:true}],
   [{frame:4},{combo:1,frame:4},{secondary:true,frame:11},{air:true,frame:4},{ability:true,frame:9}],
-  [{frame:2},{combo:1,frame:2,hits:[2,6,9]},{combo:2,frame:2,hits:[2,6,9,18]},{secondary:true,frame:9,hits:[9,18]}],
-  [{frame:3,projectile:true},{combo:1,frame:3,hits:[3,15],projectile:true},{combo:2,frame:3,hits:[3,15,22],projectile:true},{air:true,frame:4,projectile:true},{secondary:true,frame:23}]
+   [{frame:2},{combo:1,frame:2,hits:[2,6,9]},{combo:2,frame:2,hits:[2,6,9,17]},{secondary:true,frame:8,hits:[8,18]}],
+   [{frame:3,projectile:true},{combo:1,frame:3,hits:[3,15],projectile:true},{combo:2,frame:3,hits:[3,15,22],projectile:true},{air:true,frame:4,projectile:true},{secondary:true,frame:13}]
  ];
  for(let character=0;character<4;character++){
   await page.evaluate(()=>{const g=window.__emboscada;g.scene.stop('Game');g.scene.start('Menu',{page:'characters'});});
@@ -77,28 +77,29 @@ export async function verifyCombatTiming(page){
   }),[1000,0],'cancelación elimina impactos pendientes');
  }
 
- // Water's frame 23 damages once; subsequent frames freeze new arrivals only.
+  // The sphere explodes at 13; the separate ice phase starts at 23.
  assert.deepEqual(await page.evaluate(()=>{
   const s=window.prepareCombat();s.attack(s.time.now,true);const anim=s.hero.anims.currentAnim;
-  s.hero.anims.setCurrentFrame(anim.frames[21]);
+   s.hero.anims.setCurrentFrame(anim.frames[11]);
   const before=s.enemies[0].hp;
-  s.hero.anims.setCurrentFrame(anim.frames[22]);
-  const after=s.enemies[0].hp;
+   s.hero.anims.setCurrentFrame(anim.frames[12]);
+   const after=s.enemies[0].hp;
+   if(s.enemies[0].frozen)throw Error('No congelar durante la explosión');
   const front=s.enemies[0],behind=s.enemies[1];
   s.enemies[2].sprite.body.reset(760,s.ground);
   s.enemies[2].sprite.body.updateFromGameObject();
-  for(const frame of anim.frames.slice(23))s.hero.anims.setCurrentFrame(frame);
+   for(const frame of anim.frames.slice(22))s.hero.anims.setCurrentFrame(frame);
   window.freezeSnapshot={frontUntil:front.frozenUntil};
   return [before,after,s.enemies[0].hp,s.enemies[2].hp,front.frozen,!!behind.frozen,s.enemies[2].frozen,s.projectiles.length,front.sprite.body.moves,front.sprite.anims.isPaused];
- }),[1000,900,900,1000,true,false,true,0,false,true],'agua: daño al 23, después solo congelación frontal');
+  }),[1000,900,900,1000,true,false,true,0,false,true],'agua: daño al 13, hielo sin daño al 23');
  await page.screenshot({path:'test-results/water-freeze.png'});
  await page.waitForTimeout(3200);
  assert.equal(await page.evaluate(()=>window.__emboscada.scene.getScene('Game').enemies[0].frozen),false,'descongela al pasar tres segundos');
 
- // Move backwards during an animation without flipping its direction or speed.
+  // Attacks root the player, including jump input, without turning the sprite.
  await page.evaluate(()=>{const s=window.prepareCombat();for(const e of s.enemies)e.sprite.destroy();s.enemies=[];s.attack(s.time.now,true);});
  await page.keyboard.down('a');await page.waitForTimeout(260);await page.keyboard.up('a');
- assert.deepEqual(await page.evaluate(()=>{const s=window.__emboscada.scene.getScene('Game');return [s.hero.x<610,s.facing,s.hero.flipX,!!s.activeAction];}),[true,1,false,true],'movimiento durante ataque sin girar');
+  assert.deepEqual(await page.evaluate(()=>{const s=window.__emboscada.scene.getScene('Game');return [Math.abs(s.hero.x-640)<1,s.facing,s.hero.flipX,!!s.activeAction];}),[true,1,false,true],'acción inmóvil sin girar');
  await page.evaluate(()=>{const s=window.__emboscada.scene.getScene('Game');s.invincible=0;s.damage(10,s.time.now);});
  assert.equal(await page.evaluate(()=>!!window.__emboscada.scene.getScene('Game').activeAction),true,'daño no interrumpe ataque');
  await page.keyboard.down('Shift');await page.waitForTimeout(80);await page.keyboard.up('Shift');

@@ -22,6 +22,10 @@ const packs = {
  'extras/Shadow':'SHADOW Series - The Free Assets'
 };
 for (const [dest, src] of Object.entries(packs)) {
+ if(!fs.existsSync(path.join(source,src))&&fs.existsSync(path.join(out,dest))){
+  console.log(`Se conserva el pack ya preparado: ${dest} (original no disponible).`);
+  continue;
+ }
  fs.cpSync(path.join(source, src), path.join(out, dest), {recursive:true, filter:p=>!p.includes('__MACOSX') && !p.endsWith('.meta')});
 }
 const manifest = {actors:{},maps:[],music:'audio/Shamisen Samurai Rock_Loop.ogg'};
@@ -47,15 +51,22 @@ frames('GroundMonk','personajes/GroundMonk/png',{...common,up:'j_up',down:'j_dow
 frames('WaterPriestess','personajes/WaterPriestess/png',{idle:'01_idle',move:'02_walk',attack:'07_1_atk',attack2:'08_2_atk',attack3:'09_3_atk',airAttack:'air_atk',special:'10_sp_atk',hurt:'13_take_hit',death:'14_death',roll:'06_tumble',defend:'12_defend',heal:'11_heal',surf:'03_surf',up:'04_j_up',down:'05_j_down'},1,'personajes/WaterPriestess/water_priestess.png');
 frames('DemonSlime','jefes/DemonSlime/individual sprites',{idle:'01_demon_idle',move:'02_demon_walk',attack:'03_demon_cleave',hurt:'04_demon_take_hit',death:'05_demon_death'});
 frames('FrostGuardian','jefes/FrostGuardian/PNG files',{idle:'idle',move:'walk',attack:'1_atk',hurt:'take_hit',death:'death'},0.86);
-frames('Minotaur','jefes/Minotaur/animations',{idle:'idle',move:'walk',attack:'atk_1'});
-for(const id of ['Mushroom','Goblin','Skeleton','Flying eye']) {
+frames('Minotaur','jefes/Minotaur/animations',{idle:'idle',move:'walk',attack:'atk_1'},0.9);
+for(const id of ['Mushroom','Skeleton','Flying eye']) {
  const actor={id,foot:0.67,actions:{}};
  for(const [action,file] of Object.entries({idle:id==='Flying eye'?'Flight':'Idle',move:id==='Skeleton'?'Walk':id==='Flying eye'?'Flight':'Run',attack:'Attack',hurt:'Take Hit',death:'Death'})) {
   actor.actions[action]={sheet:`enemigos/Fantasy/${id}/${file}.png`,width:150,height:150};
  }
- manifest.actors[id]=actor;
+  manifest.actors[id]=actor;
+  actor.actions.attack2={sheet:`enemigos/Version1.2/${id}/Attack2.png`,width:150,height:150};
+  if(id==='Skeleton')actor.actions.shield={sheet:`enemigos/Fantasy/${id}/Shield.png`,width:150,height:150};
+  if(id==='Flying eye'){
+   actor.actions.attack3={sheet:`enemigos/Version1.3/${id}/Attack3.png`,width:150,height:150};
+   const sheet=`enemigos/Version1.3/${id}/projectile_sprite.png`;
+   const height=fs.readFileSync(path.join(out,sheet)).readUInt32BE(20);
+   actor.actions.projectile={sheet,width:height,height};
+  }
 }
-manifest.actors.ForestMushroom={id:'ForestMushroom',foot:0.8,actions:Object.fromEntries(Object.entries({idle:'Idle',move:'Run',attack:'Attack',hurt:'Hit',death:'Die'}).map(([a,f])=>[a,{sheet:`enemigos/Forest/Mushroom/Mushroom without VFX/Mushroom-${f}.png`,width:80,height:64}]))};
 manifest.maps.push({name:'Caverna ancestral',layers:['1','2','3fx','4','5','6fx','7','8fx','9'].map(f=>`fondos/ParallaxCave/${f}.png`),ground:650,platforms:[
  {x:170,y:510,w:210},{x:450,y:390,w:210},{x:760,y:510,w:210},{x:1040,y:390,w:210},{x:620,y:300,w:160}
 ]});

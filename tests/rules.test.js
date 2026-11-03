@@ -9,8 +9,9 @@ test('jefes cada cinco oleadas, rotando los tres packs',()=>{
  assert.equal(wavePlan(20).boss,'DemonSlime');
 });
 test('oleadas infinitas aumentan resistencia sin saturar enemigos o velocidad',()=>{
- assert.ok(wavePlan(1000).hp>wavePlan(10).hp);
- assert.equal(wavePlan(1000).count,36);
+ assert.ok(wavePlan(1001).hp>wavePlan(10).hp);
+ assert.equal(wavePlan(1001).count,36);
+ assert.equal(wavePlan(1000).count,0);
  assert.equal(wavePlan(1000).speed,185);
 });
 test('guardado corrupto recupera valores seguros',()=>{

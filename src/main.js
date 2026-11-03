@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
-import {characters,names,descriptions,wavePlan,scoreFor,readSave} from './rules.js';
+import {characters,names,descriptions,wavePlan,scoreFor,readSave,bosses} from './rules.js';
 import {combatMethods,defenseFrames} from './combat.js';
+import {enemyMethods} from './enemies.js';
+import {buttonMap,saveButtonMap,calibrationSteps} from './gamepad.js';
 
 const W=1280,H=720;
 let manifest;
@@ -16,11 +18,12 @@ function tone(scene,freq=440){
  const ctx=scene.sound.context,o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.setValueAtTime(freq,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(freq/2,ctx.currentTime+0.1);g.gain.setValueAtTime(save.sfx*0.08,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.14);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.15);
 }
 class Controls {
- constructor(scene){this.keys=scene.input.keyboard.addKeys('A,D,W,S,LEFT,RIGHT,UP,DOWN,SPACE,J,K,L,SHIFT,ESC,ENTER');this.prev=null;this.prevNav=false;this.lastNav=0;}
+  constructor(scene){this.keys=scene.input.keyboard.addKeys('A,D,W,S,LEFT,RIGHT,UP,DOWN,SPACE,J,K,L,SHIFT,ESC,ENTER,FIVE');this.prev=null;this.prevNav=false;this.lastNav=0;}
  poll(time){
-  const p=Array.from(navigator.getGamepads?.()||[]).find(Boolean),b=i=>!!p?.buttons[i]?.pressed,k=this.keys;
+   const p=Array.from(navigator.getGamepads?.()||[]).find(Boolean),b=i=>!!p?.buttons[i]?.pressed,k=this.keys;
+   const map=buttonMap(p,localStorage),action=name=>b(map[name]);
   let axis=p?.axes[0]||0;if(Math.abs(axis)<0.25)axis=0;
-   const held={jump:k.SPACE.isDown||b(0),attack:k.J.isDown||b(2),secondary:k.K.isDown||b(3),ability:k.L.isDown||b(1),roll:k.SHIFT.isDown||b(4),defend:k.S.isDown||k.DOWN.isDown||b(5),pause:k.ESC.isDown||b(9),ok:k.ENTER.isDown||k.SPACE.isDown||b(0),back:k.ESC.isDown||b(1)};
+    const held={jump:k.SPACE.isDown||action('jump'),attack:k.J.isDown||action('attack'),secondary:k.K.isDown||action('secondary'),ability:k.L.isDown||action('ability'),roll:k.SHIFT.isDown||action('roll'),defend:k.S.isDown||k.DOWN.isDown||action('defend'),pause:k.ESC.isDown||action('pause'),ok:k.ENTER.isDown||k.SPACE.isDown||action('jump'),back:k.ESC.isDown||action('ability'),boss:k.FIVE.isDown};
   const result={x:Phaser.Math.Clamp((k.D.isDown||k.RIGHT.isDown||b(15)?1:0)-(k.A.isDown||k.LEFT.isDown||b(14)?1:0)+axis,-1,1),nav:0};
    for(const key of Object.keys(held))result[key]=!!this.prev&&held[key]&&!this.prev[key];result.defendHeld=!!held.defend;result.secondaryHeld=!!held.secondary;this.prev=held;
   const v=(k.DOWN.isDown||k.S.isDown||b(13)||(p?.axes[1]||0)>0.5?1:0)-(k.UP.isDown||k.W.isDown||b(12)||(p?.axes[1]||0)<-0.5?1:0);
@@ -46,7 +49,8 @@ class Load extends Phaser.Scene {
     }
    }
    manifest.maps.forEach((m,i)=>m.layers.forEach((url,j)=>this.load.image(`map${i}:${j}`,`assets/${url}`)));
-  this.load.audio('music',`assets/${manifest.music}`);
+   this.load.audio('music',`assets/${manifest.music}`);
+   this.load.spritesheet('buttonsXbox','assets/controles/controller_xbox.png',{frameWidth:16,frameHeight:16});
  }
  create(){
   for(const [id,actor] of Object.entries(manifest.actors))for(const [action,a] of Object.entries(actor.actions)){
@@ -59,8 +63,13 @@ class Load extends Phaser.Scene {
     this.anims.create({key:`${id}:defendStart`,frames:frames.slice(0,split),frameRate:12,repeat:0});
     this.anims.create({key:`${id}:defendEnd`,frames:frames.slice(split),frameRate:12,repeat:0});
    }
-  }
-  const g=this.make.graphics({x:0,y:0,add:false});g.fillStyle(0xffffff);g.fillRect(0,0,24,6);g.generateTexture('bolt',24,6);g.clear();g.fillStyle(0x62efb6);g.fillCircle(12,12,12);g.generateTexture('heal',24,24);g.destroy();
+   }
+   this.anims.create({key:'eye:deathFall',frames:this.anims.get('Flying eye:death').frames.slice(0,2).map(f=>({key:f.textureKey,frame:f.textureFrame})),frameRate:6});
+   this.anims.create({key:'eye:deathLanding',frames:this.anims.get('Flying eye:death').frames.slice(2).map(f=>({key:f.textureKey,frame:f.textureFrame})),frameRate:6});
+   const eyeProjectile=this.anims.get('Flying eye:projectile').frames.map(f=>({key:f.textureKey,frame:f.textureFrame}));
+   this.anims.create({key:'eye:projectileFlight',frames:eyeProjectile.slice(0,3),frameRate:10,repeat:-1});
+   this.anims.create({key:'eye:projectileImpact',frames:eyeProjectile.slice(3),frameRate:12});
+   const g=this.make.graphics({x:0,y:0,add:false});g.fillStyle(0xffffff);g.fillRect(0,0,24,6);g.generateTexture('bolt',24,6);g.clear();g.fillStyle(0x62efb6);g.fillCircle(12,12,12);g.generateTexture('heal',24,24);g.destroy();
   for(const width of new Set(manifest.maps.flatMap(m=>(m.platforms||[]).map(p=>p.w))))caveTexture(this,width);
   this.scene.start('Menu');
  }
@@ -100,20 +109,39 @@ class Menu extends Phaser.Scene {
   } else if(page==='options'){
    title='Opciones';items=[...optionItems(this,()=>this.show('options')),['Volver',()=>this.show('home')]];text(this,80,295,'Los ajustes se guardan\nautomáticamente en este navegador.',23).setLineSpacing(12);
   } else if(page==='help'){
-   title='Controles';items=[['Volver',()=>this.show('home')]];
-     text(this,80,225,'ACCIÓN              TECLADO          MANDO\n\nMover              A/D o flechas     Stick / D-pad\nSaltar             Espacio           A\nAtacar / combo      J                 X\nSecundario / carga  K                 Y\nHabilidad          L                 B\nDefender           S / Abajo         RB\nRodar              Shift             LB\nPausa              Esc               Start\n\nElfo: mantené Y 1,5 s para cargar.\nMenús: ↑/↓ + Enter o D-pad + A. Volver: Esc/B.',21).setLineSpacing(8);
+    title='Tutorial · controles';items=[['Volver',()=>this.show('home')]];
+    text(this,55,215,'ACCIÓN',26,'#ffd382');text(this,405,215,'TECLADO',26,'#ffd382');text(this,735,215,'XBOX / PLAYSTATION',26,'#ffd382');
+    const rows=[['Mover','A/D o flechas','Stick / D-pad',8],['Saltar','Espacio','A / Cruz',6],['Básico / combo','J','X / Cuadrado',2],['Secundario / carga','K','Y / Triángulo',0],['Habilidad','L','B / Círculo',4],['Defender (mantener)','S / Abajo','RB / R1',17],['Rodar','Shift','LB / L1',15],['Pausa','Esc','Start / Options',14],['Probar siguiente jefe','5','—',null]];
+    rows.forEach(([label,key,pad,row],i)=>{const y=263+i*48;text(this,55,y,label,25);text(this,405,y,key,25);text(this,800,y,pad,25);if(i===5||i===6){this.add.rectangle(755,y+15,48,30,0x34445c).setStrokeStyle(2,0xc4d6ed);text(this,755,y+15,i===5?'RB':'LB',19).setOrigin(0.5);}else if(row!==null)this.add.image(755,y+15,'buttonsXbox',row*7+3).setScale(3);});
+   } else if(page==='calibrate'){
+    title='Calibrar mando';items=[['Cancelar',()=>this.show('help')]];
+    this.calibration={step:0,map:{},released:false,id:null};
+    this.calibrationText=text(this,70,260,'Soltá los botones y conectá tu mando.',28).setWordWrapWidth(620).setLineSpacing(15);
   } else {
    title='Créditos';items=[['Volver',()=>this.show('home')]];
    text(this,80,235,'Juego desarrollado con Phaser 3.\n\nArte: packs Elementals, Monsters Creatures Fantasy,\nForest Monsters, Demon Slime, Frost Guardian,\nMinotaur, Crystal Cave y Parallax Cave.\nMúsica: Japanese Music Pack.\n\nDocumentos originales conservados con los recursos.',21).setLineSpacing(10);
   }
-  text(this,760,198,title,26,'#ffd382');
-  items.forEach(([label,fn],i)=>this.button(760,250+i*55,label,fn));
+   text(this,760,page==='help'?38:198,title,26,'#ffd382');
+   items.forEach(([label,fn],i)=>this.button(760,(page==='help'?80:250)+i*55,label,fn));
   this.highlight();
  }
   button(x,y,label,fn){const i=this.buttons.length;const bg=this.add.rectangle(x,y,440,45,0x14263a).setOrigin(0,0);const labelObj=text(this,x+16,y+9,label,22);bg.setInteractive({useHandCursor:true}).on('pointerover',()=>{this.selected=i;this.highlight();}).on('pointerdown',()=>{tone(this);fn();});this.buttons.push({bg,label:labelObj,fn});}
   mapPreview(index){this.preview?.destroy();this.preview=this.add.container(300,370);this.preview.add(manifest.maps[index].layers.map((_,layer)=>this.add.image(0,0,`map${index}:${layer}`).setDisplaySize(460,259)));}
   highlight(){this.buttons.forEach((b,i)=>{b.bg.setFillStyle(i===this.selected?0x276451:0x14263a);b.label.setColor(i===this.selected?'#ffffff':'#bfcedc');});if(this.preview&&this.page==='maps'&&this.selected<manifest.maps.length)this.mapPreview(this.selected);if(this.preview&&this.page==='characters'&&this.selected<characters.length){play(this.preview,characters[this.selected],'idle');this.charDesc?.setText(descriptions[this.selected]);}}
- update(time){const c=this.controls.poll(time);if(c.nav){this.selected=Phaser.Math.Wrap(this.selected+c.nav,0,this.buttons.length);this.highlight();}if(c.ok){tone(this);this.buttons[this.selected]?.fn();}else if(c.back&&this.page!=='home')this.show('home');}
+  updateCalibration(){
+   const cal=this.calibration,p=Array.from(navigator.getGamepads?.()||[]).find(Boolean);
+   if(this.controls.keys.ESC.isDown){this.show('help');return;}
+   if(!p)return;
+   if(cal.id!==p.id){cal.id=p.id;cal.step=0;cal.map={};cal.released=false;}
+   const pressed=p.buttons.flatMap((b,i)=>b.pressed?[i]:[]),[action,label]=calibrationSteps[cal.step];
+   if(!pressed.length){cal.released=true;this.calibrationText.setText(`Paso ${cal.step+1} / 7\nPulsá ${label}\n\n${p.id}`);return;}
+   if(!cal.released||pressed.length!==1)return;
+   cal.released=false;
+   if(Object.values(cal.map).includes(pressed[0])){this.calibrationText.setText('Ese botón ya está asignado.\nSoltalo y pulsá el botón solicitado.');return;}
+   cal.map[action]=pressed[0];cal.step++;
+   if(cal.step===calibrationSteps.length){try{saveButtonMap(p.id,cal.map,localStorage);this.show('help');}catch{cal.step=0;cal.map={};this.calibrationText.setText('No se pudo guardar la calibración. Revisá el almacenamiento del navegador.');}}
+  }
+  update(time){if(this.page==='calibrate'){this.updateCalibration();return;}const c=this.controls.poll(time);if(c.nav){this.selected=Phaser.Math.Wrap(this.selected+c.nav,0,this.buttons.length);this.highlight();}if(c.ok){tone(this);this.buttons[this.selected]?.fn();}else if(c.back&&this.page!=='home')this.show('home');}
 }
 function optionItems(scene,refresh){return [
  [`Música: ${Math.round(save.music*100)}%`,()=>{save.music=+(save.music>=1?0:Math.min(1,save.music+0.25)).toFixed(2);scene.sound.get('music')?.setVolume(save.music);persist();refresh();}],
@@ -122,9 +150,10 @@ function optionItems(scene,refresh){return [
 ];}
 
 class Game extends Phaser.Scene {
- constructor(){super('Game');}
+  constructor(){super('Game');}
+  init(data){this.testBossWave=data?.bossWave||0;}
  create(){
-   this.controls=new Controls(this);this.wave=0;this.score=0;this.kills=0;this.hp=100;this.maxHp=100;this.finished=false;this.between=false;this.pending=0;this.nextAttack=0;this.invincible=0;this.rollUntil=0;this.attackUntil=0;this.hurtUntil=0;this.comboUntil=0;this.lastAttack='';this.facing=1;this.defending=false;this.enemies=[];this.projectiles=[];this.heals=[];
+   this.controls=new Controls(this);this.wave=0;this.score=0;this.kills=0;this.hp=100;this.maxHp=100;this.finished=false;this.between=false;this.pending=0;this.nextAttack=0;this.invincible=0;this.rollUntil=0;this.attackUntil=0;this.hurtUntil=0;this.comboUntil=0;this.lastAttack='';this.facing=1;this.defending=false;this.enemies=[];this.projectiles=[];this.enemyProjectiles=[];this.heals=[];
   background(this,session.map);this.ground=manifest.maps[session.map].ground;
   this.add.rectangle(640,this.ground+35,1280,70,0x07101d,0.32);
   this.platform=this.add.rectangle(640,this.ground+40,1280,80,0x000000,0);this.physics.add.existing(this.platform,true);
@@ -140,8 +169,10 @@ class Game extends Phaser.Scene {
   this.hpFill=this.add.rectangle(97,34,294,18,0xd94b4b,1).setOrigin(0,0).setDepth(100);
   this.hpText=text(this,244,27,'100 / 100',14,'#ffffff').setOrigin(0.5,0).setDepth(101);
   this.scoreHud=text(this,1252,14,'',25,'#ffd382').setOrigin(1,0).setDepth(100);this.waveHud=text(this,1252,48,'',16,'#c7dbe7').setOrigin(1,0).setDepth(100);
-  this.banner=text(this,640,185,'',42,'#ffd382').setOrigin(0.5).setDepth(100);this.bossHud=text(this,640,98,'',23,'#ff9b9b').setOrigin(0.5).setDepth(100);
-  this.waveEvent=this.time.delayedCall(900,()=>this.startWave());
+   this.banner=text(this,640,185,'',42,'#ffd382').setOrigin(0.5).setDepth(100);this.bossHud=text(this,640,98,'',23,'#ff9b9b').setOrigin(0.5).setDepth(100);
+   this.bossBack=this.add.rectangle(240,121,800,24,0x261522).setOrigin(0).setStrokeStyle(2,0xffc57d).setDepth(99).setVisible(false);
+   this.bossFill=this.add.rectangle(243,124,794,18,0xc82c4d).setOrigin(0).setDepth(100).setVisible(false);
+   if(this.testBossWave){this.wave=this.testBossWave-1;this.startWave();}else this.waveEvent=this.time.delayedCall(900,()=>this.startWave());
   this.blur=()=>{if(this.scene.isActive()&&!this.finished)this.pause();};this.game.events.on(Phaser.Core.Events.BLUR,this.blur);this.events.once('shutdown',()=>this.game.events.off(Phaser.Core.Events.BLUR,this.blur));
   music(this);
  }
@@ -158,16 +189,27 @@ class Game extends Phaser.Scene {
   if(this.plan.boss)this.time.delayedCall(1200,()=>{if(!this.finished){this.spawnEnemy(true,0);this.pending--;}});
  }
  spawnEnemy(boss,i){
-  const types=['Mushroom','Goblin','Skeleton','Flying eye','ForestMushroom'];const id=boss?this.plan.boss:types[(i+this.wave)%types.length];const left=Math.random()<0.5;
-  const sprite=this.actor(left?45:1235,this.ground,id,boss?2: id==='ForestMushroom'?2.5:1.8);
+   const types=['Mushroom','Skeleton','Flying eye'];const id=boss?this.plan.boss:types[(i+this.wave)%types.length];const left=Math.random()<0.5;
+   const sprite=this.actor(left?(boss?200:90):(boss?1080:1190),id==='Flying eye'?200:this.ground,id,boss?bosses[id].scale:1.8);
   this.physics.add.collider(sprite,this.platform);this.physics.add.collider(sprite,this.platformGroup);sprite.setCollideWorldBounds(true);
-   const e={sprite,id,boss,hp:boss?500+this.wave*65:this.plan.hp,max:boss?500+this.wave*65:this.plan.hp,speed:boss?75:this.plan.speed,next:0,busy:0,jumpAt:0,hurtUntil:0,dead:false};this.enemies.push(e);
+    const e={sprite,id,boss,hp:boss?900+this.wave*90:this.plan.hp,max:boss?900+this.wave*90:this.plan.hp,speed:boss?75:this.plan.speed,next:this.time.now+1200,busy:0,jumpAt:0,hurtUntil:0,shieldUntil:0,shieldReady:0,recoverUntil:0,shots:0,dead:false};this.enemies.push(e);
+    if(id==='Flying eye'){sprite.body.setAllowGravity(false);e.next=this.time.now+4500+Math.random()*2000;}
    sprite.on('animationupdate',(anim,frame)=>this.advanceEnemyAttack(e,anim,frame));
-   sprite.on('animationcomplete',anim=>{if(anim.key===`${id}:attack`){this.advanceEnemyAttack(e,anim,anim.frames.at(-1));e.attack=null;e.busy=this.time.now;}});
+    sprite.on('animationcomplete',anim=>{
+     if(e.attack?.key===anim.key){this.advanceEnemyAttack(e,anim,anim.frames.at(-1));e.attack=null;e.busy=this.time.now;e.recoverUntil=this.time.now+e.recovery;}
+     if(e.dead&&(anim.key===`${id}:death`||anim.key==='eye:deathLanding'))sprite.destroy();
+    });
  }
- hitEnemy(e,damage){
-   if(e.dead)return;e.hp-=damage;e.attack=null;e.busy=0;e.sprite.setTint(e.frozen?0x80e6ff:0xffb3a5);this.time.delayedCall(100,()=>{if(e.sprite.active&&!e.frozen)e.sprite.clearTint();});
-   if(e.hp<=0){e.dead=true;e.sprite.anims.resume();e.sprite.body.stop();e.sprite.body.enable=false;play(e.sprite,e.id,'death');this.kills++;this.score+=scoreFor(e.boss);if(Math.random()<0.15||e.boss)this.dropHeal(e.sprite.x);this.tweens.add({targets:e.sprite,alpha:0,delay:450,duration:400,onComplete:()=>e.sprite.destroy()});}else if(!e.frozen){e.hurtUntil=this.time.now+450;play(e.sprite,e.id,'hurt');}
+  hitEnemy(e,damage,poison=false){
+    if(e.dead)return false;
+    if(!poison&&!e.frozen&&this.time.now<e.shieldUntil){e.sprite.setTint(0xb5e5ff);this.time.delayedCall(100,()=>{if(e.sprite.active&&!e.frozen)e.sprite.clearTint();});return false;}
+    e.hp-=damage;e.attack=null;e.dash=null;e.busy=0;e.sprite.setTint(e.frozen?0x80e6ff:0xffb3a5);this.time.delayedCall(100,()=>{if(e.sprite.active&&!e.frozen)e.sprite.clearTint();});
+    if(e.hp<=0){
+     e.dead=true;e.sprite.anims.resume();e.sprite.body.moves=true;e.sprite.body.stop();this.kills++;this.score+=scoreFor(e.boss);if(Math.random()<0.15||e.boss)this.dropHeal(e.sprite.x);
+     if(e.id==='Flying eye'){e.fallingDeath=true;e.sprite.body.setAllowGravity(true);e.sprite.play('eye:deathFall');}
+     else{e.sprite.body.enable=false;if(this.anims.exists(`${e.id}:death`))play(e.sprite,e.id,'death');else this.tweens.add({targets:e.sprite,alpha:0,duration:500,onComplete:()=>e.sprite.destroy()});}
+    }else if(!e.frozen){e.hurtUntil=this.time.now+(e.boss?180:450);play(e.sprite,e.id,'hurt');}
+    return true;
  }
  dropHeal(x){const s=this.physics.add.image(x,this.ground-18,'heal').setDepth(25);s.body.setAllowGravity(false);this.heals.push(s);this.tweens.add({targets:s,y:s.y-9,yoyo:true,repeat:-1,duration:650});}
  damage(amount,time){
@@ -182,39 +224,32 @@ class Game extends Phaser.Scene {
  pause(){if(this.finished||!this.scene.isActive())return;this.scene.launch('Overlay',{kind:'pause'});this.scene.pause();}
    end(){this.finished=true;this.cancelAction();this.charge=null;this.meditatingUntil=0;this.hero.setVelocity(0);play(this.hero,this.id,'death');save.record=Math.max(save.record,this.score);persist();this.time.delayedCall(this.hero.anims.currentAnim.duration,()=>{this.scene.launch('Overlay',{kind:'over',score:this.score,wave:this.wave,kills:this.kills});this.scene.pause();});}
  update(time){
-  if(this.finished)return;const c=this.controls.poll(time);if(c.pause){this.pause();return;}
+   if(this.finished)return;const c=this.controls.poll(time);if(c.boss){this.scene.restart({bossWave:(Math.floor(this.wave/5)+1)*5});return;}if(c.pause){this.pause();return;}
   const h=this.hero,grounded=h.body.blocked.down||h.body.touching.down;
     if(c.x&&!this.facingLocked(time))this.facing=Math.sign(c.x);h.setFlipX(this.facing<0);
    this.updateCombat(c,time,grounded);
     if(c.roll&&time>this.rollUntil+850&&grounded&&!this.defenseState&&!this.meditatingUntil){this.cancelAction();this.charge=null;this.hurtUntil=0;this.rollUntil=time+350;this.invincible=time+430;play(h,this.id,'roll');tone(this,300);}
-    const rooted=!!this.defenseState||!!this.meditatingUntil;
-    h.setVelocityX(time<this.rollUntil?this.facing*500:rooted?0:c.x*220*(this.activeAction?0.85:1));
+     const rooted=!!this.defenseState||!!this.meditatingUntil||!!this.activeAction||!!this.charge;
+     h.setVelocityX(time<this.rollUntil?this.facing*500:rooted?0:c.x*220);
     if(c.jump&&grounded&&!rooted&&time>=this.rollUntil){h.setVelocityY(-700);tone(this,480);}
     if(!this.busy(time)&&time>=this.hurtUntil)play(h,this.id,!grounded?(h.body.velocity.y<0?'up':'down'):Math.abs(c.x)>0.1?'move':'idle');
-  for(const e of this.enemies){
-    if(e.dead||!e.sprite.active)continue;
-    if(e.poisonTick<=e.poisonUntil&&time>=e.poisonTick){e.poisonTick+=1000;this.hitEnemy(e,10);if(e.dead)continue;}
-     const s=e.sprite,dx=h.x-s.x,dist=Math.abs(dx);
-    if(e.frozen){if(time<e.frozenUntil)continue;e.frozen=false;s.body.moves=true;s.anims.resume();s.clearTint();}
-    if(time<e.hurtUntil){s.setVelocityX(0);play(s,e.id,'hurt');continue;}
-    if(time<e.busy){s.setVelocityX(0);continue;}
-    s.setFlipX(dx<0);
-   const enemyGrounded=s.body.blocked.down||s.body.touching.down;
-   if(enemyGrounded&&h.y<s.y-45&&dist<480&&time>=e.jumpAt){s.setVelocityY(e.boss?-720:-680);e.jumpAt=time+(e.boss?1800:1200);}
-   if(enemyGrounded&&dist<(e.boss?125:65)&&Math.abs(h.y-s.y)<120&&time>=e.next){
-     this.startEnemyAttack(e,time);
-   }else{ s.setVelocityX(dist>45?Math.sign(dx)*e.speed:0);play(s,e.id,dist>45?'move':'idle'); }
-  }
-   for(const p of this.projectiles){if(!p.s.active)continue;if(time>p.expires||p.s.x<0||p.s.x>W){p.s.destroy();continue;}for(const e of this.enemies){if(!e.dead&&e.sprite.active&&Phaser.Geom.Intersects.RectangleToRectangle(p.s.body,e.sprite.body)){this.impact(p,e);break;}}if(p.s.active&&p.air&&p.s.y>=this.ground-20)this.impact(p,null);}
+   this.updateEnemies(time);
+   for(const p of this.projectiles){
+    if(!p.s.active)continue;if(time>p.expires||p.s.x<0||p.s.x>W){p.s.destroy();continue;}
+    for(const e of this.enemies){if(!e.dead&&e.sprite.active&&Phaser.Geom.Intersects.RectangleToRectangle(p.s.body,e.sprite.body)){this.impact(p,e);break;}}
+    if(p.s.active&&p.air){const floor=this.surfaceBelow(p.s.x,p.previousY+20);if(p.s.y+20>=floor){p.s.y=floor;this.impact(p,null);}p.previousY=p.s.y;}
+   }
   this.projectiles=this.projectiles.filter(p=>p.s.active);
    for(const s of this.heals)if(s.active&&Math.abs(s.x-h.x)<45&&Math.abs(s.y-h.y)<80){this.hp=Math.min(this.maxHp,this.hp+25);tone(this,850);s.destroy();}
   this.heals=this.heals.filter(s=>s.active);this.enemies=this.enemies.filter(e=>e.sprite.active);
    const alive=this.enemies.filter(e=>!e.dead);if(this.wave>0&&this.pending===0&&alive.length===0&&!this.between){this.between=true;this.score+=this.wave*50;this.hp=Math.min(100,this.hp+10);save.record=Math.max(save.record,this.score);persist();this.banner.setText('OLEADA SUPERADA · +10 VIDA');this.time.delayedCall(2800,()=>this.startWave());}
-  const boss=alive.find(e=>e.boss);this.bossHud.setText(boss?`${boss.id}   ${Math.ceil(boss.hp)} / ${boss.max}`:'');
+   const boss=alive.find(e=>e.boss);this.bossHud.setText(boss?`${bosses[boss.id].name}   ${Math.ceil(boss.hp)} / ${boss.max}`:'');
+   this.bossBack.setVisible(!!boss);this.bossFill.setVisible(!!boss);if(boss)this.bossFill.width=794*Math.max(0,boss.hp)/boss.max;
   this.hpFill.width=294*this.hp/this.maxHp;this.hpText.setText(`${Math.ceil(this.hp)} / ${this.maxHp}`);this.scoreHud.setText(`PUNTOS ${this.score}`);this.waveHud.setText(`OLEADA ${this.wave} · ENEMIGOS ${alive.length+this.pending}`);
  }
 }
 Object.assign(Game.prototype,combatMethods);
+Object.assign(Game.prototype,enemyMethods);
 class Overlay extends Phaser.Scene {
  constructor(){super('Overlay');}
  init(data){this.info=data;this.page='main';}
