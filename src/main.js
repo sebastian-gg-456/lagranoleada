@@ -51,6 +51,7 @@ class Load extends Phaser.Scene {
    }
    manifest.maps.forEach((m,i)=>m.layers.forEach((url,j)=>this.load.image(`map${i}:${j}`,`assets/${url}`)));
    this.load.audio('music',`assets/${manifest.music}`);
+   this.load.image('team-photo','assets/equipo/foto.jpeg');
    this.load.spritesheet('buttonsXbox','assets/controles/controller_xbox.png',{frameWidth:16,frameHeight:16});
  }
  create(){
@@ -126,7 +127,13 @@ class Menu extends Phaser.Scene {
     this.calibrationText=text(this,70,260,'Soltá los botones y conectá tu mando.',28).setWordWrapWidth(620).setLineSpacing(15);
   } else {
    title='Créditos';items=[['Volver',()=>this.show('home')]];
-   text(this,80,235,'Juego desarrollado con Phaser 3.\n\nArte: packs Elementals, Monsters Creatures Fantasy,\nForest Monsters, Demon Slime, Frost Guardian,\nMinotaur, Crystal Cave y Parallax Cave.\nMúsica: Japanese Music Pack.\n\nDocumentos originales conservados con los recursos.',21).setLineSpacing(10);
+   text(this,80,215,'Programación\nOpenCode y GitHub Copilot\n\nArte\nchierit · personajes y jefes\nLuizMelo · enemigos\nSlashDashGamesStudio y Seetyaji · cueva\nCraftPix.net · Crystal Cave\nVryell · iconos de controles\n\nMúsica\nMomiziba · MOMIZizm MUSiC\n\nMotor: Phaser 3',21).setLineSpacing(8);
+   const fx=760,fy=330;
+   this.add.rectangle(fx+75,fy+92,150,184,0xd8a55a).setStrokeStyle(3,0xffe3a6);
+   this.add.rectangle(fx+75,fy+92,136,170,0x0d1824);
+   this.add.image(fx+75,fy+92,'team-photo').setDisplaySize(128,156);
+   text(this,fx+170,fy+30,'Líder hermoso y\natractivo del juego',22,'#ffd382').setLineSpacing(6);
+   text(this,fx+170,fy+100,'Sebastian\nGonzales Garcia',24).setLineSpacing(6);
   }
    text(this,760,page==='help'?38:198,title,26,'#ffd382');
    items.forEach(([label,fn],i)=>this.button(760,(page==='help'?80:250)+i*55,label,fn));

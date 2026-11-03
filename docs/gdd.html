@@ -715,6 +715,9 @@
   .team p { font-size:6.8pt; line-height:1.42; color:var(--muted); margin-bottom:2mm; }
   .team .name { font-family:"Palatino Linotype",Georgia,serif; font-size:13pt; color:var(--paper); margin-bottom:.6mm; }
   .team .role { font-family:Consolas,"Courier New",monospace; font-size:5.9pt; letter-spacing:.08em; text-transform:uppercase; color:var(--gold); margin-bottom:2.5mm; }
+  .team .leader { display:flex; gap:3mm; align-items:center; margin-bottom:3mm; }
+  .team .frame { flex:none; width:24mm; padding:1.2mm; background:#0d1824; border:.5mm solid var(--gold); box-shadow:0 0 0 .5mm rgba(226,184,102,.3); }
+  .team .frame img { display:block; width:100%; height:29mm; object-fit:cover; object-position:center top; }
   .team .repo-line { margin-top:2.5mm; padding-top:2mm; border-top:.2mm solid rgba(226,184,102,.14); font-family:Consolas,"Courier New",monospace; font-size:5.9pt; line-height:1.45; color:var(--emerald); word-break:break-all; }
   .resources { padding:4mm; }
   .credit-row { display:grid; grid-template-columns:1fr auto; gap:3mm; padding:1.7mm 0; border-bottom:.2mm solid rgba(226,184,102,.10); }
@@ -1381,10 +1384,15 @@
       <div>
         <div class="team panel">
           <h2>Equipo</h2>
-          <div class="name">Sebastian Gonzales Garcia</div>
-          <div class="role">Diseño · programación · integración · pruebas</div>
-          <p>Proyecto independiente construido sobre Phaser 3 y Vite. La dirección técnica prioriza el combate legible, la estabilidad del mando y la verificación por pruebas de navegador.</p>
-          <p>Documentación, reporte de rondas y capturas forman parte del repositorio de desarrollo.</p>
+          <div class="leader">
+            <div class="frame"><img src="../public/assets/equipo/foto.jpeg" alt="Sebastian Gonzales Garcia"></div>
+            <div>
+              <div class="role">Líder hermoso y atractivo del juego</div>
+              <div class="name">Sebastian Gonzales Garcia</div>
+              <div class="role">Diseño · dirección · pruebas</div>
+            </div>
+          </div>
+          <p>Programación: OpenCode y GitHub Copilot, revisados y corregidos por el líder. Proyecto construido sobre Phaser 3 y Vite.</p>
           <div class="repo-line">github.com/sebastian-gg-456/lagranoleada</div>
         </div>
         <div class="tools">
